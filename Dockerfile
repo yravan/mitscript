@@ -1,7 +1,7 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 LABEL Description="Build environment"
 
-ENV HOME /root
+ENV HOME=/root
 
 SHELL ["/bin/bash", "-c"]
 

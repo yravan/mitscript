@@ -15,14 +15,20 @@ Install the following dependencies on your local system.
 For **archlinux**:
 
 ```sh
-$ pacman -S --needed base-devel git cmake jre-openjdk-headless valgrind
+$ pacman -S --needed base-devel git cmake antlr4 antlr4-runtime
 ```
 
 For **debian**-based systems:
 
 ```sh
-$ apt install build-essential git default-jre libantlr4-runtime-dev flex bison valgrind
+$ apt install build-essential git cmake antlr4 libantlr4-runtime-dev flex bison
+# If using Ubuntu 24.04 or similar, there is a version incompatibility with the
+# provided antlr4. See the last three lines of the Dockerfile for a method of
+# dealing with this (you'll want to uninstall antlr4 as well).
 ```
+
+In both cases, other potentially useful tools in debugging are `time`, `gdb` and
+`valgrind`.
 
 ### Docker
 

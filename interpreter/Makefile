@@ -19,7 +19,7 @@ MITScriptLexer.cpp MITScriptParser.cpp: MITScript.g.intermediate
 .INTERMEDIATE: MITScript.g.intermediate
 
 MITScript.g.intermediate: MITScript.g
-	java -Xmx500M -cp "bin/antlr-4.7.2-complete.jar:${CLASSPATH}" org.antlr.v4.Tool -Dlanguage=Cpp MITScript.g
+	antlr4 -Dlanguage=Cpp MITScript.g
 	sed -i 's/u8//g' MITScript.cpp
 
 clean:

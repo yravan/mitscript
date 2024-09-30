@@ -3,15 +3,12 @@
 
 #include "MITScript.h"
 #include "antlr4-runtime.h"
-#include "src/nonterminals.h"
 
 // Helper function for reporting errors
 void reportError(antlr4::Token &token) {
-  std::stringstream str;
-  str << "Unexpected Symbol (" << token.getLine() << ","
+  std::cout << "Unexpected Symbol (" << token.getLine() << ","
             << token.getCharPositionInLine() << "): " << token.getText()
-            << "\interpreter/parse-tree.cpp ";
-  throw std::runtime_error(str.str());
+            << "\n";
 }
 
 //Helper function for visualizing tokens
@@ -35,30 +32,78 @@ void printTokenStream(MITScript & lexer, antlr4::CommonTokenStream & tokens){
 
 }
 
-ProgramNode * Program(antlr4::CommonTokenStream &tokens){
-  BooleanNode * result = Boolean(tokens);
+bool Constant(antlr4::CommonTokenStream & );// fully implemented
+bool Unit(antlr4::CommonTokenStream&  ); // NOT fully implemented
+bool Product(antlr4::CommonTokenStream & );// fully implemented
+bool ProductPrime(antlr4::CommonTokenStream & );// fully implemented
+bool Arithmetic(antlr4::CommonTokenStream & ); // fully implemented
+bool ArithmeticPrime(antlr4::CommonTokenStream & ); // fully implemented
+bool Statement(antlr4::CommonTokenStream & );
+bool Program(antlr4::CommonTokenStream & );
+
+
+bool Program(antlr4::CommonTokenStream &tokens){
+  bool result = Arithmetic(tokens);
   antlr4::Token * last_token = tokens.get(tokens.index());
   if (last_token->getType() != MITScript::EOF){
-    reportError(*last_token);
+    return false;
   }
-  return new ProgramNode(result);
+  return result;
+}
+
+bool Arithmetic(antlr4::CommonTokenStream &tokens){
+  return Product(tokens) && ArithmeticPrime(tokens);
+}
+bool ArithmeticPrime(antlr4::CommonTokenStream &tokens){
+  antlr4::Token *op_token = tokens.get(tokens.index());
+  switch (op_token->getType()) {
+    case MITScript::PLUS:
+    case MITScript::MINUS: {
+      tokens.consume();
+
+      return Product(tokens) && ArithmeticPrime(tokens);
+    }
+    default: {
+      return true;
+    }
+  }
+  assert(0);
+  return false;
+}
+
+bool Product(antlr4::CommonTokenStream &tokens){
+  return Unit(tokens) && ProductPrime(tokens);
+}
+bool ProductPrime(antlr4::CommonTokenStream &tokens){
+  antlr4::Token *op_token = tokens.get(tokens.index());
+  switch (op_token->getType()) {
+    case MITScript::MUL:
+    case MITScript::DIV: {
+      tokens.consume();
+
+      return Unit(tokens) && ProductPrime(tokens);
+    }
+    default: {
+      return true;
+    }
+  }
+  assert(0);
+  return false;
 }
 
 
-UnitNode * Unit(antlr4::CommonTokenStream &tokens){
+bool Unit(antlr4::CommonTokenStream &tokens){
   // Get token at current index in buffer
   antlr4::Token *token = tokens.get(tokens.index());
-  bool minus = false;
 
   if (token->getType() == MITScript::MINUS) {
     tokens.consume();
-    minus = true;
   }
 
-  return new UnitNode(minus, Constant(tokens));
+  return Constant(tokens);
 }
 
-ConstantNode * Constant(antlr4::CommonTokenStream &tokens){
+bool Constant(antlr4::CommonTokenStream &tokens){
   // Get token at current index in buffer
   antlr4::Token *token = tokens.get(tokens.index());
 
@@ -73,16 +118,18 @@ ConstantNode * Constant(antlr4::CommonTokenStream &tokens){
     // check if token is None constant
     case MITScript::NONE:
       tokens.consume();
-      return new ConstantNode(token);
+      return true;
 
     default: {
       reportError(*token);
-      return NULL;
+      return false;
     }
   }
 
   // We shouldn't reach here
   assert(0);
+
+  return false;
 }
 
 
@@ -109,15 +156,8 @@ int main(int argc, const char *argv[]) {
   tokens.fill();
 
   printTokenStream(lexer , tokens);
-  bool result;
-  try{
-    CSTNode* tree = Program(tokens);
-    std::cout << "CST:    " << tree->to_string() << "\n";
-    result = true;
-  }
-  catch(std::runtime_error){
-    result = false;
-  }
+
+  bool result = Program(tokens);
 
   std::cout << "Parse status: " << result << "\n";
 

@@ -19,6 +19,11 @@ target_include_directories(MITScriptGrammar PUBLIC /usr/include/antlr4-runtime)
 add_library(ParserSources OBJECT
         src/empty.cpp # only here because the source list can't be empty.
         # TODO add your parser files
+        src/CST.cpp
+        src/Arithmetic.cpp
+        src/Boolean.cpp
+        src/ControlFlow.cpp
+        src/Expressions.cpp
         )
 target_link_libraries(ParserSources MITScriptGrammar)
 
@@ -26,8 +31,8 @@ target_link_libraries(ParserSources MITScriptGrammar)
 add_executable(mitscript-parser parser.cpp)
 target_link_libraries(mitscript-parser ParserSources)
 
-add_executable(mitscript-parse-tree parse-tree.cpp)
-target_link_libraries(mitscript-parse-tree MITScriptGrammar)
+# add_executable(mitscript-parse-tree parse-tree.cpp)
+# target_link_libraries(mitscript-parse-tree MITScriptGrammar)
 
 add_executable(mitscript-parser-unique-ptr parser-unique-ptr.cpp)
 target_link_libraries(mitscript-parser-unique-ptr MITScriptGrammar)

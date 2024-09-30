@@ -1,423 +1,786 @@
-#ifndef CST
-#define CST
 #include <iostream>
 #include "antlr4-runtime.h"
+#include "CST.h"
+ExpressionNode::ExpressionNode(FunctionNode* fun_, BooleanNode* boolean_, RecordNode* record_)
+    : fun(fun_), boolean(boolean_), record(record_) {}
 
-void reportError(antlr4::Token &token) {
-  std::stringstream str;
-  str << "Unexpected Symbol (" << token.getLine() << ","
-            << token.getCharPositionInLine() << "): " << token.getText()
-            << "\n";
-  throw std::runtime_error(str.str());
+std::string ExpressionNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ExpressionNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (this->fun != nullptr) {
+        ss << "Expression(" << this->fun->to_string() << ")";
+    }
+    if (this->boolean != nullptr) {
+        ss << "Expression(" << this->boolean->to_string() << ")";
+    }
+    if (this->record != nullptr) {
+        ss << "Expression(" << this->record->to_string() << ")";
+    }
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ExpressionNode::to_string()\n";
+    #endif
+
+    return ss.str();
 }
 
-class CSTNode {
-  public:
-    virtual std::string to_string() = 0;
-};
+// Function to report errors
+void reportError(antlr4::Token& token) {
+    std::stringstream str;
+    str << "Unexpected Symbol (" << token.getLine() << ","
+        << token.getCharPositionInLine() << "): " << token.getText() << "\n";
+    throw std::runtime_error(str.str());
+}
 
-// ConstantNode class
-class ConstantNode : public CSTNode {
-public:
-    ConstantNode(antlr4::Token * token_ ): value(token_) {}
+// ConstantNode constructor
+ConstantNode::ConstantNode(antlr4::Token* token_) : value(token_) {}
 
-    std::string to_string() {
-        std::stringstream ss;
-        ss << "Constant(" << value->getText() << ")";
-        return ss.str();
+std::string ConstantNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ConstantNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Constant(" << value->getText() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ConstantNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// UnitNode constructor
+UnitNode::UnitNode(bool minus_,LHSNode* lhs_, ConstantNode* constant_, CallNode* call_, BooleanNode* boolean_)
+    : minus(minus_), lhs(lhs_), constant(constant_), call(call_), boolean(boolean_) {}
+
+std::string UnitNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering UnitNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Unit(";
+    if (minus) {
+       ss << '-' ;
+    } 
+    if (lhs != nullptr){
+        ss << lhs->to_string() << ")";
+    }
+    if (constant != nullptr){
+        ss << constant->to_string() << ")";
+    }
+    if (call != nullptr){
+        ss << call->to_string() << ")";
+    }
+    if (boolean != nullptr){
+        ss << boolean->to_string() << ")";
     }
 
-private:
-    antlr4::Token * value;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting UnitNode::to_string()\n";
+    #endif
 
-// UnitNode class
-class UnitNode : public CSTNode {
-public:
-    UnitNode(bool minus_, ConstantNode* constant_ ): minus(minus_), constant(constant_) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (minus) {
-            ss << "Unit(" << '-' << "," << constant->to_string() << ")";
-        } else {
-            ss << "Unit(" << constant->to_string() << ")";
-        }
-        return ss.str();
+// ProductPrimeNode constructor
+ProductPrimeNode::ProductPrimeNode(antlr4::Token* op_token_, UnitNode* unit_, ProductPrimeNode* rest_)
+    : op_token(op_token_), unit(unit_), rest(rest_) {}
+
+std::string ProductPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ProductPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "ProductPrime(" << op_token->getText() << "," << unit->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "ProductPrime(" << op_token->getText() << "," << unit->to_string() << ")";
     }
 
-private:
-    bool minus;
-    ConstantNode* constant;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ProductPrimeNode::to_string()\n";
+    #endif
 
-// ProductPrimeNode class
-class ProductPrimeNode : public CSTNode {
-public:
-    ProductPrimeNode(antlr4::Token * op_token_, UnitNode* unit_, ProductPrimeNode* rest_ ): op_token(op_token_), unit(unit_), rest(rest_) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "ProductPrime(" << op_token->getText() << "," << unit->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "ProductPrime(" << op_token->getText() << "," << unit->to_string() << ")";
-        }
-        return ss.str();
+// ProductNode constructor
+ProductNode::ProductNode(UnitNode* unit_, ProductPrimeNode* rest_)
+    : unit(unit_), rest(rest_) {}
+
+std::string ProductNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ProductNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "ProductNode(" << unit->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "ProductNode(" << unit->to_string() << ")";
     }
 
-private:
-    antlr4::Token * op_token;
-    UnitNode* unit;
-    ProductPrimeNode* rest;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ProductNode::to_string()\n";
+    #endif
 
-// ProductNode class
-class ProductNode : public CSTNode {
-public:
-    ProductNode(UnitNode * unit_, ProductPrimeNode* rest_ ): unit(unit_), rest(rest_) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "ProductNode(" << unit->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "ProductNode(" << unit->to_string() << ")";
-        }
-        return ss.str();
+// ArithmeticPrimeNode constructor
+ArithmeticPrimeNode::ArithmeticPrimeNode(antlr4::Token* op_token_, ProductNode* prod_, ArithmeticPrimeNode* rest_)
+    : op_token(op_token_), prod(prod_), rest(rest_) {}
+
+std::string ArithmeticPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ArithmeticPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "ArithmeticPrime(" << op_token->getText() << "," << prod->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "ArithmeticPrime(" << op_token->getText() << "," << prod->to_string() << ")";
     }
 
-private:
-    UnitNode* unit;
-    ProductPrimeNode* rest;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ArithmeticPrimeNode::to_string()\n";
+    #endif
 
-// ArithmeticPrimeNode class
-class ArithmeticPrimeNode : public CSTNode {
-public:
-    ArithmeticPrimeNode(antlr4::Token * op_token_, ProductNode * prod_, ArithmeticPrimeNode* rest_ ): op_token(op_token_), prod(prod_), rest(rest_) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "ArithmeticPrime(" << op_token->getText() << "," << prod->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "ArithmeticPrime(" << op_token->getText() << "," << prod->to_string() << ")";
-        }
-        return ss.str();
+// ArithmeticNode constructor
+ArithmeticNode::ArithmeticNode(ProductNode* prod_, ArithmeticPrimeNode* rest_)
+    : prod(prod_), rest(rest_) {}
+
+std::string ArithmeticNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ArithmeticNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "Arithmetic(" << prod->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "Arithmetic(" << prod->to_string() << ")";
     }
 
-private:
-    antlr4::Token * op_token;
-    ProductNode* prod;
-    ArithmeticPrimeNode* rest;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ArithmeticNode::to_string()\n";
+    #endif
 
-// ArithmeticNode class
-class ArithmeticNode : public CSTNode {
-public:
-    ArithmeticNode(ProductNode * prod_, ArithmeticPrimeNode* rest_ ): prod(prod_), rest(rest_) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "Arithmetic(" << prod->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "Arithmetic(" << prod->to_string() << ")";
-        }
-        return ss.str();
+// PredicateNode constructor
+PredicateNode::PredicateNode(ArithmeticNode* arith_1_, antlr4::Token* cop_token_, ArithmeticNode* arith_2_)
+    : arith_1(arith_1_), cop_token(cop_token_), arith_2(arith_2_) {}
+
+std::string PredicateNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering PredicateNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (cop_token != nullptr && arith_2 != nullptr) {
+        ss << "Predicate(" << arith_1->to_string() << ',' << cop_token->getText() << ',' << arith_2->to_string() << ")";
+    } else {
+        ss << "Predicate(" << arith_1->to_string() << ")";
     }
 
-private:
-    ProductNode* prod;
-    ArithmeticPrimeNode* rest;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting PredicateNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
-class PredicateNode: public CSTNode {
-public:
-    PredicateNode(ArithmeticNode * arith_1_, antlr4::Token * cop_token_, ArithmeticNode * arith_2_ ): arith_1(arith_1_), cop_token(cop_token_), arith_2(arith_2_) {}
+// BoolUnitNode constructor
+BoolUnitNode::BoolUnitNode(bool negate_, PredicateNode* predicate_)
+    : negate(negate_), predicate(predicate_) {}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (cop_token != NULL && arith_2 != NULL) {
-            ss << "Predicate(" << arith_1->to_string() << ',' << cop_token->getText() <<',' << arith_2->to_string() << ")";
-        } else {
-            ss << "Predicate(" << arith_1->to_string() << ")";
-        }
-        return ss.str();
+std::string BoolUnitNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering BoolUnitNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (negate) {
+        ss << "BoolUnit(!," << predicate->to_string() << ")";
+    } else {
+        ss << "BoolUnit(" << predicate->to_string() << ")";
     }
 
-private:
-    ArithmeticNode* arith_1;
-    antlr4::Token * cop_token;
-    ArithmeticNode* arith_2;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting BoolUnitNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
-class BoolUnitNode: public CSTNode {
-public:
-    BoolUnitNode(bool negate_, PredicateNode * predicate_ ): negate(negate_), predicate(predicate_) {}
+// ConjunctionPrimeNode constructor
+ConjunctionPrimeNode::ConjunctionPrimeNode(antlr4::Token* op_token_, BoolUnitNode* bool_unit_, ConjunctionPrimeNode* rest_)
+    : op_token(op_token_), bool_unit(bool_unit_), rest(rest_) {}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (negate) {
-            ss << "BoolUnit(" <<'!' <<',' << predicate->to_string() << ")";
-        } else {
-            ss << "BoolUnit(" << predicate->to_string() << ")";
-        }
-        return ss.str();
+std::string ConjunctionPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ConjunctionPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "ConjunctionPrime(" << op_token->getText() << "," << bool_unit->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "ConjunctionPrime(" << op_token->getText() << "," << bool_unit->to_string() << ")";
     }
 
-private:
-    bool negate ;
-    PredicateNode* predicate;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ConjunctionPrimeNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
-// ConjunctionPrimeNode class
-class ConjunctionPrimeNode : public CSTNode {
-public:
-    ConjunctionPrimeNode(antlr4::Token * op_token_, BoolUnitNode * bool_unit_, ConjunctionPrimeNode* rest_ ): op_token(op_token_), bool_unit(bool_unit_), rest(rest_) {}
+// ConjunctionNode constructor
+ConjunctionNode::ConjunctionNode(BoolUnitNode* bool_unit_, ConjunctionPrimeNode* rest_)
+    : bool_unit(bool_unit_), rest(rest_) {}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "ConjunctionPrime(" << op_token->getText() << "," << bool_unit->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "ConjunctionPrime(" << op_token->getText() << "," << bool_unit->to_string() << ")";
-        }
-        return ss.str();
+std::string ConjunctionNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ConjunctionNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "Conjunction(" << bool_unit->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "Conjunction(" << bool_unit->to_string() << ")";
     }
 
-private:
-    antlr4::Token * op_token;
-    BoolUnitNode* bool_unit;
-    ConjunctionPrimeNode* rest;
-};
-// ConjunctionNode class
-class ConjunctionNode : public CSTNode {
-public:
-    ConjunctionNode(BoolUnitNode * bool_unit_, ConjunctionPrimeNode* rest_ ): bool_unit(bool_unit_), rest(rest_) {}
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ConjunctionNode::to_string()\n";
+    #endif
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "Conjunction(" << bool_unit->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "Conjunction(" << bool_unit->to_string() << ")";
-        }
-        return ss.str();
+    return ss.str();
+}
+// Define PRINT_DEBUG in your build settings or uncomment the next line for testing
+//#define PRINT_DEBUG
+
+// BooleanPrimeNode constructor
+BooleanPrimeNode::BooleanPrimeNode(antlr4::Token* op_token_, ConjunctionNode* conjunction_, BooleanPrimeNode* rest_)
+    : op_token(op_token_), conjunction(conjunction_), rest(rest_) {}
+
+std::string BooleanPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering BooleanPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "BooleanPrime(" << op_token->getText() << "," << conjunction->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "BooleanPrime(" << op_token->getText() << "," << conjunction->to_string() << ")";
     }
 
-private:
-    BoolUnitNode* bool_unit;
-    ConjunctionPrimeNode* rest;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting BooleanPrimeNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
-// BooleanPrimeNode class
-class BooleanPrimeNode : public CSTNode {
-public:
-    BooleanPrimeNode(antlr4::Token * op_token_, ConjunctionNode * conjunction_, BooleanPrimeNode* rest_ ): op_token(op_token_), conjunction(conjunction_), rest(rest_) {}
+// BooleanNode constructor
+BooleanNode::BooleanNode(ConjunctionNode* conjunction_, BooleanPrimeNode* rest_)
+    : conjunction(conjunction_), rest(rest_) {}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "BooleanPrime(" << op_token->getText() << "," << conjunction->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "BooleanPrime(" << op_token->getText() << "," << conjunction->to_string() << ")";
-        }
-        return ss.str();
+std::string BooleanNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering BooleanNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "Boolean(" << conjunction->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "Boolean(" << conjunction->to_string() << ")";
     }
 
-private:
-    antlr4::Token * op_token;
-    ConjunctionNode* conjunction;
-    BooleanPrimeNode* rest;
-};
-// BooleanNode class
-class BooleanNode : public CSTNode {
-public:
-    BooleanNode(ConjunctionNode * conjunction_, BooleanPrimeNode* rest_ ): conjunction(conjunction_), rest(rest_) {}
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting BooleanNode::to_string()\n";
+    #endif
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL) {
-            ss << "Boolean(" << conjunction->to_string() << ',' << rest->to_string() << ")";
-        } else {
-            ss << "Boolean(" << conjunction->to_string() << ")";
-        }
-        return ss.str();
+    return ss.str();
+}
+
+// RecordPrimeNode constructor and to_string method
+RecordPrimeNode::RecordPrimeNode(antlr4::Token* name_, ExpressionNode* expr_, RecordPrimeNode* rest_)
+    : name(name_), expr(expr_), rest(rest_) {}
+
+std::string RecordPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering RecordPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "RecordPrime(" << name->getText() << ',' << expr->to_string() << ',' << rest->to_string() << ')';
+    } else {
+        ss << "RecordPrime(" << name->getText() << ',' << expr->to_string() << ')';
     }
 
-private:
-    ConjunctionNode* conjunction;
-    BooleanPrimeNode* rest;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting RecordPrimeNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
-// ProgramNode class
-class RecordPrimeNode : public CSTNode {
-public:
-    RecordNode(antlr4::Token* name_, ExpressionNode expr_, RecordPrimeNode * rest_): name_(name), expr(expr_), rest(rest_){}
+// RecordNode constructor and to_string method
+RecordNode::RecordNode(RecordPrimeNode* inside_) : inside(inside_) {}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL){
-            ss << "RecordPrime(" << name->getText() << ',' << expr->getText() << ',' << rest->to_string() << ')';
-        }
-        else{
-            ss << "RecordPrime(" << name->getText() << ',' << expr->getText() << ')';
-        }
-        return ss.str();
+std::string RecordNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering RecordNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (inside != nullptr) {
+        ss << "Record(" << inside->to_string() << ")";
+    } else {
+        ss << "Record(" << ")";
     }
 
-private:
-    antlr4::Token* name;
-    ExpressionNode expr;
-    RecordPrimeNode * rest;
-};
-// ProgramNode class
-class RecordNode : public CSTNode {
-public:
-    RecordNode(RecordPrimeNode * inside_): inside(inside_){}
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting RecordNode::to_string()\n";
+    #endif
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (inside != NULL){
-            ss << "Record(" << inside->to_string() << ")";
+    return ss.str();
+}
+
+// LHSPrimeNode constructor and to_string method
+LHSPrimeNode::LHSPrimeNode(antlr4::Token* name_, ExpressionNode* expr_, LHSPrimeNode* rest_)
+    : name(name_), expr(expr_), rest(rest_) {}
+
+std::string LHSPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering LHSPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        if (name != nullptr) {
+            ss << "LHSPrime(" << name->getText() << ',' << rest->to_string() << ')';
         }
-        else{
-            ss << "Record(" << ")";
+        if (expr != nullptr) {
+            ss << "LHSPrime(" << expr->to_string() << ',' << rest->to_string() << ')';
         }
-        return ss.str();
+    } else {
+        if (name != nullptr) {
+            ss << "LHSPrime(" << name->getText()<< ')';
+        }
+        if (expr != nullptr) {
+            ss << "LHSPrime(" << expr->to_string() << ')';
+        }
     }
 
-private:
-    RecordPrimeNode * inside;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting LHSPrimeNode::to_string()\n";
+    #endif
 
-// ProgramNode class
-class LHSPrimeNode : public CSTNode {
-public:
-    LHSNode(antlr4::Token* name_, ExpressionNode expr_, LHSPrimeNode * rest_): name_(name), expr(expr_), rest(rest_){}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (rest != NULL){
-            if (name != NULL){
-                ss << "LHSPrime(" << name->getText() << ',' << rest->to_string() << ')';
+// LHSNode constructor and to_string method
+LHSNode::LHSNode(antlr4::Token* name_, LHSPrimeNode* inside_) : name(name_), inside(inside_) {}
 
-            }
-            if (expr != NULL){
-                ss << "LHSPrime(" << expr->getText() << ',' << rest->to_string() << ')';
+std::string LHSNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering LHSNode::to_string()\n";
+    #endif
 
-            }
-        }
-        else{
-            ss << "LHSPrime(" << name->getText() << ',' << expr->getText() << ')';
-        }
-        return ss.str();
+    std::stringstream ss;
+    if (inside != nullptr) {
+        ss << "LHS(" << name->getText() << ',' << inside->to_string() << ")";
+    } else {
+        ss << "LHS(" << name->getText() << ")";
     }
 
-private:
-    antlr4::Token* name;
-    ExpressionNode expr;
-    LHSPrimeNode * rest;
-};
-// ProgramNode class
-class LHSNode : public CSTNode {
-public:
-    LHSNode(antlr4::Token* name, LHSPrimeNode * inside_): name(name_), inside(inside_){}
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting LHSNode::to_string()\n";
+    #endif
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (inside != NULL){
-            ss << "LHS(" << name->getText() << ',' << inside->to_string() << ")";
-        }
-        else{
-            ss << "LHS(" << name->getText() << ")";
-        }
-        return ss.str();
+    return ss.str();
+}
+
+// ArgumentPrimeNode constructor and to_string method
+ArgumentPrimeNode::ArgumentPrimeNode(antlr4::Token* name_, ArgumentPrimeNode* rest_)
+    : name(name_), rest(rest_) {}
+
+std::string ArgumentPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ArgumentPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "ArgumentPrime(" << name->getText() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "ArgumentPrime(" << name->getText() << ")";
     }
 
-private:
-    antlr4::Token* name;
-    LHSPrimeNode * inside;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ArgumentPrimeNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
+// ArgumentNode constructor and to_string method
+ArgumentNode::ArgumentNode(antlr4::Token* name_, ArgumentPrimeNode* rest_)
+    : name(name_), rest(rest_) {}
 
-// ProgramNode class
-class ExpressionNode : public CSTNode {
-public:
-    ExpressionNode(BooleanNode * fun_, BooleanNode* boolean_, RecordNode * record_ ): fun(fun_), boolean(boolean_), record(record_) {}
+std::string ArgumentNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ArgumentNode::to_string()\n";
+    #endif
 
-    std::string to_string() {
-        std::stringstream ss;
-        if (fun != NULL){
-            ss << "Expression(" << fun->to_string() << ")";
-        }
-        if (boolean != NULL){
-            ss << "Expression(" << boolean->to_string() << ")";
-        }
-        if (record != NULL){
-            ss << "Expression(" << record->to_string() << ")";
-        }
-        return ss.str();
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "Argument(" << name->getText() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "Argument(" << name->getText() << ")";
     }
 
-private:
-    BooleanNode * fun;
-    BooleanNode * boolean;
-    RecordNode * record;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ArgumentNode::to_string()\n";
+    #endif
 
+    return ss.str();
+}
 
+// FunctionNode constructor and to_string method
+FunctionNode::FunctionNode(ArgumentNode* args_, BlockNode* block_) : args(args_), block(block_) {}
 
-// ProgramNode class
-class CallStatementNode : public CSTNode {
-public:
-    CallStatementNode(CalltNode * call_ ): call(call_) {}
+std::string FunctionNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering FunctionNode::to_string()\n";
+    #endif
 
-    std::string to_string() {
-        std::stringstream ss;
-        ss << "CallStatement(" << call->to_string() << ")";
-        return ss.str();
+    std::stringstream ss;
+    if (args != nullptr) {
+        ss << "Function(" << args->to_string() << ',' << block->to_string() << ")";
+    } else {
+        ss << "Function(" << block->to_string() << ")";
     }
 
-private:
-    CalltNode * call;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting FunctionNode::to_string()\n";
+    #endif
 
-// ProgramNode class
-class GlobalNode : public CSTNode {
-public:
-    GlobalNode(antlr4::Token * name_ ): name(name_) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        ss << "Global(" << name->getText() << ")";
-        return ss.str();
+// ReturnNode constructor and to_string method
+ReturnNode::ReturnNode(ExpressionNode* expr_) : expr(expr_) {}
+
+std::string ReturnNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ReturnNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Return(" << expr->to_string() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ReturnNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// WhileNode constructor and to_string method
+WhileNode::WhileNode(ExpressionNode* expr_, BlockNode* block_) : expr(expr_), block(block_) {}
+
+std::string WhileNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering WhileNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "While(" << expr->to_string() << ',' << block->to_string() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting WhileNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// ElseNode constructor and to_string method
+ElseNode::ElseNode(BlockNode* block_) : block(block_) {}
+
+std::string ElseNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ElseNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Else(" << block->to_string() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ElseNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// IfStatementNode constructor and to_string method
+IfStatementNode::IfStatementNode(ExpressionNode* expr_, BlockNode* block_if_, ElseNode* else_block_)
+    : expr(expr_), block_if(block_if_), else_block(else_block_) {}
+
+std::string IfStatementNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering IfStatementNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "If(" << expr->to_string() << ',' << block_if->to_string() << ',' << (else_block != nullptr ? else_block->to_string() : "null") << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting IfStatementNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// BlockPrimeNode constructor and to_string method
+BlockPrimeNode::BlockPrimeNode(StatementNode* statement_, BlockPrimeNode* rest_)
+    : statement(statement_), rest(rest_) {}
+
+std::string BlockPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering BlockPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "BlockPrime(" << statement->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "BlockPrime(" << statement->to_string() << ")";
     }
 
-private:
-    antlr4::Token* name;
-};
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting BlockPrimeNode::to_string()\n";
+    #endif
 
-// ProgramNode class
-class ProgramNode : public CSTNode {
-public:
-    ProgramNode(BooleanNode * node ): child(node) {}
+    return ss.str();
+}
 
-    std::string to_string() {
-        std::stringstream ss;
-        ss << "Program(" << child->to_string() << ")";
-        return ss.str();
+// BlockNode class
+BlockNode::BlockNode(BlockPrimeNode* inside_) : inside(inside_) {}
+
+std::string BlockNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering BlockNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Block(" << (inside != nullptr ? inside->to_string() : "null") << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting BlockNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// ParameterPrimeNode constructor and to_string method
+ParameterPrimeNode::ParameterPrimeNode(ExpressionNode* expr_, ParameterPrimeNode* rest_)
+    : expr(expr_), rest(rest_) {}
+
+std::string ParameterPrimeNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ParameterPrimeNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "ParameterPrime(" << expr->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "ParameterPrime(" << expr->to_string() << ")";
     }
 
-private:
-    BooleanNode* child;
-};
-#endif
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ParameterPrimeNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// ParameterNode constructor and to_string method
+ParameterNode::ParameterNode(ExpressionNode* expr_, ParameterPrimeNode* rest_)
+    : expr(expr_), rest(rest_) {}
+
+std::string ParameterNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ParameterNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (rest != nullptr) {
+        ss << "Parameter(" << expr->to_string() << ',' << rest->to_string() << ")";
+    } else {
+        ss << "Parameter(" << expr->to_string() << ")";
+    }
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ParameterNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// CallNode constructor and to_string method
+CallNode::CallNode(LHSNode* lhs_, ParameterNode* arguments_) : lhs(lhs_), arguments(arguments_) {}
+
+std::string CallNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering CallNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (arguments != nullptr) {
+        ss << "Call(" << lhs->to_string() << ',' << arguments->to_string() << ")";
+    } else {
+        ss << "Call(" << lhs->to_string() << ")";
+    }
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting CallNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// CallStatementNode constructor and to_string method
+CallStatementNode::CallStatementNode(CallNode* call_) : call(call_) {}
+
+std::string CallStatementNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering CallStatementNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "CallStatement(" << call->to_string() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting CallStatementNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// AssignmentNode constructor and to_string method
+AssignmentNode::AssignmentNode(LHSNode* lhs_, ExpressionNode* expr_)
+    : lhs(lhs_), expr(expr_) {}
+
+std::string AssignmentNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering AssignmentNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "AssignmentNode(" << lhs->to_string() << '=' << expr->to_string() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting AssignmentNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// GlobalNode constructor and to_string method
+GlobalNode::GlobalNode(antlr4::Token* name_) : name(name_) {}
+
+std::string GlobalNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering GlobalNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Global(" << name->getText() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting GlobalNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// StatementNode constructor and to_string method
+StatementNode::StatementNode(AssignmentNode* assignment_,
+                             CallStatementNode* callStatement_,
+                             GlobalNode* global_,
+                             IfStatementNode* ifStatement_,
+                             WhileNode* whileLoop_,
+                             ReturnNode* return_)
+    : assignment(assignment_), callStatement(callStatement_),
+      global(global_), ifStatement(ifStatement_), whileLoop(whileLoop_),
+      returnNode(return_) {}
+
+std::string StatementNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering StatementNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    if (assignment != nullptr) {
+        ss << "Statement(" << assignment->to_string() << ")";
+    }
+    if (callStatement != nullptr) {
+        ss << "Statement(" << callStatement->to_string() << ")";
+    }
+    if (global != nullptr) {
+        ss << "Statement(" << global->to_string() << ")";
+    }
+    if (ifStatement != nullptr) {
+        ss << "Statement(" << ifStatement->to_string() << ")";
+    }
+    if (whileLoop != nullptr) {
+        ss << "Statement(" << whileLoop->to_string() << ")";
+    }
+    if (returnNode != nullptr) {
+        ss << "Statement(" << returnNode->to_string() << ")";
+    }
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting StatementNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}
+
+// ProgramNode constructor and to_string method
+ProgramNode::ProgramNode(BlockPrimeNode* child_) : child(child_) {}
+
+std::string ProgramNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering ProgramNode::to_string()\n";
+    #endif
+
+    std::stringstream ss;
+    ss << "Program(" << child->to_string() << ")";
+
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting ProgramNode::to_string()\n";
+    #endif
+
+    return ss.str();
+}

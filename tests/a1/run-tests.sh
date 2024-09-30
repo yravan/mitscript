@@ -1,5 +1,6 @@
 #!/bin/bash
 # >>> ./run-tests.sh public ../../reference/mitscript-parser
+# >>> ./run-tests.sh public ../../cmake-build-grading/interpreter/mitscript-parser
 
 ROOT=".."
 TESTS="$1"

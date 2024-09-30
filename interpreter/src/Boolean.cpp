@@ -1,58 +1,112 @@
 #include "nonterminals.h"
+#include "CST.h"
 
-BooleanPrimeNode* BooleanPrime(antlr4::CommonTokenStream &tokens){
-  antlr4::Token *token = tokens.get(tokens.index());
-  if (token->getType() == MITScript::OR){
-    tokens.consume();
-    return new BooleanPrimeNode(token, Conjunction(tokens), BooleanPrime(tokens));
-  }
-  return NULL;
-}
-
-BooleanNode * Boolean(antlr4::CommonTokenStream &tokens){
-  return new BooleanNode(Conjunction(tokens), BooleanPrime(tokens));
-}
-
-
-ConjunctionPrimeNode* ConjunctionPrime(antlr4::CommonTokenStream &tokens){
-  antlr4::Token *token = tokens.get(tokens.index());
-  if (token->getType() == MITScript::AND){
-    tokens.consume();
-    return new ConjunctionPrimeNode(token, BoolUnit(tokens), ConjunctionPrime(tokens));
-  }
-  return NULL;
-}
-ConjunctionNode * Conjunction(antlr4::CommonTokenStream &tokens){
-  return new ConjunctionNode(BoolUnit(tokens), ConjunctionPrime(tokens));
-}
-
-BoolUnitNode * BoolUnit(antlr4::CommonTokenStream &tokens){
-  antlr4::Token *token = tokens.get(tokens.index());
-  if (token->getType() == MITScript::NOT){
-    tokens.consume();
-    return new BoolUnitNode(true, Predicate(tokens));
-  }
-  return new BoolUnitNode(false, Predicate(tokens));
-  assert(0);
-}
-
-PredicateNode * Predicate(antlr4::CommonTokenStream &tokens){
-  ArithmeticNode* arith_1 = Arithmetic(tokens);
-  antlr4::Token *cop_token = tokens.get(tokens.index());
-  switch (cop_token->getType()) {
-    case MITScript::LT:
-    case MITScript::GT:
-    case MITScript::LE:
-    case MITScript::GE:
-    case MITScript::EQ:{
-      tokens.consume();
-
-      return new PredicateNode(arith_1, cop_token, Arithmetic(tokens));
+BooleanPrimeNode* BooleanPrime(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering BooleanPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    antlr4::Token *token = tokens.get(tokens.index());
+    if (token->getType() == MITScript::OR) {
+        tokens.consume();
+        BooleanPrimeNode* result = new BooleanPrimeNode(token, Conjunction(tokens), BooleanPrime(tokens));
+#ifdef DEBUG
+        std::cout << "Exiting BooleanPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+        return result;
     }
-    default: {
-      return new PredicateNode(arith_1, NULL, NULL);
-    }
-  }
-  assert(0);
+#ifdef DEBUG
+    std::cout << "Exiting BooleanPrime() with nullptr" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    return nullptr;
 }
 
+BooleanNode* Boolean(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering Boolean()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    BooleanNode* result = new BooleanNode(Conjunction(tokens), BooleanPrime(tokens));
+#ifdef DEBUG
+    std::cout << "Exiting Boolean()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    return result;
+}
+
+ConjunctionPrimeNode* ConjunctionPrime(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering ConjunctionPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    antlr4::Token *token = tokens.get(tokens.index());
+    if (token->getType() == MITScript::AND) {
+        tokens.consume();
+        ConjunctionPrimeNode* result = new ConjunctionPrimeNode(token, BoolUnit(tokens), ConjunctionPrime(tokens));
+#ifdef DEBUG
+        std::cout << "Exiting ConjunctionPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+        return result;
+    }
+#ifdef DEBUG
+    std::cout << "Exiting ConjunctionPrime() with nullptr" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    return nullptr;
+}
+
+ConjunctionNode* Conjunction(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering Conjunction()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    ConjunctionNode* result = new ConjunctionNode(BoolUnit(tokens), ConjunctionPrime(tokens));
+#ifdef DEBUG
+    std::cout << "Exiting Conjunction()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    return result;
+}
+
+BoolUnitNode* BoolUnit(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering BoolUnit()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    antlr4::Token *token = tokens.get(tokens.index());
+    if (token->getType() == MITScript::NOT) {
+        tokens.consume();
+        BoolUnitNode* result = new BoolUnitNode(true, Predicate(tokens));
+#ifdef DEBUG
+        std::cout << "Exiting BoolUnit() with NOT" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+        return result;
+    }
+    BoolUnitNode* result = new BoolUnitNode(false, Predicate(tokens));
+#ifdef DEBUG
+    std::cout << "Exiting BoolUnit() with no NOT" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    return result;
+}
+
+PredicateNode* Predicate(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering Predicate()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    ArithmeticNode* arith_1 = Arithmetic(tokens);
+    antlr4::Token *cop_token = tokens.get(tokens.index());
+    switch (cop_token->getType()) {
+        case MITScript::LT:
+        case MITScript::GT:
+        case MITScript::LE:
+        case MITScript::GE:
+        case MITScript::EQ: {
+            tokens.consume();
+            PredicateNode* result = new PredicateNode(arith_1, cop_token, Arithmetic(tokens));
+#ifdef DEBUG
+            std::cout << "Exiting Predicate() with comparison operator" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+            return result;
+        }
+        default: {
+            PredicateNode* result = new PredicateNode(arith_1, nullptr, nullptr);
+#ifdef DEBUG
+            std::cout << "Exiting Predicate() with no comparison operator" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+            return result;
+        }
+    }
+    assert(0);  // This should ideally never be reached
+}

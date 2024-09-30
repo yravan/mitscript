@@ -29,7 +29,7 @@ void printTokenStream(MITScript & lexer, antlr4::CommonTokenStream & tokens){
 }
 
 ProgramNode * Program(antlr4::CommonTokenStream &tokens){
-  BooleanNode * result = Boolean(tokens);
+  BlockPrimeNode * result = BlockPrime(tokens);
   antlr4::Token * last_token = tokens.get(tokens.index());
   if (last_token->getType() != MITScript::EOF){
     reportError(*last_token);
@@ -37,46 +37,6 @@ ProgramNode * Program(antlr4::CommonTokenStream &tokens){
   return new ProgramNode(result);
 }
 
-
-UnitNode * Unit(antlr4::CommonTokenStream &tokens){
-  // Get token at current index in buffer
-  antlr4::Token *token = tokens.get(tokens.index());
-  bool minus = false;
-
-  if (token->getType() == MITScript::MINUS) {
-    tokens.consume();
-    minus = true;
-  }
-
-  return new UnitNode(minus, Constant(tokens));
-}
-
-ConstantNode * Constant(antlr4::CommonTokenStream &tokens){
-  // Get token at current index in buffer
-  antlr4::Token *token = tokens.get(tokens.index());
-
-  switch (token->getType()) {
-    // check if token is integer constant
-    case MITScript::INT:
-    // check if token is string constant
-    case MITScript::STRING:
-    // check if token is boolean constant
-    case MITScript::TRUE:
-    case MITScript::FALSE:
-    // check if token is None constant
-    case MITScript::NONE:
-      tokens.consume();
-      return new ConstantNode(token);
-
-    default: {
-      reportError(*token);
-      return NULL;
-    }
-  }
-
-  // We shouldn't reach here
-  assert(0);
-}
 
 
 int main(int argc, const char *argv[]) {

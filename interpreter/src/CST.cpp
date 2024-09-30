@@ -767,8 +767,32 @@ std::string StatementNode::to_string() {
     return ss.str();
 }
 
+
+StatementListNode::StatementListNode(StatementNode* statement_, StatementListNode* rest_)
+    : statement(statement_), rest(rest_) {}
+
+std::string StatementListNode::to_string() {
+    #ifdef PRINT_DEBUG
+    std::cout << "Entering StatementListNode::to_string()\n";
+    #endif
+    std::string result = "StatementList(";
+
+    if (statement != nullptr) {
+        result += statement->to_string(); // Assuming StatementNode has a to_string() method
+        if (rest != nullptr) {
+            result += ", "; // Add a semicolon if there's a rest
+            result += rest->to_string(); // Recursively call to_string on the rest
+        }
+    }
+    result += ")";
+    #ifdef PRINT_DEBUG
+    std::cout << "Exiting StatementListNode::to_string() with result: " << result << "\n";
+    #endif
+    return result;
+}
+
 // ProgramNode constructor and to_string method
-ProgramNode::ProgramNode(BlockPrimeNode* child_) : child(child_) {}
+ProgramNode::ProgramNode(StatementListNode* child_) : child(child_) {}
 
 std::string ProgramNode::to_string() {
     #ifdef PRINT_DEBUG

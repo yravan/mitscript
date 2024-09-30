@@ -26,3 +26,5 @@ CallNode* Call(antlr4::CommonTokenStream &tokens); // DONE UNTESTED
 RecordNode* Record(antlr4::CommonTokenStream &tokens); // DONE UNTESTED
 ConstantNode* Constant(antlr4::CommonTokenStream &tokens); // DONE
 
+StatementListNode* StatementList(antlr4::CommonTokenStream &tokens);
+

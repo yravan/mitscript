@@ -10,41 +10,43 @@
 #include <stdexcept>
 #include "antlr4-runtime.h"
 #include <iostream>
+// #include "TreeConverter.h"
 
-class ConstantNode;
-class UnitNode;
-class ProductPrimeNode;
-class ProductNode;
-class ArithmeticPrimeNode;
-class ArithmeticNode;
-class PredicateNode;
-class BoolUnitNode;
-class ConjunctionPrimeNode;
-class ConjunctionNode;
-class BooleanPrimeNode;
-class BooleanNode;
-class RecordPrimeNode;
-class RecordNode;
-class LHSPrimeNode;
-class LHSNode;
-class ExpressionNode;
-class ParameterPrimeNode;
-class ParameterNode;
-class CallNode;
-class CallStatementNode;
-class AssignmentNode;
-class GlobalNode;
-class ProgramNode;
-class ReturnNode;
-class FunctionNode;
-class ArgumentNode;
-class ArgumenPrimetNode;
-class WhileNode;
-class IfStatementNode;
-class ElseNode;
-class BlockNode;
-class BlockPrimeNode;
-class StatementNode;
+class ConstantNode; // Converted
+class UnitNode;// Converted
+class ProductPrimeNode;// Converted
+class ProductNode;// Converted
+class ArithmeticPrimeNode;// Converted
+class ArithmeticNode;// Converted
+class PredicateNode;// Converted
+class BoolUnitNode;// Converted
+class ConjunctionPrimeNode;// Converted
+class ConjunctionNode;// Converted
+class BooleanPrimeNode;// Converted
+class BooleanNode;// Converted
+class RecordPrimeNode;// Converted
+class RecordNode;// Converted
+class LHSPrimeNode;// Converted
+class LHSNode;// Converted
+class ExpressionNode;// Converted
+class ParameterPrimeNode;// Converted
+class ParameterNode;// Converted
+class CallNode;// Converted
+class CallStatementNode;/// Converted
+class AssignmentNode;// Converted
+class GlobalNode;// Converted
+class ProgramNode;// Converted
+class ReturnNode;// Converted
+class FunctionNode;// Converted
+class ArgumentNode;// Converted
+class ArgumentPrimetNode;// Converted
+class WhileNode;// Converted
+class IfStatementNode;// Converted
+class ElseNode;// Converted
+class BlockNode;// Converted
+class BlockPrimeNode;// Converted
+class StatementNode;// Converted
+class StatementListNode;// Converted
 
 void reportError(antlr4::Token &token);
 
@@ -52,6 +54,9 @@ void reportError(antlr4::Token &token);
 class CSTNode {
 public:
     virtual std::string to_string() = 0;
+    // void convert(CSTConverter &c) override{
+    //     c.visit(*this);
+    // }
 };
 
 // ExpressionNode class
@@ -61,7 +66,7 @@ public:
     ExpressionNode(FunctionNode* fun_, BooleanNode* boolean_, RecordNode* record_);
     std::string to_string() override;
 
-private:
+
     FunctionNode* fun;
     BooleanNode* boolean;
     RecordNode* record;
@@ -76,7 +81,7 @@ public:
     ConstantNode(antlr4::Token* token_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* value;
 };
 
@@ -86,7 +91,7 @@ public:
     UnitNode(bool minus_,LHSNode* lhs_, ConstantNode* constant_, CallNode* call_, BooleanNode* boolean_);
     std::string to_string() override;
 
-private:
+
     bool minus;
     LHSNode* lhs;
     ConstantNode* constant;
@@ -100,7 +105,7 @@ public:
     ProductPrimeNode(antlr4::Token* op_token_, UnitNode* unit_, ProductPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* op_token;
     UnitNode* unit;
     ProductPrimeNode* rest;
@@ -112,7 +117,7 @@ public:
     ProductNode(UnitNode* unit_, ProductPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     UnitNode* unit;
     ProductPrimeNode* rest;
 };
@@ -122,7 +127,7 @@ public:
     ArithmeticPrimeNode(antlr4::Token* op_token_, ProductNode* prod_, ArithmeticPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* op_token;
     ProductNode* prod;
     ArithmeticPrimeNode* rest;
@@ -134,7 +139,7 @@ public:
     ArithmeticNode(ProductNode* prod_, ArithmeticPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     ProductNode* prod;
     ArithmeticPrimeNode* rest;
 };
@@ -145,7 +150,7 @@ public:
     PredicateNode(ArithmeticNode* arith_1_, antlr4::Token* cop_token_, ArithmeticNode* arith_2_);
     std::string to_string() override;
 
-private:
+
     ArithmeticNode* arith_1;
     antlr4::Token* cop_token;
     ArithmeticNode* arith_2;
@@ -157,7 +162,7 @@ public:
     BoolUnitNode(bool negate_, PredicateNode* predicate_);
     std::string to_string() override;
 
-private:
+
     bool negate;
     PredicateNode* predicate;
 };
@@ -168,7 +173,7 @@ public:
     ConjunctionPrimeNode(antlr4::Token* op_token_, BoolUnitNode* bool_unit_, ConjunctionPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* op_token;
     BoolUnitNode* bool_unit;
     ConjunctionPrimeNode* rest;
@@ -180,7 +185,7 @@ public:
     ConjunctionNode(BoolUnitNode* bool_unit_, ConjunctionPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     BoolUnitNode* bool_unit;
     ConjunctionPrimeNode* rest;
 };
@@ -191,7 +196,7 @@ public:
     BooleanPrimeNode(antlr4::Token* op_token_, ConjunctionNode* conjunction_, BooleanPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* op_token;
     ConjunctionNode* conjunction;
     BooleanPrimeNode* rest;
@@ -203,7 +208,7 @@ public:
     BooleanNode(ConjunctionNode* conjunction_, BooleanPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     ConjunctionNode* conjunction;
     BooleanPrimeNode* rest;
 };
@@ -214,7 +219,7 @@ public:
     RecordPrimeNode(antlr4::Token* name_, ExpressionNode* expr_, RecordPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* name;
     ExpressionNode* expr;
     RecordPrimeNode* rest;
@@ -226,7 +231,7 @@ public:
     RecordNode(RecordPrimeNode* inside_);
     std::string to_string() override;
 
-private:
+
     RecordPrimeNode* inside;
 };
 
@@ -236,7 +241,7 @@ public:
     LHSPrimeNode(antlr4::Token* name_, ExpressionNode* expr_, LHSPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* name;
     ExpressionNode* expr;
     LHSPrimeNode* rest;
@@ -248,7 +253,7 @@ public:
     LHSNode(antlr4::Token* name_, LHSPrimeNode* inside_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* name;
     LHSPrimeNode* inside;
 };
@@ -261,7 +266,7 @@ public:
     ArgumentPrimeNode(antlr4::Token* name_, ArgumentPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* name;
     ArgumentPrimeNode* rest;
 };
@@ -271,7 +276,7 @@ public:
     ArgumentNode(antlr4::Token* name_, ArgumentPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* name;
     ArgumentPrimeNode* rest;
 };
@@ -280,7 +285,7 @@ public:
     FunctionNode(ArgumentNode* args_, BlockNode* block_);
     std::string to_string() override;
 
-private:
+
     ArgumentNode* args;
     BlockNode* block;
 };
@@ -291,7 +296,7 @@ public:
     ReturnNode(ExpressionNode* expr_);
     std::string to_string() override;
 
-private:
+
     ExpressionNode* expr;
 };
 
@@ -301,7 +306,7 @@ public:
     WhileNode(ExpressionNode* expr_, BlockNode* block_);
     std::string to_string() override;
 
-private:
+
     ExpressionNode* expr;
     BlockNode* block;
 };
@@ -312,7 +317,7 @@ public:
     ElseNode(BlockNode* block_);
     std::string to_string() override;
 
-private:
+
     BlockNode* block;
 };
 class IfStatementNode : public CSTNode {
@@ -320,7 +325,7 @@ public:
     IfStatementNode(ExpressionNode* expr_, BlockNode* block_if_, ElseNode* else_block_);
     std::string to_string() override;
 
-private:
+
     ExpressionNode* expr;
     BlockNode* block_if;
     ElseNode* else_block;
@@ -332,7 +337,7 @@ public:
     BlockPrimeNode(StatementNode* statement_, BlockPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     StatementNode* statement;
     BlockPrimeNode* rest;
 };
@@ -343,7 +348,7 @@ public:
     BlockNode(BlockPrimeNode* inside_);
     std::string to_string() override;
 
-private:
+
     BlockPrimeNode* inside;
 };
 
@@ -354,7 +359,7 @@ public:
     ParameterPrimeNode(ExpressionNode* expr_, ParameterPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     ExpressionNode* expr;
     ParameterPrimeNode* rest;
 };
@@ -365,7 +370,7 @@ public:
     ParameterNode(ExpressionNode* expr_, ParameterPrimeNode* rest_);
     std::string to_string() override;
 
-private:
+
     ExpressionNode* expr;
     ParameterPrimeNode* rest;
 };
@@ -376,7 +381,7 @@ public:
     CallNode(LHSNode* lhs_, ParameterNode* arguments_);
     std::string to_string() override;
 
-private:
+
     LHSNode* lhs;
     ParameterNode* arguments;
 };
@@ -387,7 +392,7 @@ public:
     CallStatementNode(CallNode* call_);
     std::string to_string() override;
 
-private:
+
     CallNode* call;
 };
 
@@ -397,7 +402,7 @@ public:
     AssignmentNode(LHSNode* lhs_, ExpressionNode* expr_);
     std::string to_string() override;
 
-private:
+
     LHSNode* lhs;
     ExpressionNode* expr;
 };
@@ -408,7 +413,7 @@ public:
     GlobalNode(antlr4::Token* name_);
     std::string to_string() override;
 
-private:
+
     antlr4::Token* name;
 };
 
@@ -426,7 +431,7 @@ public:
 
     std::string to_string() override;
 
-private:
+
     AssignmentNode* assignment;
     CallStatementNode* callStatement;
     GlobalNode* global;
@@ -438,13 +443,24 @@ private:
 
 
 // ProgramNode class
-class ProgramNode : public CSTNode {
+class StatementListNode : public CSTNode {
 public:
-    ProgramNode(BlockPrimeNode* child_);
+    StatementListNode(StatementNode* statement_, StatementListNode* rest_);
     std::string to_string() override;
 
-private:
-    BlockPrimeNode* child;
+
+    StatementNode* statement;
+    StatementListNode* rest;
+};
+
+// ProgramNode class
+class ProgramNode : public CSTNode {
+public:
+    ProgramNode(StatementListNode* child_);
+    std::string to_string() override;
+
+
+    StatementListNode* child;
 };
 
 #endif // CST_NODES_H

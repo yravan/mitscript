@@ -24,6 +24,8 @@ add_library(ParserSources OBJECT
         src/Boolean.cpp
         src/ControlFlow.cpp
         src/Expressions.cpp
+        # src/TreeConverter.cpp
+        # AST.cpp
         )
 target_link_libraries(ParserSources MITScriptGrammar)
 
@@ -44,5 +46,5 @@ add_library(InterpreterSources OBJECT
         # TODO(phase2) add your interpreter files
         )
 
-add_executable(mitscript interpreter.cpp)
-target_link_libraries(mitscript InterpreterSources ParserSources)
+# add_executable(mitscript interpreter.cpp)
+# target_link_libraries(mitscript InterpreterSources ParserSources)

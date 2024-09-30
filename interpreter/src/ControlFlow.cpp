@@ -223,3 +223,23 @@ StatementNode* Statement(antlr4::CommonTokenStream &tokens) {
     }
     reportError(*token);
 }
+
+
+StatementListNode* StatementList(antlr4::CommonTokenStream &tokens) {
+#ifdef DEBUG
+    std::cout << "Entering StatementList()" << "with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    antlr4::Token *token = tokens.get(tokens.index());
+    if (token->getType() == MITScript::EOF) {
+#ifdef DEBUG
+        std::cout << "Exiting StatementList() with nullptr (EOF)" << "with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+        return nullptr;
+    }
+    auto statement = Statement(tokens);
+    StatementListNode* result = new StatementListNode(statement, StatementList(tokens));
+#ifdef DEBUG
+    std::cout << "Exiting StatementList()" << "with token " << tokens.get(tokens.index())->getText() << std::endl ;
+#endif
+    return result;
+}

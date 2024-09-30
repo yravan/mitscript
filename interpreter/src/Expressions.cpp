@@ -306,7 +306,7 @@ UnitNode* Unit(antlr4::CommonTokenStream &tokens) {
         auto boolean = Boolean(tokens);
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::RPAREN){
-            tokensb.consume();
+            tokens.consume();
             #ifdef DEBUG
                 std::cout << "Exiting Unit()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
             #endif

@@ -1,6 +1,8 @@
 #include <cassert>
 #include <iostream>
+// #include "src/TreeConverter.cpp"
 
+// #include "PrettyPrinter.h"
 #include "MITScript.h"
 #include "antlr4-runtime.h"
 #include "src/nonterminals.h"
@@ -28,8 +30,8 @@ void printTokenStream(MITScript & lexer, antlr4::CommonTokenStream & tokens){
 
 }
 
-ProgramNode * Program(antlr4::CommonTokenStream &tokens){
-  BlockPrimeNode * result = BlockPrime(tokens);
+ProgramNode * ParseProgram(antlr4::CommonTokenStream &tokens){
+  StatementListNode * result = StatementList(tokens);
   antlr4::Token * last_token = tokens.get(tokens.index());
   if (last_token->getType() != MITScript::EOF){
     reportError(*last_token);
@@ -64,7 +66,7 @@ int main(int argc, const char *argv[]) {
   printTokenStream(lexer , tokens);
   bool result;
   try{
-    CSTNode* tree = Program(tokens);
+    CSTNode* tree = ParseProgram(tokens);
     std::cout << "CST:    " << tree->to_string() << "\n";
     result = true;
   }
@@ -74,20 +76,21 @@ int main(int argc, const char *argv[]) {
 
   std::cout << "Parse status: " << result << "\n";
 
-  return (result ? 0 : 1);
 
   // This is a cartoon of the output pattern
   // you should instead expect for your implementation
-#if 0
+    // #if 0
   // Parse the program, producing a Program AST node
-  AST::Program* output = Program(tokens);
+//   CSTConverter converter = CSTConverter();
+//   Program* output = converter.convert(*tree);
 
-  // Create pretty print
-  PrettyPrinter printer;
+//   // Create pretty print
+//   PrettyPrinter printer;
 
-  // Print program
-  program->accept(printer);
+//   // Print program
+//   program->accept(printer);
 
   // return appropriate return code
-#endif
+// #endif
+  return (result ? 0 : 1);
 }

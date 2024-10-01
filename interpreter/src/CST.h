@@ -2,8 +2,8 @@
 #define CST_NODES_H
 
 
-#define DEBUG
-#define PRINT_DEBUG
+// #define DEBUG
+// #define PRINT_DEBUG
 
 #include <string>
 #include <sstream>

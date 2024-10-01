@@ -1,11 +1,15 @@
 #include <cassert>
 #include <iostream>
-// #include "src/TreeConverter.cpp"
+// #define PRETTY_PRINT_DEBUG
+// #define DEBUG
+// #define PRINT_DEBUG
 
-// #include "PrettyPrinter.h"
 #include "MITScript.h"
 #include "antlr4-runtime.h"
 #include "src/nonterminals.h"
+#include "AST.h"
+#include "PrettyPrinter.h"
+#include "src/TreeConverter.cpp"
 
 // Helper function for reporting errors
 
@@ -65,8 +69,9 @@ int main(int argc, const char *argv[]) {
 
   printTokenStream(lexer , tokens);
   bool result;
+  ProgramNode* tree;
   try{
-    CSTNode* tree = ParseProgram(tokens);
+    tree = ParseProgram(tokens);
     std::cout << "CST:    " << tree->to_string() << "\n";
     result = true;
   }
@@ -76,21 +81,15 @@ int main(int argc, const char *argv[]) {
 
   std::cout << "Parse status: " << result << "\n";
 
-
   // This is a cartoon of the output pattern
   // you should instead expect for your implementation
-    // #if 0
   // Parse the program, producing a Program AST node
-//   CSTConverter converter = CSTConverter();
-//   Program* output = converter.convert(*tree);
+  CSTConverter converter = CSTConverter();
+  AST::Program* program = converter.convert(*tree);
 
-//   // Create pretty print
-//   PrettyPrinter printer;
+  PrettyPrinter printer;
 
-//   // Print program
-//   program->accept(printer);
-
-  // return appropriate return code
-// #endif
+  std::cout << "AST:        " << std::endl;
+  program->accept(printer);
   return (result ? 0 : 1);
 }

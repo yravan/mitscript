@@ -57,7 +57,7 @@ ArgumentPrimeNode* ArgumentPrime(antlr4::CommonTokenStream &tokens) {
         antlr4::Token *token_2 = tokens.get(tokens.index());
         if (token_2->getType() == MITScript::NAME) {
             tokens.consume();
-            ArgumentPrimeNode* result = new ArgumentPrimeNode(token, ArgumentPrime(tokens));
+            ArgumentPrimeNode* result = new ArgumentPrimeNode(token_2, ArgumentPrime(tokens));
 #ifdef DEBUG
             std::cout << "Exiting ArgumentPrime()" << "with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif

@@ -24,8 +24,7 @@ add_library(ParserSources OBJECT
         src/Boolean.cpp
         src/ControlFlow.cpp
         src/Expressions.cpp
-        # src/TreeConverter.cpp
-        # AST.cpp
+        src/TreeConverter.cpp
         )
 target_link_libraries(ParserSources MITScriptGrammar)
 

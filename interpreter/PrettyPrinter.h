@@ -1,5 +1,7 @@
 #pragma once
-
+/*
+Written by me
+*/
 #include <iostream>
 #include <string>
 

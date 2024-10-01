@@ -1,3 +1,6 @@
+/*
+Written by me
+*/
 #include <iostream>
 #include "antlr4-runtime.h"
 #include "CST.h"

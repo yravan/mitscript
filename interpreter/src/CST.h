@@ -1,6 +1,8 @@
 #ifndef CST_NODES_H
 #define CST_NODES_H
-
+/*
+Written by me
+*/
 
 // #define DEBUG
 // #define PRINT_DEBUG

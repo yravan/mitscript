@@ -1,3 +1,6 @@
+/*
+Written by me
+*/
 #include "nonterminals.h"
 #include "CST.h"
 

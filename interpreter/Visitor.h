@@ -1,5 +1,7 @@
 #pragma once
-
+/*
+Written by me
+*/
 #include "AST.h"
 
 // You will need to a virtual visitor class with a

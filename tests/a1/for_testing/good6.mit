@@ -1,0 +1,31 @@
+// Valid Parentheses leetcode problem
+
+global string;
+read_input(string);
+
+paren_stack = stack();
+
+i = 0;
+while (i < string.size()){
+    char = string[i];
+    if (char == "}"){
+        if (paren_stack[-1] == "{"){
+            paren_stack.pop();
+        }else{return false;}
+    }
+    if (char == ")"){
+        if (paren_stack[-1] == "("){
+            paren_stack.pop();
+        }else{return false;}
+    }
+    if (char == "]"){
+        if (paren_stack[-1] == "["){
+            paren_stack.pop();
+        }else{return false;}
+    }
+    if (char == "{" | char == "(" | char == "["){
+        paren_stack.append(char);
+    }
+}
+return len(paren_stack) == 0;
+

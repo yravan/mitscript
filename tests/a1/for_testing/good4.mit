@@ -1,0 +1,56 @@
+// rotting oranges leetcode problem
+global grid;
+read_input(grid);
+
+n = len(grid);
+m = len(grid[0]);
+
+queue = arr();
+row = 0;
+column = 0;
+while (row < n){
+    while(column < m){
+        if (grid[row][column] == 2){
+            queue.append({row:row; col:col;});
+        }
+    }
+}
+
+next_queue = arr();
+minutes = 0;
+while (!queue.empty()){
+    minutes = minutes + 1;
+    while(! queue.empty()){
+        node = queue.pop();
+        row = node[row];
+        col = node[col];
+        if (row > 0){
+            if (grid[row - 1][col] == 1){
+                grid[row - 1][col] = 2;
+                next_queue.append({row:row - 1; col:col;});
+            }
+        }
+        if (col > 0){
+            if (grid[row][col - 1] == 1){
+                grid[row][col - 1] = 2;
+                next_queue.append({row:row; col:col - 1;});
+            }
+        }
+        if (row < n - 1){
+            if (grid[row + 1][col] == 1){
+                grid[row + 1][col] = 2;
+                next_queue.append({row:row + 1; col:col;});
+            }
+        }
+        if (col < m - 1){
+            if (grid[row][col + 1] == 1){
+                grid[row][col + 1] = 2;
+                next_queue.append({row:row; col:col + 1;});
+            }
+        }
+    }
+    queue = next_queue.copy();
+    next_queue.clear();
+}
+return minutes - 1;
+

@@ -1,5 +1,4 @@
-#ifndef CST_NODES_H
-#define CST_NODES_H
+#pragma once
 /*
 Written by me
 */
@@ -12,7 +11,6 @@ Written by me
 #include <stdexcept>
 #include "antlr4-runtime.h"
 #include <iostream>
-// #include "TreeConverter.h"
 
 class ConstantNode; // Converted
 class UnitNode;// Converted
@@ -465,5 +463,4 @@ public:
     StatementListNode* child;
 };
 
-#endif // CST_NODES_H
 

@@ -1,0 +1,42 @@
+// kth largest element leetcode problem 
+
+global k;
+global arr;
+
+read_input(arr, k);
+
+
+pivot = fun(start_ind, end_ind){
+            piv = rand_int(start_ind, end_ind + 1);
+            temp = arr[piv];
+            arr[piv] = arr[start_ind];
+            arr[start_ind] = temp;
+            piv = start_ind;
+
+            lo = start_ind + 1;
+            hi = end_ind;
+            while (lo <= hi){
+                if (arr[piv] >= arr[lo]){
+                    lo = lo + 1;
+                }else{
+                    temp = arr[hi];
+                    arr[hi] = arr[lo];
+                    arr[lo] = temp;
+                    hi = hi - 1;
+                }
+            }
+            temp = arr[hi];
+            arr[hi] = arr[piv];
+            arr[piv] = temp;
+            return hi;
+        };
+
+
+quickselect = fun(start, end, num){
+                ind = pivot(start,end);
+                if (end - ind == num){
+                    return ind;
+                }
+            };
+
+return quickselect(0, len(arr) - 1, k);

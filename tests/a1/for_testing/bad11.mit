@@ -1,0 +1,30 @@
+// error: line 27: missing operator
+twoSum = fun(arr, target){
+            i = 0;
+            hash_map = {};
+            while (i < len(target)){
+                if (hash_map.exists(target - i)){
+                    return true;
+                }
+                hash_map.add(i);
+            }
+            return false;
+        };
+test_array = create_arr(10);
+test_array[0] = 10;
+test_array[1] = 15;
+test_array[2] = 1;
+test_array[3] = 13;
+test_array[4] = 14;
+test_array[5] = 3;
+test_array[6] = 10;
+test_array[7] = 48;
+test_array[8] = 9;
+test_array[9] = 0;
+
+
+
+print("inputs: "  str({arr: test_array; target:100;}), "output: ", twoSum(test_array, 100)); 
+print("inputs: " + str({arr: test_array; target:24;}), "output: ", twoSum(test_array, 24)); 
+print("inputs: " + str({arr: test_array; target:5;}), "output: ", twoSum(test_array, 5)); 
+print("inputs: " + str({arr: test_array; target:27;}), "output: ", twoSum(test_array, 7)); 

@@ -1,0 +1,25 @@
+// Merge k Sorted Lists leetcode problem 
+
+solution = fun (lists, k){
+                merged_list = LinkedList();
+                head = merged_list;
+                heap = Heap();
+                i = 0;
+                while (i < k){ heap.push(lists[k].val, lists[k]); i = i + 1;}
+                
+                while (! heap.empty()){
+                    val = heap[0][0];
+                    node = heap[0][1];
+                    heap.pop();
+                    merged_list.next = node;
+                    merged_list = node;
+                    if (node.next){
+                        heap.push(node.next.val, node.next);
+                    }
+                }
+                return head.next;
+            };
+
+
+
+

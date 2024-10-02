@@ -52,7 +52,7 @@ class PrettyPrinter : public Visitor {
             }
             indent_level -= 1;
             indent();
-            std::cout << "}";
+            std::cout << "}" ;
         }
         void visit(const AST::Global& node) override{
             indent();
@@ -60,16 +60,10 @@ class PrettyPrinter : public Visitor {
         }
         void visit(const AST::Assignment& node) override {
             indent();
-            std::cout << "(";
-            std::cout << "(";
             node.lhs->accept(*this);  // Use accept to dispatch the correct visit method
-            std::cout << ")";
             std::cout << " = ";
-            std::cout << "(";
             node.expr->accept(*this);
-            std::cout << ")";
             std::cout << ";";
-            std::cout << ")";
         }
         void visit(const AST::CallStatement& node) override {
             indent();
@@ -100,9 +94,7 @@ class PrettyPrinter : public Visitor {
         void visit(const AST::Return& node) override {
             indent();
             std::cout << "return ";
-            std::cout << "(";
             node.expr->accept(*this);  // Use accept for the expression
-            std::cout << ")";
             std::cout << ";";
         }
 
@@ -117,7 +109,7 @@ class PrettyPrinter : public Visitor {
         }
 
         void visit(const AST::BinaryExpression& node) override {
-            std::cout << "(";
+            std::cout << "("; 
             node.left->accept(*this);  // Use accept for the left operand
             std::cout << " " << node.op << " ";
             node.right->accept(*this);  // Use accept for the right operand
@@ -137,16 +129,12 @@ class PrettyPrinter : public Visitor {
         }
 
         void visit(const AST::FieldDereference& node) override {
-            std::cout << "(";
             node.baseExpr->accept(*this);  // Use accept for the base expression
-            std::cout << ")";
             std::cout << "." << node.field;  // Print the field name
         }
 
         void visit(const AST::IndexExpression& node) override {
-            std::cout << "(";
             node.baseExpr->accept(*this);  // Use accept for the base expression
-            std::cout << ")";
             std::cout << "[";
             node.index->accept(*this);  // Use accept for the index expression
             std::cout << "]";
@@ -164,15 +152,17 @@ class PrettyPrinter : public Visitor {
 
         void visit(const AST::Record& node) override {
             std::cout << "{";
-            // std::cout << std::endl;
+            std::cout << std::endl;
+            indent_level += 1;
             bool first = true;
             for ( auto& field : node.fields) {
-                if (!first) std::cout << ", ";
-                // std::cout << "\n ";
+                indent();
                 std::cout << field.first << ": ";  // Print the field name
                 field.second->accept(*this);  // Use accept for the field value
-                first = false;
+                std::cout << ";" << std::endl;
             }
+            indent_level -= 1;
+            indent();
             std::cout << "}";
         }
 
@@ -194,6 +184,7 @@ class PrettyPrinter : public Visitor {
 
         void visit(const AST::Program& node) override {
             node.mainBlock->accept(*this);  // Use accept for the main block of the program
+            std :: cout << std::endl;
         }
 
 

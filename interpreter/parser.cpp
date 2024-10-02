@@ -17,34 +17,58 @@ Written by me
 // Helper function for reporting errors
 
 //Helper function for visualizing tokens
-void printTokenStream(MITScript & lexer, antlr4::CommonTokenStream & tokens){
-  // Print source as text
-  std::cout << "source: " << tokens.getText() << "\n";
 
-  // Print the tokens
-  std::cout << "tokens: ";
 
-  const auto &vocab = lexer.getVocabulary();
-  for (size_t i = 0; i < tokens.size(); ++i) {
-    if (i != 0) {
-      std::cout << " ";
+
+class Parser{
+public:
+    void printTokenStream(MITScript & lexer, antlr4::CommonTokenStream & tokens){
+    // Print source as text
+    std::cout << "source: " << tokens.getText() << "\n";
+
+    // Print the tokens
+    std::cout << "tokens: ";
+
+    const auto &vocab = lexer.getVocabulary();
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        if (i != 0) {
+        std::cout << " ";
+        }
+
+        const auto token = tokens.get(i);
+        std::cout << vocab.getSymbolicName(token->getType());
+    }
+    std::cout << "\n";
+
     }
 
-    const auto token = tokens.get(i);
-    std::cout << vocab.getSymbolicName(token->getType());
-  }
-  std::cout << "\n";
+    AST::Program * ParseProgram(antlr4::CommonTokenStream & tokens){
+        AST::Program * result = nullptr;
+        ProgramNode* cst_tree;
+        try{
+            cst_tree = Program(tokens);
+#ifdef DEBUG
+            std::cout << "------------------------------------" << std::endl;
+            std::cout << "CST:    " << cst_tree->to_string() << "\n";
+#endif
 
-}
+            CSTConverter converter = CSTConverter();
+            AST::Program* program = converter.convert(*cst_tree);
 
-ProgramNode * ParseProgram(antlr4::CommonTokenStream &tokens){
-  StatementListNode * result = StatementList(tokens);
-  antlr4::Token * last_token = tokens.get(tokens.index());
-  if (last_token->getType() != MITScript::EOF){
-    reportError(*last_token);
-  }
-  return new ProgramNode(result);
-}
+            PrettyPrinter printer;
+
+            std::cout << "AST:        " << std::endl;
+            program->accept(printer);
+
+            result = program;
+        }
+        catch(const std::runtime_error& err){
+            std::cout << err.what();
+        }
+        return result;
+    }
+
+};
 
 
 
@@ -70,29 +94,21 @@ int main(int argc, const char *argv[]) {
   // Load all tokens within the file to a buffer
   tokens.fill();
 
-  printTokenStream(lexer , tokens);
-  bool result;
-  ProgramNode* tree;
-  try{
-    tree = ParseProgram(tokens);
-    std::cout << "CST:    " << tree->to_string() << "\n";
-    result = true;
-  }
-  catch(std::runtime_error){
-    result = false;
-  }
+  Parser parser;
+#ifdef DEBUG
+  std::cout << "------------------------------------" << std::endl;
+  parser.printTokenStream(lexer , tokens);
+#endif
+
+  AST::Program * program = parser.ParseProgram(tokens);
+
+  int result = (program == nullptr? 0:1);
+
 
   std::cout << "Parse status: " << result << "\n";
 
   // This is a cartoon of the output pattern
   // you should instead expect for your implementation
   // Parse the program, producing a Program AST node
-  CSTConverter converter = CSTConverter();
-  AST::Program* program = converter.convert(*tree);
-
-  PrettyPrinter printer;
-
-  std::cout << "AST:        " << std::endl;
-  program->accept(printer);
   return (result ? 0 : 1);
 }

@@ -33,7 +33,7 @@ std::string ExpressionNode::to_string() {
 // Function to report errors
 void reportError(antlr4::Token& token) {
     std::stringstream str;
-    str << "Unexpected Symbol (" << token.getLine() << ","
+    str << "Unexpected Symbol (Line " << token.getLine() << ", Position "
         << token.getCharPositionInLine() << "): " << token.getText() << "\n";
     throw std::runtime_error(str.str());
 }

@@ -246,3 +246,12 @@ StatementListNode* StatementList(antlr4::CommonTokenStream &tokens) {
 #endif
     return result;
 }
+
+ProgramNode * Program(antlr4::CommonTokenStream &tokens){
+  StatementListNode * result = StatementList(tokens);
+  antlr4::Token * last_token = tokens.get(tokens.index());
+  if (last_token->getType() != MITScript::EOF){
+    reportError(*last_token);
+  }
+  return new ProgramNode(result);
+}

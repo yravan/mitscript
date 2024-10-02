@@ -4,7 +4,7 @@ include_directories(.)
 # generate the grammar cpp file
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/MITScript.cpp
-        COMMAND java -Xmx500M -cp "bin/antlr-4.7.2-complete.jar:${CLASSPATH}" org.antlr.v4.Tool -Dlanguage=Cpp MITScript.g
+        COMMAND antlr4 -Dlanguage=Cpp MITScript.g
         COMMAND sed -i 's/u8//g' MITScript.cpp
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         DEPENDS MITScript.g
@@ -12,8 +12,8 @@ add_custom_command(
 
 # Grammar library
 add_library(MITScriptGrammar MITScript.cpp)
-target_link_libraries(MITScriptGrammar ${CMAKE_CURRENT_LIST_DIR}/lib/libantlr4-runtime.a)
-target_include_directories(MITScriptGrammar PUBLIC include)
+target_link_libraries(MITScriptGrammar ${CMAKE_SYSROOT}/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/libantlr4-runtime.a)
+target_include_directories(MITScriptGrammar PUBLIC /usr/include/antlr4-runtime)
 
 # Parser sources
 add_library(ParserSources OBJECT

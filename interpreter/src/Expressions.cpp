@@ -173,7 +173,9 @@ ParameterPrimeNode* ParameterPrime(antlr4::CommonTokenStream &tokens) {
     antlr4::Token *token = tokens.get(tokens.index());
     if (token->getType() == MITScript::COMMA) {
         tokens.consume();
-        ParameterPrimeNode* result = new ParameterPrimeNode(Expression(tokens), ParameterPrime(tokens));
+        auto expr = Expression(tokens);
+        auto rest = ParameterPrime(tokens);
+        ParameterPrimeNode* result = new ParameterPrimeNode(expr, rest);
 #ifdef DEBUG
         std::cout << "Exiting ParameterPrime()" << "with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -193,7 +195,9 @@ ParameterNode* Parameter(antlr4::CommonTokenStream &tokens) {
     if (token->getType() == MITScript::RPAREN) {
         return nullptr;
     }
-    ParameterNode* result = new ParameterNode(Expression(tokens), ParameterPrime(tokens));
+    auto expr = Expression(tokens);
+    auto rest = ParameterPrime(tokens);
+    ParameterNode* result = new ParameterNode(expr, rest);
 #ifdef DEBUG
     std::cout << "Exiting Parameter()" << "with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif

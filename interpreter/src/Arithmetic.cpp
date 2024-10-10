@@ -13,7 +13,9 @@ ArithmeticPrimeNode* ArithmeticPrime(antlr4::CommonTokenStream &tokens) {
         case MITScript::PLUS:
         case MITScript::MINUS: {
             tokens.consume();
-            ArithmeticPrimeNode* result = new ArithmeticPrimeNode(op_token, Product(tokens), ArithmeticPrime(tokens));
+            auto product = Product(tokens);
+            auto rest = ArithmeticPrime(tokens);
+            ArithmeticPrimeNode* result = new ArithmeticPrimeNode(op_token, product, rest);
 #ifdef DEBUG
             std::cout << "Exiting ArithmeticPrime() with operator: " << op_token->getText() << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -33,7 +35,9 @@ ArithmeticNode* Arithmetic(antlr4::CommonTokenStream &tokens) {
 #ifdef DEBUG
     std::cout << "Entering Arithmetic()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
-    ArithmeticNode* result = new ArithmeticNode(Product(tokens), ArithmeticPrime(tokens));
+    auto prod = Product(tokens);
+    auto rest = ArithmeticPrime(tokens);
+    ArithmeticNode* result = new ArithmeticNode(prod, rest);
 #ifdef DEBUG
     std::cout << "Exiting Arithmetic()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -49,7 +53,9 @@ ProductPrimeNode* ProductPrime(antlr4::CommonTokenStream &tokens) {
         case MITScript::MUL:
         case MITScript::DIV: {
             tokens.consume();
-            ProductPrimeNode* result = new ProductPrimeNode(op_token, Unit(tokens), ProductPrime(tokens));
+            auto unit = Unit(tokens);
+            auto rest = ProductPrime(tokens);
+            ProductPrimeNode* result = new ProductPrimeNode(op_token, unit, rest);
 #ifdef DEBUG
             std::cout << "Exiting ProductPrime() with operator: " << op_token->getText() << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -69,7 +75,9 @@ ProductNode* Product(antlr4::CommonTokenStream &tokens) {
 #ifdef DEBUG
     std::cout << "Entering Product()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
-    ProductNode* result = new ProductNode(Unit(tokens), ProductPrime(tokens));
+    auto unit = Unit(tokens);
+    auto rest = ProductPrime(tokens);
+    ProductNode* result = new ProductNode(unit, rest);
 #ifdef DEBUG
     std::cout << "Exiting Product()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif

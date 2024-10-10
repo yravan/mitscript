@@ -11,7 +11,9 @@ BooleanPrimeNode* BooleanPrime(antlr4::CommonTokenStream &tokens) {
     antlr4::Token *token = tokens.get(tokens.index());
     if (token->getType() == MITScript::OR) {
         tokens.consume();
-        BooleanPrimeNode* result = new BooleanPrimeNode(token, Conjunction(tokens), BooleanPrime(tokens));
+        auto conjunction = Conjunction(tokens);
+        auto rest = BooleanPrime(tokens);
+        BooleanPrimeNode* result = new BooleanPrimeNode(token,conjunction,rest);
 #ifdef DEBUG
         std::cout << "Exiting BooleanPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -27,7 +29,9 @@ BooleanNode* Boolean(antlr4::CommonTokenStream &tokens) {
 #ifdef DEBUG
     std::cout << "Entering Boolean()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
-    BooleanNode* result = new BooleanNode(Conjunction(tokens), BooleanPrime(tokens));
+    auto conjunction = Conjunction(tokens);
+    auto rest = BooleanPrime(tokens);
+    BooleanNode* result = new BooleanNode(conjunction,rest);
 #ifdef DEBUG
     std::cout << "Exiting Boolean()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -41,7 +45,9 @@ ConjunctionPrimeNode* ConjunctionPrime(antlr4::CommonTokenStream &tokens) {
     antlr4::Token *token = tokens.get(tokens.index());
     if (token->getType() == MITScript::AND) {
         tokens.consume();
-        ConjunctionPrimeNode* result = new ConjunctionPrimeNode(token, BoolUnit(tokens), ConjunctionPrime(tokens));
+        auto bool_unit = BoolUnit(tokens);
+        auto rest = ConjunctionPrime(tokens);
+        ConjunctionPrimeNode* result = new ConjunctionPrimeNode(token, bool_unit, rest);
 #ifdef DEBUG
         std::cout << "Exiting ConjunctionPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
@@ -57,7 +63,9 @@ ConjunctionNode* Conjunction(antlr4::CommonTokenStream &tokens) {
 #ifdef DEBUG
     std::cout << "Entering Conjunction()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif
-    ConjunctionNode* result = new ConjunctionNode(BoolUnit(tokens), ConjunctionPrime(tokens));
+    auto bool_unit = BoolUnit(tokens);
+    auto rest = ConjunctionPrime(tokens);
+    ConjunctionNode* result = new ConjunctionNode(bool_unit, rest);
 #ifdef DEBUG
     std::cout << "Exiting Conjunction()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
 #endif

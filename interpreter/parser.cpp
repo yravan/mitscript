@@ -3,9 +3,6 @@ Written by me
 */
 #include <cassert>
 #include <iostream>
-// #define PRETTY_PRINT_DEBUG
-// #define DEBUG
-// #define PRINT_DEBUG
 
 #include "MITScript.h"
 #include "antlr4-runtime.h"
@@ -107,8 +104,5 @@ int main(int argc, const char *argv[]) {
 
   std::cout << "Parse status: " << result << "\n";
 
-  // This is a cartoon of the output pattern
-  // you should instead expect for your implementation
-  // Parse the program, producing a Program AST node
   return (result ? 0 : 1);
 }

@@ -3,8 +3,11 @@
 Written by me
 */
 
-// #define DEBUG
-// #define PRINT_DEBUG
+#ifdef DEBUG
+#define DEBUG_PRINT(x) (std::cout<<x<<std::endl)
+#else
+#define DEBUG_PRINT(x) do{} while(0)
+#endif
 
 #include <string>
 #include <sstream>

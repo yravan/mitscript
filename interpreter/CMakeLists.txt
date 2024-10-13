@@ -17,8 +17,6 @@ target_include_directories(MITScriptGrammar PUBLIC /usr/include/antlr4-runtime)
 
 # Parser sources
 add_library(ParserSources OBJECT
-        src/empty.cpp # only here because the source list can't be empty.
-        # TODO add your parser files
         src/CST.cpp
         src/Arithmetic.cpp
         src/Boolean.cpp

@@ -5,9 +5,8 @@ Written by me
 #include "CST.h"
 
 ArithmeticPrimeNode* ArithmeticPrime(antlr4::CommonTokenStream &tokens) {
-#ifdef DEBUG
-    std::cout << "Entering ArithmeticPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Entering ArithmeticPrime() with token " + tokens.get(tokens.index())->getText());
+    ArithmeticPrimeNode* result = nullptr;
     antlr4::Token *op_token = tokens.get(tokens.index());
     switch (op_token->getType()) {
         case MITScript::PLUS:
@@ -15,80 +14,52 @@ ArithmeticPrimeNode* ArithmeticPrime(antlr4::CommonTokenStream &tokens) {
             tokens.consume();
             auto product = Product(tokens);
             auto rest = ArithmeticPrime(tokens);
-            ArithmeticPrimeNode* result = new ArithmeticPrimeNode(op_token, product, rest);
-#ifdef DEBUG
-            std::cout << "Exiting ArithmeticPrime() with operator: " << op_token->getText() << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+            result = new ArithmeticPrimeNode(op_token, product, rest);
             return result;
         }
-        default: {
-#ifdef DEBUG
-            std::cout << "Exiting ArithmeticPrime() with nullptr" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
-            return nullptr;
-        }
     }
-    assert(0);
+    DEBUG_PRINT("Exiting ArithmeticPrime() with operator: " + op_token->getText() + " with token " + tokens.get(tokens.index())->getText());
+    return result;
 }
 
 ArithmeticNode* Arithmetic(antlr4::CommonTokenStream &tokens) {
-#ifdef DEBUG
-    std::cout << "Entering Arithmetic()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Entering Arithmetic() with token " + tokens.get(tokens.index())->getText());
     auto prod = Product(tokens);
     auto rest = ArithmeticPrime(tokens);
     ArithmeticNode* result = new ArithmeticNode(prod, rest);
-#ifdef DEBUG
-    std::cout << "Exiting Arithmetic()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Exiting Arithmetic() with token " + tokens.get(tokens.index())->getText());
     return result;
 }
 
 ProductPrimeNode* ProductPrime(antlr4::CommonTokenStream &tokens) {
-#ifdef DEBUG
-    std::cout << "Entering ProductPrime()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Entering ProductPrime() with token " + tokens.get(tokens.index())->getText());
     antlr4::Token *op_token = tokens.get(tokens.index());
+    ProductPrimeNode* result = nullptr;
     switch (op_token->getType()) {
         case MITScript::MUL:
-        case MITScript::DIV: {
+        case MITScript::DIV: 
             tokens.consume();
             auto unit = Unit(tokens);
             auto rest = ProductPrime(tokens);
-            ProductPrimeNode* result = new ProductPrimeNode(op_token, unit, rest);
-#ifdef DEBUG
-            std::cout << "Exiting ProductPrime() with operator: " << op_token->getText() << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+            result = new ProductPrimeNode(op_token, unit, rest);
             return result;
-        }
-        default: {
-#ifdef DEBUG
-            std::cout << "Exiting ProductPrime() with nullptr" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
-            return nullptr;
-        }
     }
-    assert(0);
+    DEBUG_PRINT("Exiting ProductPrime() with operator: " + op_token->getText() + " with token " + tokens.get(tokens.index())->getText());
+    return result;
 }
 
 ProductNode* Product(antlr4::CommonTokenStream &tokens) {
-#ifdef DEBUG
-    std::cout << "Entering Product()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Entering Product() with token " + tokens.get(tokens.index())->getText());
     auto unit = Unit(tokens);
     auto rest = ProductPrime(tokens);
     ProductNode* result = new ProductNode(unit, rest);
-#ifdef DEBUG
-    std::cout << "Exiting Product()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Exiting Product() with token " + tokens.get(tokens.index())->getText());
     return result;
 }
 
 
 ConstantNode* Constant(antlr4::CommonTokenStream &tokens) {
-#ifdef DEBUG
-    std::cout << "Entering Constant()" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+    DEBUG_PRINT("Entering Constant() with token " + tokens.get(tokens.index())->getText());
     antlr4::Token *token = tokens.get(tokens.index());
     ConstantNode* result;
     switch (token->getType()) {
@@ -99,19 +70,12 @@ ConstantNode* Constant(antlr4::CommonTokenStream &tokens) {
         case MITScript::NONE: 
             tokens.consume();
             result = new ConstantNode(token);
-#ifdef DEBUG
-            std::cout << "Exiting Constant() with token: " << token->getText() << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
+            DEBUG_PRINT("Exiting Constant() with token " + tokens.get(tokens.index())->getText());
             return result;
         
         default: {
-#ifdef DEBUG
-            std::cout << "Exiting Constant() with error" << " with token " << tokens.get(tokens.index())->getText() << std::endl ;
-#endif
             reportError(*token);
-            return nullptr;
         }
     }
-
-    assert(0); // This should ideally never be reached
+    return nullptr;
 }

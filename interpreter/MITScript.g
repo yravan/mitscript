@@ -48,9 +48,8 @@ SEMICOLON: ';' ;
 COMMA    : ',' ;
 
 // Constants
-STRING : '"' (ESC | INVALID_ESC | ~["\\])* '"' ;
+STRING : '"' (ESC | '\\' ~[\\n"t] . { throw std::runtime_error("Invalid escape sequence detected"); }  | ~["\\])* '"' ;
 fragment ESC        : '\\' [\\n"t] ;
-fragment INVALID_ESC: '\\' ~[\\n"t] { throw std::runtime_error("Invalid character detected"); } ;
 
 // Boolean literals
 TRUE     : 'true' ;

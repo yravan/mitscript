@@ -15,7 +15,11 @@ public:
     AST::Program* convert(const ProgramNode& programNode) {
         DEBUG_PRINT("Entering: convert(ProgramNode)");
         DEBUG_PRINT("Exiting: convert(ProgramNode)");
-        return new AST::Program(convert(*programNode.child));
+        if (programNode.child != nullptr){
+            return new AST::Program(convert(*programNode.child));
+        }else{
+            return new AST::Program(nullptr);
+        }
     }
 
     AST::Block* convert(const StatementListNode& statementListNode) {

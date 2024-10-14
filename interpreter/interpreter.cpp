@@ -4,10 +4,24 @@
 #include "AST.h"
 #include "MITScript.h"
 #include "antlr4-runtime.h"
+#include "src/TreeConverter.cpp"
+#include "src/nonterminals.h"
+#include "PrettyPrinter.h"
 
-Program *ParseProgram(antlr4::CommonTokenStream &tokens) {
-  // Call your parse here instead
-  return nullptr;
+AST::Program *ParseProgram(antlr4::CommonTokenStream &tokens) {
+  AST::Program * result = nullptr;
+    ProgramNode* cst_tree;
+    try{
+        cst_tree = Program(tokens);
+        DEBUG_PRINT("------------------------------------" + std::endl + "CST:    " + cst_tree->to_string() + std::endl);
+        CSTConverter converter = CSTConverter();
+        AST::Program* program = converter.convert(*cst_tree);
+        result = program;
+    }
+    catch(const std::runtime_error& err){
+        std::cout << err.what();
+    }
+    return result;
 }
 
 int main(int argc, const char *argv[]) {
@@ -34,7 +48,7 @@ int main(int argc, const char *argv[]) {
   // Load all tokens within the file to a buffer
   tokens.fill();
 
-  Program *program = ParseProgram(tokens);
+  AST::Program *program = ParseProgram(tokens);
 
   if (program == nullptr) {
     // Print error messages if you'd like

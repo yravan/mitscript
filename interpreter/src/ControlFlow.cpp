@@ -206,11 +206,12 @@ StatementListNode* StatementList(antlr4::CommonTokenStream &tokens) {
 
 ProgramNode* Program(antlr4::CommonTokenStream &tokens) {
     DEBUG_PRINT("Entering Program() with token " + tokens.get(tokens.index())->getText());
+
     StatementListNode* result = StatementList(tokens);
     antlr4::Token *last_token = tokens.get(tokens.index());
     if (last_token->getType() != MITScript::EOF) {
         reportError(*last_token);
     }
-    DEBUG_PRINT("Entering Program()");
+    DEBUG_PRINT("Exiting Program()");
     return new ProgramNode(result);
 }

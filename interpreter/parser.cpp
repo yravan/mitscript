@@ -11,12 +11,6 @@ Written by me
 #include "PrettyPrinter.h"
 #include "src/TreeConverter.cpp"
 
-// Helper function for reporting errors
-
-//Helper function for visualizing tokens
-
-
-
 class Parser{
 public:
     void printTokenStream(MITScript & lexer, antlr4::CommonTokenStream & tokens){
@@ -44,11 +38,7 @@ public:
         ProgramNode* cst_tree;
         try{
             cst_tree = Program(tokens);
-#ifdef DEBUG
-            std::cout << "------------------------------------" << std::endl;
-            std::cout << "CST:    " << cst_tree->to_string() << "\n";
-#endif
-
+            DEBUG_PRINT("------------------------------------" + std::endl + "CST:    " + cst_tree->to_string() + std::endl);
             CSTConverter converter = CSTConverter();
             AST::Program* program = converter.convert(*cst_tree);
 

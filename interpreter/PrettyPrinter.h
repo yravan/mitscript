@@ -183,7 +183,9 @@ class PrettyPrinter : public Visitor {
         }
 
         void visit(const AST::Program& node) override {
-            node.mainBlock->accept(*this);  // Use accept for the main block of the program
+            if (node.mainBlock != nullptr){
+                node.mainBlock->accept(*this);  // Use accept for the main block of the program
+            }
             std :: cout << std::endl;
         }
 

@@ -597,7 +597,12 @@ std::string ProgramNode::to_string() {
     DEBUG_PRINT("Entering ProgramNode::to_string()");
 
     std::stringstream ss;
-    ss << "Program(" << child->to_string() << ")";
+    if (child != nullptr){
+        ss << "Program(" << child->to_string() << ")";
+    }
+    else{
+        ss << "Program(" << ")";
+    }
 
     DEBUG_PRINT("Exiting ProgramNode::to_string()");
     return ss.str();

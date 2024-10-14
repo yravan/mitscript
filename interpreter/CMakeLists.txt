@@ -43,5 +43,5 @@ add_library(InterpreterSources OBJECT
         # TODO(phase2) add your interpreter files
         )
 
-# add_executable(mitscript interpreter.cpp)
-# target_link_libraries(mitscript InterpreterSources ParserSources)
+add_executable(mitscript interpreter.cpp)
+target_link_libraries(mitscript InterpreterSources ParserSources)

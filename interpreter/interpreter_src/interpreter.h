@@ -79,10 +79,11 @@ public:
     Value* evalPlus(const AST::BinaryExpression& expr);
     Bool* logicalOperation(const AST::BinaryExpression& expr);
     Integer* arithmeticOperation(const AST::BinaryExpression& expr);
+    Integer* arithmeticOperation(Value* left, Value* right);
     Value* unaryOperation(const AST::UnaryExpression& expr);
     Bool* comparisonOperation(const AST::BinaryExpression& expr);
     Bool* equalityOperation(const AST::BinaryExpression& expr);
-    String* stringConcatenation(const AST::BinaryExpression& expr);
+    String* stringConcatenation(Value* left, Value* right);
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -201,6 +202,8 @@ public:
             case AST::EQ:
                 rval = equalityOperation(node);
                 break;
+            default:
+                assert(0);
         }
         DEBUG_PRINT("Exiting BinaryExpression" );
     }
@@ -210,6 +213,9 @@ public:
             case AST::SUB:
             case AST::NEG:
                 rval = unaryOperation(node);
+                break;
+            default:
+                assert(0);
         }
         DEBUG_PRINT("Exiting UnaryExpression" );
     }   

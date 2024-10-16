@@ -1,1 +1,4 @@
-RuntimeException: Incorrect Number of arguments in fun(val, ){}
+() is a valid parentheses.
+()[]{} is a valid parentheses.
+(] is not a valid parentheses.
+([]) is a valid parentheses.

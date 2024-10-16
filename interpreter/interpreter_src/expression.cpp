@@ -12,10 +12,10 @@ Value* Interpreter::evalPlus(const AST::BinaryExpression& expr){
 
     if (typeid(*left_val) == typeid(String) || typeid(*right_val) == typeid(String) ){
         DEBUG_PRINT("Exiting evalPlus");
-        return stringConcatenation(expr);
+        return stringConcatenation(left_val, right_val);
     }
     DEBUG_PRINT("Exiting evalPlus");
-    return arithmeticOperation(expr);
+    return arithmeticOperation(left_val, right_val);
 
 }
 
@@ -88,6 +88,24 @@ Integer* Interpreter::arithmeticOperation(const AST::BinaryExpression& expr) {
         return new Integer(left_int->val / right_int->val);
     }
     return nullptr; // Default return for unrecognized operators
+}
+
+// overloaded version for plus
+Integer* Interpreter::arithmeticOperation(Value* left, Value* right) {
+    DEBUG_PRINT("Entering arithmeticOperation with " );
+
+    if (typeid(*left) != typeid(Integer)) {
+        throw IllegalCastException("+", left);
+    }
+    if (typeid(*right) != typeid(Integer)) {
+        throw IllegalCastException("+", right);
+    }
+
+    Integer* left_int = dynamic_cast<Integer*>(left);
+    Integer* right_int = dynamic_cast<Integer*>(right);
+
+    DEBUG_PRINT("Exiting arithmeticOperation" );
+    return new Integer(left_int->val + right_int->val);
 }
 
 Value* Interpreter::unaryOperation(const AST::UnaryExpression& expr) {
@@ -213,15 +231,8 @@ Bool* Interpreter::equalityOperation(const AST::BinaryExpression& expr) {
     assert(0);
 }
 
-String* Interpreter::stringConcatenation(const AST::BinaryExpression& expr){
+String* Interpreter::stringConcatenation(Value* left, Value* right){
     DEBUG_PRINT("Entering stringConcatenation with " );
-    DEBUG_PRINT_AST(expr, printer);
-
-
-    expr.left->accept(*this);
-    Value* left = this->rval;
-    expr.right->accept(*this);
-    Value* right = this->rval;
 
     std::string left_str = this->string_cast(left);
     std::string right_str = this->string_cast(right);

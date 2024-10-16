@@ -6,7 +6,9 @@ std::string Interpreter::string_cast(Value* v) {
         String* val = dynamic_cast<String*>(v);
         return val->val;  // If it's already a String, cast and return
     }
-    if (typeid(*v) == typeid(Bool)) {
+    if (typeid(*v) == typeid(Bool) | 
+        typeid(*v) == typeid(Integer) |
+        typeid(*v) == typeid(None)) {
         return v->to_string();  // Cast Bool to String
     }
     if (typeid(*v) == typeid(Integer)) {

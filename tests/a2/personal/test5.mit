@@ -37,7 +37,7 @@ create_stack = fun(){
         stack[stack.size] = val;
         stack.size = stack.size + 1;
     };
-    stack.top = fun(val){
+    stack.top = fun(){
         if (stack.size > 0){
             return stack[stack.size - 1];
         }

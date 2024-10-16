@@ -4,6 +4,12 @@
 
 void Interpreter::varAssignment(const AST::Assignment& expr){
     DEBUG_PRINT("Entering varAssignment");
+
+    // Resolve the frame
+    std::string variable = expr.lhs->name;
+    DEBUG_PRINT("LHS variable: " + variable);
+    Frame* frame_to_write = lookup_write(stack.top(), variable);
+
     // Resolve the expression
     expr.expr->accept(*this);
     Value* rhs = rval;
@@ -14,11 +20,6 @@ void Interpreter::varAssignment(const AST::Assignment& expr){
         throw std::runtime_error("Called varAssignment on non-var-assignment expr " + std::string(typeid(expr.lhs).name()));
     }
 
-    // Resolve the frame
-    std::string variable = expr.lhs->name;
-    DEBUG_PRINT("LHS variable: " + variable);
-    Frame* frame_to_write = lookup_write(stack.top(), variable);
-
     frame_to_write->map[variable] = rhs;
     DEBUG_PRINT("Variable " + variable + " assigned in the frame with value " + rhs->to_string());
     DEBUG_PRINT("Exiting varAssignment");
@@ -28,8 +29,7 @@ void Interpreter::heapAssignment(const AST::Assignment& expr){
     DEBUG_PRINT("Entering heapAssignment");
     // HeapAssignment
     if (typeid(*expr.lhs) != typeid(AST::FieldDereference)){
-        DEBUG_PRINT("LHS is not a FieldDereference");
-        // Raise some error
+        throw std::runtime_error("Called heapAssignment on non-heapAssignment expr " + std::string(typeid(expr.lhs).name()));
     }
 
     AST::FieldDereference* lhs = dynamic_cast<AST::FieldDereference*>(expr.lhs);
@@ -58,8 +58,7 @@ void Interpreter::heapIndexAssignment(const AST::Assignment& expr){
     DEBUG_PRINT("Entering heapIndexAssignment");
     // HeapIndexAssignment
     if (typeid(*expr.lhs) != typeid(AST::IndexExpression)){
-        DEBUG_PRINT("LHS is not an IndexExpression");
-        // Raise some error
+        throw std::runtime_error("Called heapIndexAssignment on non-heapIndexAssignment expr " + std::string(typeid(expr.lhs).name()));
     }
 
     AST::IndexExpression* lhs = dynamic_cast<AST::IndexExpression*>(expr.lhs);
@@ -124,7 +123,7 @@ void Interpreter::whileStatement(const AST::WhileLoop& expr){
 
     Bool* conditionBool = dynamic_cast<Bool*>(condition);
     if (conditionBool->val){
-        DEBUG_PRINT("Condition is true, executing thenPart");
+        DEBUG_PRINT("Condition is true, executing Body");
         sequence(*(expr.body), expr);
     } 
 

@@ -50,7 +50,7 @@ public:
         for (const auto& pair: map){
             ss << pair.first << ":" << pair.second->to_string() << " ";
         }
-        ss << "\b}";
+        ss << "}";
         return ss.str();
     }
 
@@ -70,7 +70,7 @@ public:
             ss << arg << ", ";
         }
         if(formal_arguments.size() > 0){
-            ss << "\b\b){}";    
+            ss << "){}";    
         }
         else{
             ss << "){}";    

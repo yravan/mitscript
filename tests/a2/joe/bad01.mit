@@ -1,0 +1,9 @@
+// Testing assings semantics
+
+f = fun(){
+    print("test");
+
+    print = fun(s){ oldprint("--> " + s); };
+};
+
+f();

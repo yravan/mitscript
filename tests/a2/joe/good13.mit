@@ -1,0 +1,7 @@
+
+f = fun() {
+  print("Inside f, which doesn't have a return statement");
+};
+
+res = f();
+print("Should print None: " + res);

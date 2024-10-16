@@ -1,0 +1,42 @@
+// Test arithmetic (integers and strings)
+
+x1 = 1;
+x2 = 2;
+
+s1 = "string1";
+s2 = "string2";
+
+a1 = x1 + x2; 
+a2 = s1 + s2;
+a3 = x1 + x2 + s1 + s2;
+a4 = x1 + s1;
+
+print(a1);
+print(a2);
+print(a3);
+print(a4);
+
+a1 = 2;
+a2 = 3;
+a3 = a1 + a2; // 5
+a4 = a1 * a2; // 6
+a5 = a4 / a1; // 3
+a6 = a4 - a3; // 1
+a7 = a2 + a3 * a6; // 8
+
+y1 = a2 * a3;
+y2 = a4 / a5 * 3;
+y3 = y1 + y2;
+print(y1);
+print(y2);
+print(y3);
+
+a8 = -a2 * a3 + a4 / a5 * -3; // -21
+
+print("a3 = " + a3);
+print("a4 = " + a4);
+print("a5 = " + a5);
+print("a6 = " + a6);
+print("a7 = " + a7);
+print("a8 = " + a8);
+

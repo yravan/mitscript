@@ -1,0 +1,6 @@
+// subtraction with strings
+
+x1 = 1;
+s1 = "string";
+
+a = x1 - s1;

@@ -1,0 +1,15 @@
+// testing lookupRead complex (i.e. when parentPtr has var in global rather than local)
+
+x = 3;
+
+f = fun() {
+    g = fun() {
+        print(x);
+    };
+
+    global x;
+    return g;
+};
+
+g = f();
+g();

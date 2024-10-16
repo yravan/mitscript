@@ -1,0 +1,22 @@
+// integer overflow bounds
+
+// returns 2^x
+pow2 = fun(x) {
+    print("Calculating 2^" + x + "...");
+    val = 1;
+    i = 0;
+    while (i < x) {
+        print("\t2^" + i + " = " + val);
+        val = val * 2;
+        i = i + 1;
+    }
+    return val;
+};
+
+
+// x = input();
+// x = intcast(x);
+x = 31;
+result = pow2(x);
+
+print("Result of 2^" + x + " = " + result);

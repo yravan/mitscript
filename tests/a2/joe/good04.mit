@@ -1,0 +1,17 @@
+// testing globals
+
+x = 3;
+f = fun() {
+  if (true) {
+
+  } else {
+    y = 3;
+  }
+
+  print(y);
+  print(x);
+  
+  global x;
+};
+
+f();

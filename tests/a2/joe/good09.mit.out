@@ -1,0 +1,14 @@
+Comparison Operations
+a1 = false
+a2 = true
+a3 = false
+a4 = true
+a5 = true
+
+Boolean Operations
+a1 = true
+a2 = false
+a3 = false
+a4 = true
+a5 = true
+a6 = true

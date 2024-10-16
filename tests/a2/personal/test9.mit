@@ -13,11 +13,6 @@ create_list = fun(val){
     list.val = val;
     list.next = None;
     list.prev = None;
-    list.copy = fun(){
-        new_list = create_list(val);
-        print("Copy Val:" + val);
-        return new_list;
-    };
     return list;
 };
 create_queue = fun(){
@@ -216,10 +211,4 @@ input[92] = 62; input[93] = None; input[94] = 63; input[95] = None; input[96] = 
 input[98] = 66; input[99] = None;
 // Expected Output: [1, 3, 7, 15, 22, 66]
 print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
-
-build_tree();
-
-
-
-
 

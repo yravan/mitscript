@@ -1,0 +1,16 @@
+// testing correct implmentation of assigns (slightly more complex)
+
+f = fun(x) {
+  if (true) {
+    y = 1;
+  } else {
+    x = 2;
+    z = 3;
+  }
+
+  print(x);
+  print(y);
+  print(z);
+};
+
+f(0);

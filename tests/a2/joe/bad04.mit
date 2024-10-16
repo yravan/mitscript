@@ -1,0 +1,4 @@
+// Illegal intcast
+
+x = intcast("s");
+print(x);

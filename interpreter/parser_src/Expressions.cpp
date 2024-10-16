@@ -249,6 +249,7 @@ namespace CST{
         if (token->getType() == MITScript::MINUS) {
             tokens.consume();
             minus = true;
+            token = tokens.get(tokens.index());
         }
         if (token->getType() == MITScript::LPAREN) {
             tokens.consume();
@@ -268,14 +269,14 @@ namespace CST{
             token = tokens.get(tokens.index());
             if (token->getType() == MITScript::LPAREN) {
                 tokens.seek(cur_token_index);
-                DEBUG_PRINT("Exiting Unit() with token " + tokens.get(tokens.index())->getText());
+                DEBUG_PRINT("Exiting Unit() with token " + token->getText());
                 return new UnitNode(minus, nullptr, nullptr, Call(tokens), nullptr);
             }
-            DEBUG_PRINT("Exiting Unit() with token " + tokens.get(tokens.index())->getText());
+            DEBUG_PRINT("Exiting Unit() with token " + token->getText());
             return new UnitNode(minus, lhs, nullptr, nullptr, nullptr);
         }
 
-        DEBUG_PRINT("Exiting Unit() with token " + tokens.get(tokens.index())->getText());
+        DEBUG_PRINT("Exiting Unit() with token " + token->getText() + " of type " + std::to_string(token->getType()));
         UnitNode* result = new UnitNode(minus, nullptr, Constant(tokens), nullptr, nullptr);
         return result;
     }

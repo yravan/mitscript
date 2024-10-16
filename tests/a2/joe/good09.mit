@@ -1,0 +1,42 @@
+// Test logical operations and comparison operations
+
+x1 = 2;
+x2 = 2;
+x3 = 3;
+x4 = 4;
+
+a1 = x1 > x2;
+a2 = x1 >= x2;
+
+a3 = x3 < x3;
+a4 = x3 <= x3;
+
+a5 = x1 <= x3;
+a6 = x4 >= x1;
+
+print("Comparison Operations");
+print("a1 = " + a3);
+print("a2 = " + a2);
+print("a3 = " + a3);
+print("a4 = " + a4);
+print("a5 = " + a5);
+
+
+b1 = true;
+b2 = false;
+
+a1 = b1 | b2;
+a2 = b1 & b2;
+a3 = ! b1;
+a4 = b1 & !a3;
+a5 = b1 & b2 | a1 & a4;
+a6 = b1 & b2 | b1 | b2;
+
+print("");
+print("Boolean Operations");
+print("a1 = " + a1);
+print("a2 = " + a2);
+print("a3 = " + a3);
+print("a4 = " + a4);
+print("a5 = " + a5);
+print("a6 = " + a6);

@@ -1,0 +1,2 @@
+Inside f, which doesn't have a return statement
+Should print None: None

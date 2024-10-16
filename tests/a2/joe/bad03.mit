@@ -1,0 +1,6 @@
+// testing conditonal on non-boolean types
+
+x = 3;
+if (x) {
+    print(x);
+}

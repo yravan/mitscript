@@ -1,0 +1,24 @@
+// Native Functions Test
+print("\\n");
+a = {x:1; y:"10";};
+print(intcast(a.y) == 10);
+oldprint = print;
+print = fun(){
+    oldprint("Level 1");
+    oldprint(" ");
+};
+
+newprint = print;
+print = fun(){
+    oldprint("Level 2");
+    newprint();
+};
+
+newnewprint = print;
+print = fun(){
+    oldprint("Level 3");
+    newnewprint();
+};
+print();
+
+//oldprint(input());

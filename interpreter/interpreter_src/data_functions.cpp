@@ -158,7 +158,7 @@ Value* Interpreter::functionCall(const AST::Call& expr){
         arg->accept(*this);
         arguments.push_back(rval);
     }
-    if (arguments.size() != expr.arguments.size()){
+    if (arguments.size() !=  function->formal_arguments.size()){
         throw RuntimeException("Incorrect Number of arguments in " + function->to_string());
     }
 

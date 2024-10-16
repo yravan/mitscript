@@ -1,0 +1,56 @@
+// Expressions test 
+
+// Logical Operators
+print("True and False: " + (true & false));
+print("True or False: " + (true | false));
+print(" ");
+
+// Arithmetic Operators
+print("6 + 3: " + (6 + 3));
+print("6 - 3: " + (6 - 3));
+print("6 * 3: " + (6 * 3));
+print("6 / 3: " + (6 / 3));
+print("6 + \"3\": " + (6 + "3"));
+print(" ");
+
+// Unary Operators
+print("-3: " + (-3));
+print("Not True: " + (!true));
+print(" ");
+
+// Comparison Operators
+print("1 > 0: " + (1 > 0));
+print("1 < 0: " + (1 < 0));
+print("1 >= 0: " + (1 >= 0));
+print("1 <= 0: " + (1 <= 0));
+print(" ");
+print("None == None: " + (None == None));
+print("1 == 1: " + (1 == 1));
+print("1 == 0: " + (1 == 0));
+print("1 == intcast(\"1\"): " + (1 == intcast("1")));
+print("\"1\" == \"1\": " + ("1" == "1"));
+print("\"1\" == \"0\": " + ("1" == "0"));
+print("true == true: " + (true == true));
+print("false == true: " + (false == true));
+a = {z:2;x:1;};
+b = {z:2;x:1;};
+c = a;
+print("a == b: " + (a == b));
+print("a == c: " + (a == c));
+
+x = fun(a,b){print(a+b);};
+y = fun(a,b){return(a+b);};
+z = x;
+print("x == y: " + (x == y));
+print("x == z: " + (x == z));
+
+print("a == x: " + (a == x));
+print("x == 10: " + (x == 10));
+
+//Variable Read + FieldRead + IndexRead
+print("a: " + a);
+print("a.x: " + a.x);
+print("a.y: " + a.y);
+tmp = "z";
+print("a[\"z\"]: " + a[tmp]);
+

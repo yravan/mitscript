@@ -4,8 +4,9 @@
 
 Value* Interpreter::variableRead(const AST::Expression& expr){
     DEBUG_PRINT("Entering variableRead" );
-    return lookup_read(stack.top(), expr.name);
     DEBUG_PRINT("Exiting variableRead" );
+    DEBUG_PRINT(typeid(lookup_read(stack.top(), expr.name)).name());
+    return lookup_read(stack.top(), expr.name);
 }
 
 Record* Interpreter::record(const AST::Record& expr){
@@ -159,7 +160,7 @@ Value* Interpreter::functionCall(const AST::Call& expr){
         arguments.push_back(rval);
     }
     if (arguments.size() !=  function->formal_arguments.size()){
-        throw RuntimeException("Incorrect Number of arguments in " + function->to_string());
+        throw RuntimeException(arguments.size(), function->formal_arguments.size());
     }
 
     Frame* new_frame = new Frame(function->function_frame, global_stack_frame);

@@ -219,7 +219,7 @@ Bool* Interpreter::equalityOperation(const AST::BinaryExpression& expr) {
         Function* right_fun = dynamic_cast<Function*>(right);
         bool equal = (left_fun->function_frame == right_fun->function_frame);
         equal = equal && (left_fun->formal_arguments == right_fun->formal_arguments);
-        equal = equal && (left_fun->body == right_fun->body); // may not be correct way to check statements 
+        equal = equal && left_fun->body->equals(*right_fun->body); // may not be correct way to check statements 
         return new Bool(equal);
     }
 

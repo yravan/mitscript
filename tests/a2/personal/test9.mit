@@ -1,1 +1,225 @@
 //Statements test
+create_arr = fun(size){
+    array = {};
+    array.size=size;
+    while (size > 0){
+        size = size - 1;
+        array[size] = None;
+    }
+    return array;
+};
+create_list = fun(val){
+    list = {};
+    list.val = val;
+    list.next = None;
+    list.prev = None;
+    list.copy = fun(){
+        new_list = create_list(val);
+        print("Copy Val:" + val);
+        return new_list;
+    };
+    return list;
+};
+create_queue = fun(){
+    queue = {};
+    queue.head = None;
+    queue.tail = None;
+    queue.pop = fun(){
+        if (!(queue.tail == None)){
+            node = queue.tail;
+            queue.tail = queue.tail.prev;
+            if (!(queue.tail == None)){
+                queue.tail.next = None;
+            }else{
+                queue.head = None;
+            }
+            return node.val;
+        }else{
+            print("Tried Popping from Empty List");
+        }
+    };
+    queue.push = fun(val){
+        if (queue.head == None){
+            node = create_list(val);
+            queue.head = node;
+            queue.tail = node;
+        }else{
+            node = create_list(val);
+            node.next = queue.head;
+            queue.head.prev = node;
+            queue.head = node;
+        }
+    };
+    queue.empty = fun(){
+        return queue.head == None;
+    };
+    queue.copy = fun(){
+        copy_queue = create_queue();
+        cur_node = queue.tail;
+        while (!(cur_node == None)){
+            copy_queue.push(cur_node.val);
+            cur_node = cur_node.prev;
+        }
+        return copy_queue;
+    };
+    queue.clear = fun(){
+        queue.head = None;
+        queue.tail = None;
+    };
+    return queue;
+};
+len = fun(arr){
+    return arr.size;
+};
+create_stack = fun(){
+    stack = {};
+    stack.size = 0;
+    stack.pop = fun(){
+        if (stack.size > 0){
+            stack.size = stack.size - 1;
+            return stack[stack.size + 1];
+        }
+        print("Tried to pop from stack of size 0");
+    };
+    stack.push = fun(val){
+        stack[stack.size] = val;
+        stack.size = stack.size + 1;
+    };
+    stack.top = fun(){
+        if (stack.size > 0){
+            return stack[stack.size - 1];
+        }
+        print("Tried to grab from stack of size 0");
+    };
+    return stack;
+};
+create_tree = fun(val){
+    tree = {};
+    tree.val = val;
+    tree.left = None;
+    tree.right = None;
+    return tree;
+};
+
+
+build_tree = fun(arr){
+    i = 1;
+    root = create_tree(arr[0]);
+    queue = create_queue();
+    queue.push(root);
+    while (!queue.empty()){
+        node = queue.pop();
+        if (!(arr[i] == None)){
+            left_child = create_tree(arr[i]);
+            node.left = left_child;
+            queue.push(left_child);
+        }
+        if (!(arr[i + 1] == None)){
+            right_child = create_tree(arr[i + 1]);
+            node.right = right_child;
+            queue.push(right_child);
+        }
+        i = i + 2;
+    }
+    return root;
+};
+
+solution = fun(root){
+    queue = create_queue();
+    right_stack = create_stack();
+    next_queue = create_queue();
+    level = 0;
+    queue.push(root);
+    while (!queue.empty()){
+        node = None;
+        while (!queue.empty()){
+            node = queue.pop();
+            if (!(node.left == None)){
+                next_queue.push(node.left);
+            }
+            if (!(node.right == None)){
+                next_queue.push(node.right);
+            }
+        }
+        right_stack.push(node.val);
+        queue = next_queue.copy();
+        next_queue.clear();
+    }
+    return right_stack;
+};
+
+
+arr_to_string = fun(arr){
+    i = 0;
+    result = "[";
+    while (i < arr.size){
+        result = result + arr[i] + ", ";
+        i = i + 1;
+    }
+    result = result + "]";
+    return result;
+};
+
+input = create_arr(7);
+input[0] = 1; input[1] = 2; input[2] = 3; input[3] = None; input[4] = 5; input[5] = None; input[6] = 4;
+// Expected Output: [1, 3, 4]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(3);
+input[0] = 1; input[1] = None; input[2] = 3;
+// Expected Output: [1, 3]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(4);
+input[0] = 1; input[1] = 2; input[2] = None; input[3] = 3;
+// Expected Output: [1, 2, 3]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(7);
+input[0] = 1; input[1] = 2; input[2] = 3; input[3] = 4; input[4] = 5; input[5] = 6; input[6] = 7;
+// Expected Output: [1, 3, 7]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(1);
+input[0] = 1;
+// Expected Output: [1]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(0);
+// Expected Output: []
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(16);
+input[0] = 1; input[1] = 2; input[2] = 3; input[3] = 4; input[4] = 5; input[5] = 6; input[6] = 7; 
+input[7] = None; input[8] = None; input[9] = 8; input[10] = 9; input[11] = 10; input[12] = None;
+input[13] = None; input[14] = None; input[15] = 11;
+// Expected Output: [1, 3, 7, 10, 11]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+input = create_arr(100);
+input[0] = 1; input[1] = 2; input[2] = 3; input[3] = 4; input[4] = 5; input[5] = 6; input[6] = 7;
+input[7] = 8; input[8] = 9; input[9] = 10; input[10] = 11; input[11] = 12; input[12] = 13; input[13] = 14;
+input[14] = 15; input[15] = None; input[16] = None; input[17] = 16; input[18] = 17; input[19] = 18;
+input[20] = None; input[21] = None; input[22] = 19; input[23] = None; input[24] = 20; input[25] = None;
+input[26] = 21; input[27] = 22; input[28] = 23; input[29] = None; input[30] = None; input[31] = 24;
+input[32] = 25; input[33] = 26; input[34] = 27; input[35] = None; input[36] = None; input[37] = 28;
+input[38] = 29; input[39] = None; input[40] = 30; input[41] = None; input[42] = 31; input[43] = 32;
+input[44] = 33; input[45] = None; input[46] = None; input[47] = 34; input[48] = 35; input[49] = 36;
+input[50] = None; input[51] = None; input[52] = 37; input[53] = None; input[54] = 38; input[55] = 39;
+input[56] = None; input[57] = 40; input[58] = 41; input[59] = None; input[60] = None; input[61] = 42;
+input[62] = 43; input[63] = 44; input[64] = 45; input[65] = None; input[66] = None; input[67] = 46;
+input[68] = 47; input[69] = 48; input[70] = None; input[71] = 49; input[72] = None; input[73] = 50;
+input[74] = 51; input[75] = None; input[76] = None; input[77] = 52; input[78] = 53; input[79] = 54;
+input[80] = 55; input[81] = None; input[82] = None; input[83] = 56; input[84] = None; input[85] = 57;
+input[86] = 58; input[87] = None; input[88] = None; input[89] = 59; input[90] = 60; input[91] = 61;
+input[92] = 62; input[93] = None; input[94] = 63; input[95] = None; input[96] = 64; input[97] = 65;
+input[98] = 66; input[99] = None;
+// Expected Output: [1, 3, 7, 15, 22, 66]
+print("Input: " + arr_to_string(input) + "\nOutput: " + arr_to_string(solution(build_tree(input))));
+
+build_tree();
+
+
+
+
+

@@ -8,12 +8,11 @@ TIMEOUT=300
 TOTAL=0
 COUNT=0
 
-for filename in $ROOT/a2/personal/test*.mit; do
+for filename in $ROOT/a2/others/good*.mit; do
     echo $filename
     timeout $TIMEOUT $INTERPRETER $filename > tmp.out
-    # timeout $TIMEOUT $INTERPRETER $filename > $ROOT/a2/personal/$(basename $filename).out
     CODE=$?
-    if diff tmp.out $ROOT/a2/personal/$(basename $filename).out; then
+    if diff tmp.out $ROOT/a2/others/$(basename $filename).out; then
         COUNT=$((COUNT+1))
     else
         echo "Fail: $(basename $filename) (exit code $CODE)"
@@ -22,5 +21,5 @@ for filename in $ROOT/a2/personal/test*.mit; do
     rm -f tmp.out
 done
 
-echo "Passed $COUNT out of $TOTAL personal tests"
+echo "Passed $COUNT out of $TOTAL others tests"
 

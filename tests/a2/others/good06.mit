@@ -1,0 +1,3 @@
+// test intcast
+
+print(intcast("239423492"));

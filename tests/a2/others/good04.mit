@@ -1,0 +1,62 @@
+// Lets check equality!
+a = "string one";
+b = "string one";
+print("this should be true: " + (a==b));
+
+a = 3;
+b = 3;
+c = 4;
+print("this should be true: " + (a==b));
+print("this should be false: " + (a==c));
+
+a = fun(name1) {
+  global x;
+  if (3 > 4) {
+    print("in the if");
+  } else {
+    while (2 > 3) {
+      print("in the while");
+    }
+  }
+  print(name1);
+  return x;
+};
+
+b = fun(name1) {
+  global x;
+  if (3 > 4) {
+    print("in the if");
+  } else {
+    while (2 > 3) {
+      print("in the while");
+    }
+  }
+  print(name1);
+  return x;
+};
+
+c = fun() {};
+
+print("this should be true: " + (a==b));
+print("this should be false: " + (a==c));
+
+a = fun() {
+  b = fun() {};
+  return b;
+};
+
+c = fun() {
+  b = fun () {};
+  return b;
+};
+
+d = a();
+e = c();
+
+print("this should be false: " + (d==e));
+
+a = {};
+b = {};
+c = b;
+print("this should be false: " + (a==b));
+print("this should be true: " + (b==c));

@@ -45,6 +45,7 @@ public:
     Record(){}
 
     std::string to_string(){
+        DEBUG_PRINT("Record");
         std::stringstream ss;
         ss << "{";
         for (const auto& pair: map){

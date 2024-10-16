@@ -1,0 +1,73 @@
+// kth largest element leetcode problem 
+
+create_arr = fun(size){
+    array = {};
+    array.size=size;
+    while (size > 0){
+        size = size - 1;
+        array[size] = None;
+    }
+    return array;
+};
+len = fun(arr){
+    return arr.size;
+};
+
+solution = fun(arr,k){
+    pivot = fun(start_ind, end_ind){
+                piv = end_ind;
+                temp = arr[piv];
+                arr[piv] = arr[start_ind];
+                arr[start_ind] = temp;
+                piv = start_ind;
+
+                lo = start_ind + 1;
+                hi = end_ind;
+                while (lo <= hi){
+                    if (arr[piv] >= arr[lo]){
+                        lo = lo + 1;
+                    }else{
+                        temp = arr[hi];
+                        arr[hi] = arr[lo];
+                        arr[lo] = temp;
+                        hi = hi - 1;
+                    }
+                }
+                temp = arr[hi];
+                arr[hi] = arr[piv];
+                arr[piv] = temp;
+                return hi;
+            };
+
+
+    quickselect = fun(start, end, num){
+                    ind = pivot(start,end);
+                    if (end - ind + 1 < num){
+                        return quickselect(start, ind - 1, num - (end - ind + 1));
+                    }
+                    if (end - ind + 1 > num){
+                        return quickselect(ind + 1, end, num);
+                    }
+                    return ind;
+                };
+
+    index =  quickselect(0, len(arr) - 1, k);
+    return arr[index];
+};
+
+
+
+nums = create_arr(6);
+k = 2;
+nums[0] = 3;  nums[1] = 2;  nums[2] = 1;  nums[3] = 5;  nums[4] = 6;  nums[5] = 4;
+print(k + "th" + " largest element in " +  nums + ":\n\t" + solution(nums, k));
+
+nums = create_arr(9);
+k = 4;
+nums[0] = 3;  nums[1] = 2;  nums[2] = 3;  nums[3] = 1;  nums[4] = 2; nums[5] = 4;  nums[6] = 5;  nums[7] = 5;  nums[8] = 6;
+print(k + "th" + " largest element in " +  nums + ":\n\t" + solution(nums, k));
+
+nums = create_arr(9);
+k = 4;
+nums[0] = 3;  nums[1] = 4;  nums[2] = 1;  nums[3] = 9;  nums[4] = 7; nums[5] = 5;  nums[6] = 6;  nums[7] = 8;  nums[8] = 2;
+print(k + "th" + " largest element in " +  nums + ":\n\t" + solution(nums, k));

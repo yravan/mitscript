@@ -5,6 +5,7 @@ Written by me
 #include "antlr4-runtime.h"
 #include "CST.h"
 
+using namespace CST;
 
 ExpressionNode::ExpressionNode(FunctionNode* fun_, BooleanNode* boolean_, RecordNode* record_)
     : fun(fun_), boolean(boolean_), record(record_) {}
@@ -27,7 +28,7 @@ std::string ExpressionNode::to_string() {
     return ss.str();
 }
 
-void reportError(antlr4::Token& token) {
+void CST::reportError(antlr4::Token& token) {
     std::stringstream str;
     str << "Unexpected Symbol (Line " << token.getLine() << ", Position "
         << token.getCharPositionInLine() << "): " << token.getText() << "\n";

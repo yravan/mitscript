@@ -6,6 +6,7 @@ Written by me
 #include <map>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 class Visitor;
 
@@ -23,9 +24,15 @@ class SystemException {
 };
 namespace AST {
 
+    enum Operator{
+        PLUS, SUB, MUL, DIV,
+        AND, OR, NEG,
+        GT, LT, GEQ, LEQ, EQ
+    };
+
     class AST_node {
     public:
-        virtual void accept(Visitor &v) = 0;
+        virtual void accept(Visitor &v) const = 0;
     };
 
     // Program class representing the main program
@@ -33,7 +40,7 @@ namespace AST {
     public:
         class Block* mainBlock; // Forward declaration for Block
         Program(Block* mainBlock_) : mainBlock(mainBlock_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Base class for expressions
@@ -42,13 +49,13 @@ namespace AST {
         std::string name;
         Expression(const std::string& name_) : name(name_) {}
         Expression() : name("") {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Base class for statements
     class Statement : public AST_node {
         public:
-        void accept(Visitor &v)=0;
+        void accept(Visitor &v) const override;
     };
 
     // Block class representing a list of statements
@@ -56,7 +63,7 @@ namespace AST {
     public:
         std::vector<Statement*> statements;
         Block(const std::vector<Statement*>& stmts) : statements(stmts) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Global class representing a global variable
@@ -64,7 +71,7 @@ namespace AST {
     public:
         std::string name;
         Global(const std::string& name_) : name(name_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Assignment class representing an assignment statement
@@ -73,7 +80,7 @@ namespace AST {
         Expression* lhs;
         Expression* expr;
         Assignment(Expression* lhs_, Expression* expr_) : lhs(lhs_), expr(expr_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // CallStatement class representing a call statement
@@ -81,7 +88,7 @@ namespace AST {
     public:
         class Call* callExpr; // Forward declaration for Call
         CallStatement(Call* callExpr_) : callExpr(callExpr_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // IfStatement class representing an if statement
@@ -92,7 +99,7 @@ namespace AST {
         Block* elsePart;
         IfStatement(Expression* condition_, Block* thenPart_, Block* elsePart_)
             : condition(condition_), thenPart(thenPart_), elsePart(elsePart_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // WhileLoop class representing a while loop
@@ -102,7 +109,7 @@ namespace AST {
         Block* body;
         WhileLoop(Expression* condition_, Block* body_)
             : condition(condition_), body(body_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Return class representing a return statement
@@ -110,7 +117,7 @@ namespace AST {
     public:
         Expression* expr;
         Return(Expression* expr_) : expr(expr_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // FunctionDeclaration class representing a function declaration
@@ -120,29 +127,29 @@ namespace AST {
         Block* body;
         FunctionDeclaration(const std::vector<std::string>& args, Block* body_)
             : arguments(args), body(body_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // BinaryExpression class representing a binary expression
     class BinaryExpression : public Expression {
     public:
         Expression* left;
-        std::string op;
+        Operator op;
         Expression* right;
-        BinaryExpression(Expression* left_, const std::string& op_, Expression* right_)
+        BinaryExpression(Expression* left_, const Operator& op_, Expression* right_)
             : left(left_), op(op_), right(right_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // UnaryExpression class representing a unary expression
     class UnaryExpression : public Expression {
     public:
+        // the operator is always preceding (! or -)
         Expression* operand;
-        std::string op;
-        bool preceding;
-        UnaryExpression(Expression* operand_, const std::string& op_, bool preceding_)
-            : operand(operand_), op(op_), preceding(preceding_) {}
-        void accept(Visitor &v) override;
+        Operator op;
+        UnaryExpression(Expression* operand_, const Operator& op_)
+            : operand(operand_), op(op_) {}
+        void accept(Visitor &v) const override;
     };
 
     // FieldDereference class representing a field dereference
@@ -152,7 +159,7 @@ namespace AST {
         std::string field;
         FieldDereference(Expression* baseExpr_, const std::string& field_)
             : baseExpr(baseExpr_), field(field_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // IndexExpression class representing an index expression
@@ -162,7 +169,7 @@ namespace AST {
         Expression* index;
         IndexExpression(Expression* baseExpr_, Expression* index_)
             : baseExpr(baseExpr_), index(index_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Call class representing a function call
@@ -172,15 +179,15 @@ namespace AST {
         std::vector<Expression*> arguments;
         Call(Expression* targetExpr_, const std::vector<Expression*>& args)
             : targetExpr(targetExpr_), arguments(args) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // Record class representing a record structure
     class Record : public Expression {
     public:
-        std::map<std::string, Expression*> fields;
-        Record(const std::map<std::string, Expression*>& fields_) : fields(fields_) {}
-        void accept(Visitor &v) override;
+        std::vector<std::pair<std::string, Expression*>> fields;
+        Record(const std::vector<std::pair<std::string, Expression*>> & fields_) : fields(fields_) {}
+        void accept(Visitor &v) const override;
     };
 
     // IntegerConstant class representing an integer constant
@@ -188,7 +195,7 @@ namespace AST {
     public:
         int value;
         IntegerConstant(int value_) : value(value_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // StringConstant class representing a string constant
@@ -196,14 +203,14 @@ namespace AST {
     public:
         std::string value;
         StringConstant(const std::string& value_) : value(value_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // NoneConstant class representing a none constant
     class NoneConstant : public Expression {
     public:
         NoneConstant() {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
 
     // BooleanConstant class representing a boolean constant
@@ -211,6 +218,8 @@ namespace AST {
     public:
         bool value;
         BooleanConstant(bool value_) : value(value_) {}
-        void accept(Visitor &v) override;
+        void accept(Visitor &v) const override;
     };
+    
+    class Integer{};
 }

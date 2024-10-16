@@ -4,17 +4,19 @@
 #include "AST.h"
 #include "MITScript.h"
 #include "antlr4-runtime.h"
-#include "src/TreeConverter.cpp"
-#include "src/nonterminals.h"
+#include "parser_src/TreeConverter.cpp"
+#include "parser_src/nonterminals.h"
 #include "PrettyPrinter.h"
+#include "interpreter_src/interpreter.h"
+#include "interpreter_src/exceptions.h"
+
 
 AST::Program *ParseProgram(antlr4::CommonTokenStream &tokens) {
-  AST::Program * result = nullptr;
-    ProgramNode* cst_tree;
+    AST::Program * result = nullptr;
+    CST::ProgramNode* cst_tree;
     try{
-        cst_tree = Program(tokens);
-        DEBUG_PRINT("------------------------------------" + std::endl + "CST:    " + cst_tree->to_string() + std::endl);
-        CSTConverter converter = CSTConverter();
+        cst_tree = CST::Program(tokens);
+        CST::CSTConverter converter = CST::CSTConverter();
         AST::Program* program = converter.convert(*cst_tree);
         result = program;
     }
@@ -55,20 +57,16 @@ int main(int argc, const char *argv[]) {
     return 1;
   }
 
-// Cartoon of calling your interpreter
-#if 0
-
-	try {
-		Interpreter interp;
-		program->accept(interp);
-	}
-	catch (InterpreterException& exception)
-	{
-    // Catch exception and show error message
-		std::cout << exception.message() << "\n";
-		return 1;
-	}
-#endif
+  try {
+      Interpreter interp;
+      program->accept(interp);
+  }
+  catch (InterpreterException& exception)
+  {
+  // Catch exception and show error message
+      std::cout << exception.message() << "\n";
+      return 1;
+  }
 
   return 0;
 }

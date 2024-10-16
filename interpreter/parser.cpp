@@ -6,10 +6,10 @@ Written by me
 
 #include "MITScript.h"
 #include "antlr4-runtime.h"
-#include "src/nonterminals.h"
+#include "parser_src/nonterminals.h"
 #include "AST.h"
 #include "PrettyPrinter.h"
-#include "src/TreeConverter.cpp"
+#include "parser_src/TreeConverter.cpp"
 
 class Parser{
 public:
@@ -35,11 +35,12 @@ public:
 
     AST::Program * ParseProgram(antlr4::CommonTokenStream & tokens){
         AST::Program * result = nullptr;
-        ProgramNode* cst_tree;
+        CST::ProgramNode* cst_tree;
         try{
-            cst_tree = Program(tokens);
-            DEBUG_PRINT("------------------------------------" + std::endl + "CST:    " + cst_tree->to_string() + std::endl);
-            CSTConverter converter = CSTConverter();
+            cst_tree = CST::Program(tokens);
+            DEBUG_PRINT("------------------------------------\nCST:    " + cst_tree->to_string() + "\n");
+            CST::CSTConverter converter = CST::CSTConverter();
+            DEBUG_PRINT("------------------------------------\nConversion:    ");
             AST::Program* program = converter.convert(*cst_tree);
 
             PrettyPrinter printer;

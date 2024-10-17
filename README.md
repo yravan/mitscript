@@ -14,7 +14,7 @@ The interpreter executes the MITScript program based on the semantic rules provi
 
 ## Language Specification
 
-The detailed specification of the MITScript language is included in the `specification.pdf` file located in the root of this repository. This document contains the formal grammar, syntax, and semantics of MITScript, which are essential for understanding and developing the lexer, parser, and interpreter for the project.
+The detailed specification of the MITScript language is included in the [`specification.pdf`](./specification.pdf) file located in the root of this repository. This document contains the formal grammar, syntax, and semantics of MITScript, which are essential for understanding and developing the lexer, parser, and interpreter for the project.
 
 ### Key Highlights of the MITScript Language:
 

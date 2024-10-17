@@ -1,7 +1,33 @@
 # 6.1120 Skeleton Code
 
-This repository hosts the skeleton code for 6.1120, a class for building a
-virtual machine for a Python-like language called MITScript.
+# MITScript Project
+
+## Overview
+
+This project involves the implementation of a lexer, parser, and interpreter for the MITScript language, based on a provided formal grammar. The project is split into two phases: the creation of a parser and the development of an interpreter.
+
+### Phase I: Parser
+The parser takes as input a MITScript program and outputs an Abstract Syntax Tree (AST) if the program is syntactically valid.
+
+### Phase II: Interpreter
+The interpreter executes the MITScript program based on the semantic rules provided, producing the appropriate output.
+
+## Language Specification
+
+The detailed specification of the MITScript language is included in the `specification.pdf` file located in the root of this repository. This document contains the formal grammar, syntax, and semantics of MITScript, which are essential for understanding and developing the lexer, parser, and interpreter for the project.
+
+### Key Highlights of the MITScript Language:
+
+1. **Grammar**: 
+   - The MITScript language is defined using a formal context-free grammar, which outlines the structure and allowable constructs.
+   - The core components include statements such as `Assignment`, `IfStatement`, `WhileLoop`, `Return`, and expressions like `Boolean`, `Arithmetic`, and `Record`.
+
+2. **Syntax**:
+   - MITScript supports basic control flow constructs (`if`, `while`), global declarations, and function definitions.
+   - Expressions include arithmetic, boolean logic, and record structures.
+
+3. **Semantics**:
+   - The document describes how each construct behaves when executed. This includes the evaluation of expressions, assignment of variables, and function calls.
 
 ## Setup
 

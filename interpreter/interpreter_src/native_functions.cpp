@@ -20,7 +20,6 @@ void Interpreter::print(Value* value){
 }
 String* Interpreter::input(){
     std::string line;
-    std::cout << "Enter a line"<< std::endl;
     std::getline(std::cin, line);
     return new String(line);
 }

@@ -1,5 +1,3 @@
-# 6.1120 Skeleton Code
-
 # MITScript Project
 
 ## Overview

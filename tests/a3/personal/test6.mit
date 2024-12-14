@@ -1,0 +1,23 @@
+a = "
+multiline
+";
+
+print(a);
+
+a = "newline follows\n\ttab\" after \\";
+print(a);
+
+a = {};
+
+a.x = true;
+
+b = a;
+
+b.y = false;
+
+print(a);
+
+a = {};
+a.b = {};
+a.b.c = true;
+print(a);

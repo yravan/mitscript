@@ -1,0 +1,17 @@
+integer equality
+true
+false
+string equality
+true
+false
+boolean equality
+true
+false
+
+record equality
+false
+true
+false
+false
+true
+false

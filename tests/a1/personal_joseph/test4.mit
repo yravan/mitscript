@@ -1,0 +1,66 @@
+x = 5;
+y = 10;
+
+// Test 1: Simple if statement
+if (x < y) {
+    print("Test 1 passed");
+}
+
+// Test 2: If-else statement
+if (x > y) {
+    print("Test 2 failed");
+} else {
+    print("Test 2 passed");
+}
+
+// Test 3: Nested if statements
+if (x == 5) {
+    if (y == 10) {
+        print("Test 3 passed");
+    } else {
+        print("Test 3 failed");
+    }
+}
+
+// Test 4: If statement with boolean expression
+if (x < y & x > 0) {
+    print("Test 4 passed");
+}
+
+// Test 5: If statement with boolean expression and negation
+if (!(x > y)) {
+    print("Test 5 passed");
+}
+
+// Test 6: While loop
+while (x > 0) {
+    x = x - 1;
+}
+
+// Test 7: While loop with nested empty if statement
+while (true) {
+    if (y == 0) {
+
+    }
+    y = y - 1;
+}
+
+// Test 8: While loop with nested if-else
+while (x < 10) {
+    if (x / 2 == 0) {
+        print(x + " is even");
+    } else {
+        print(x + " is odd");
+    }
+    x = x + 1;
+}
+
+// Test 9: While loop with nested while loop
+while (x > 0) {
+    while (y > 0) {
+        print("x: " + x + ", y: " + y);
+        y = y - 1;
+    }
+    x = x - 1;
+    y = 10;
+}

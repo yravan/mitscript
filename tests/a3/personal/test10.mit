@@ -1,0 +1,26 @@
+a = true & (5 == 5) & true & (-3 < 10);
+print(a);
+
+a = false & true;
+print(a);
+
+a = true & false;
+print(a);
+
+a = false & false & false & false & true & false;
+print(a);
+
+a = false | (3 > 4);
+print(a);
+
+a = false | false | false | false | false | false | true;
+print(a);
+
+a = false | false | false;
+print(a);
+
+a = false | true & true;
+print(a);
+
+a = true | false & true;
+print(a);

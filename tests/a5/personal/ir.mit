@@ -1,0 +1,8 @@
+x = 0;
+y = x - 1;
+
+x = x - 1; 
+
+print(x);
+print(y);
+print(z);

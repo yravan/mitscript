@@ -1,0 +1,8 @@
+print(3 + "test");
+print("test" + 3);
+
+print(None == None);
+
+print(None == false);
+a = {b: 3; a: 2;};
+print(a);

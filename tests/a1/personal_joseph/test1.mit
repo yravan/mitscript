@@ -1,0 +1,20 @@
+
+add = fun(a, b) {
+    greet = fun() {
+        multiply = fun(c, d) {
+            return c * d;
+        };
+        print("Hello, World!");
+    };
+    return a + b;
+};
+
+// Function that greets the user
+greet = fun() {
+  print("Hello, World!");
+};
+
+// Function that multiplies two numbers
+multiply = fun(a, b) {
+  return a * b;
+};

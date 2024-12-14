@@ -1,0 +1,115 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = ["Value ", 1, 1],
+			parameter_count = 1,
+			local_vars = [x],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [print],
+			labels = {},
+			instructions = 
+			[
+				load_global	0
+				load_const	0
+				load_local	0
+				load_const	1
+				sub
+				add
+				call	1
+				pop
+				load_local	0
+				load_const	2
+				sub
+				return
+			]
+		}
+	],
+	constants = ["0", 1, 0],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [foo, input, intcast, print, x],
+	labels = {0 : 24; 1 : 19},
+	instructions = 
+	[
+		load_func	0
+		alloc_closure	0
+		store_global	3
+		load_func	1
+		alloc_closure	0
+		store_global	1
+		load_func	2
+		alloc_closure	0
+		store_global	2
+		load_func	3
+		alloc_closure	0
+		store_global	0
+		load_global	2
+		load_const	0
+		call	1
+		store_global	4
+		startwhile
+		goto	0
+		label	1
+		load_global	0
+		load_global	4
+		call	1
+		store_global	4
+		label	0
+		load_global	4
+		load_const	1
+		add
+		load_const	2
+		gt
+		if	1
+		endwhile
+	]
+}

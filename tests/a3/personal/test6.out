@@ -1,0 +1,7 @@
+
+multiline
+
+newline follows
+	tab" after \
+{x:true y:false }
+{b:{c:true } }

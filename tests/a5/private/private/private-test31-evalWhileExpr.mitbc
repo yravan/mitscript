@@ -1,0 +1,146 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [1, 5],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [x],
+			labels = {},
+			instructions = 
+			[
+				load_global	0
+				load_const	0
+				add
+				store_global	0
+				load_global	0
+				load_const	1
+				swap
+				gt
+				return
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [0, "loop", 1, 100, "You're in an infinite loop!", 0],
+			parameter_count = 0,
+			local_vars = [i],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [increm, print],
+			labels = {0 : 27; 1 : 5; 2 : 19; 3 : 26},
+			instructions = 
+			[
+				load_const	0
+				store_local	0
+				startwhile
+				goto	0
+				label	1
+				load_global	1
+				load_const	1
+				call	1
+				pop
+				load_local	0
+				load_const	2
+				add
+				store_local	0
+				load_local	0
+				load_const	3
+				gt
+				if	2
+				goto	3
+				label	2
+				load_global	1
+				load_const	4
+				call	1
+				pop
+				load_const	5
+				return
+				label	3
+				label	0
+				load_global	0
+				call	0
+				if	1
+				endwhile
+			]
+		}
+	],
+	constants = [0],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [increm, input, intcast, print, testing, x],
+	labels = {},
+	instructions = 
+	[
+		load_func	0
+		alloc_closure	0
+		store_global	3
+		load_func	1
+		alloc_closure	0
+		store_global	1
+		load_func	2
+		alloc_closure	0
+		store_global	2
+		load_const	0
+		store_global	5
+		load_func	3
+		alloc_closure	0
+		store_global	0
+		load_func	4
+		alloc_closure	0
+		store_global	4
+		load_global	4
+		call	0
+		pop
+	]
+}

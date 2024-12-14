@@ -1,0 +1,3 @@
+f = fun (a) {print(a);};
+a = f + " is the result";
+print(a);

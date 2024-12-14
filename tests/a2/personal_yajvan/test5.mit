@@ -1,0 +1,118 @@
+// Valid Parentheses leetcode problem
+create_arr = fun(size){
+    array = {};
+    array.size=size;
+    while (size > 0){
+        size = size - 1;
+        array[size] = None;
+    }
+    return array;
+};
+
+len = fun(arr){
+    return arr.size;
+};
+
+arr_to_string = fun(arr){
+    i = 0;
+    result = "";
+    while (i < arr.size){
+        result = result + arr[i];
+        i = i + 1;
+    }
+    return result;
+};
+
+create_stack = fun(){
+    stack = {};
+    stack.size = 0;
+    stack.pop = fun(){
+        if (stack.size > 0){
+            stack.size = stack.size - 1;
+            return stack[stack.size + 1];
+        }
+        print("Tried to pop from stack of size 0");
+    };
+    stack.push = fun(val){
+        stack[stack.size] = val;
+        stack.size = stack.size + 1;
+    };
+    stack.top = fun(){
+        if (stack.size > 0){
+            return stack[stack.size - 1];
+        }
+        print("Tried to grab from stack of size 0");
+    };
+    return stack;
+};
+
+solution = fun(string){
+    paren_stack = create_stack();
+    i = 0;
+    while (i < string.size){
+        char = string[i];
+        if (char == "}"){
+            if (paren_stack.top() == "{"){
+                paren_stack.pop();
+            }else{return false;}
+        }
+        if (char == ")"){
+            if (paren_stack.top() == "("){
+                paren_stack.pop();
+            }else{return false;}
+        }
+        if (char == "]"){
+            if (paren_stack.top() == "["){
+                paren_stack.pop();
+            }else{return false;}
+        }
+        if (char == "{" | char == "(" | char == "["){
+            paren_stack.push(char);
+        }
+        i = i + 1;
+    }
+    return len(paren_stack) == 0;
+};
+
+
+string = create_arr(2);
+string[0] = "("; string[1] = ")";
+if(solution(string)){
+    result = " is a valid parentheses.";
+}else{
+    result = " is not a valid parentheses.";
+}
+print(arr_to_string(string) + result);
+
+
+string = create_arr(6);
+string[0] = "("; string[1] = ")";string[2] = "["; string[3] = "]";string[4] = "{"; string[5] = "}";
+if(solution(string)){
+    result = " is a valid parentheses.";
+}else{
+    result = " is not a valid parentheses.";
+}
+print(arr_to_string(string) + result);
+
+
+string = create_arr(2);
+string[0] = "("; string[1] = "]";
+if(solution(string)){
+    result = " is a valid parentheses.";
+}else{
+    result = " is not a valid parentheses.";
+}
+print(arr_to_string(string) + result);
+
+
+string = create_arr(4);
+string[0] = "("; string[1] = "[";string[2] = "]"; string[3] = ")";
+if(solution(string)){
+    result = " is a valid parentheses.";
+}else{
+    result = " is not a valid parentheses.";
+}
+print(arr_to_string(string) + result);
+
+
+

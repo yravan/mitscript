@@ -1,0 +1,4 @@
+// Test naming and strings
+
+a = "!@#$%^&*()?/<>\t\n\\\"";
+a3_s__4 = "test";

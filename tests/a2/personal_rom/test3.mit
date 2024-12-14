@@ -1,0 +1,6 @@
+dict = {};
+if (dict.a == None) {
+  print("First we access");
+}
+print(dict);
+print("If you got here, then there aren't segfaults due to map access without key!");

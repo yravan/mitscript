@@ -1,0 +1,160 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions =
+			[
+				function
+				{
+					functions =
+					[
+						function
+						{
+							functions = [],
+							constants = [" inside c"],
+							parameter_count = 1,
+							local_vars = [z],
+							local_ref_vars = [],
+							free_vars = [x, y],
+							names = [print],
+							labels = {},
+							instructions = 
+							[
+								load_local	0
+								load_const	0
+								add
+								store_local	0
+								load_global	0
+								push_ref	0
+								load_ref
+								call	1
+								pop
+								load_global	0
+								push_ref	1
+								load_ref
+								call	1
+								pop
+								load_global	0
+								load_local	0
+								call	1
+								pop
+							]
+						}
+					],
+					constants = [" inside b"],
+					parameter_count = 1,
+					local_vars = [y, c],
+					local_ref_vars = [y],
+					free_vars = [x],
+					names = [],
+					labels = {},
+					instructions = 
+					[
+						push_ref	1
+						load_ref
+						load_const	0
+						add
+						store_local	0
+						load_func	0
+						push_ref	0
+						push_ref	1
+						alloc_closure	2
+						store_local	1
+						load_local	1
+						load_local	0
+						call	1
+						pop
+					]
+				}
+			],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [x, b],
+			local_ref_vars = [x],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+				load_func	0
+				push_ref	0
+				alloc_closure	1
+				store_local	1
+				load_local	1
+				load_local	0
+				call	1
+				pop
+			]
+		}
+	],
+	constants = ["a"],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [a, input, intcast, print],
+	labels = {},
+	instructions = 
+	[
+		load_func	0
+		alloc_closure	0
+		store_global	3
+		load_func	1
+		alloc_closure	0
+		store_global	1
+		load_func	2
+		alloc_closure	0
+		store_global	2
+		load_func	3
+		alloc_closure	0
+		store_global	0
+		load_global	0
+		load_const	0
+		call	1
+		pop
+	]
+}

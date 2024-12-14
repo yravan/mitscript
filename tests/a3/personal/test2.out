@@ -1,0 +1,53 @@
+int equality
+true
+false
+false
+false
+false
+false
+bool equality
+false
+true
+false
+false
+false
+false
+none equality
+false
+false
+true
+false
+false
+false
+record equality
+false
+false
+false
+false
+false
+true
+false
+function equality
+false
+false
+false
+false
+false
+false
+false
+string equality
+false
+false
+false
+false
+false
+true
+comparison tests
+false
+true
+false
+true
+false
+false
+true
+true

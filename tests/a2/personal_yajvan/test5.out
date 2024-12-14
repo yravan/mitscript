@@ -1,0 +1,4 @@
+() is a valid parentheses.
+()[]{} is a valid parentheses.
+(] is not a valid parentheses.
+([]) is a valid parentheses.

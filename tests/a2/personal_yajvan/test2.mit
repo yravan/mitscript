@@ -1,0 +1,54 @@
+create_arr = fun(size){
+    array = {};
+    array.size=size;
+    while (size > 0){
+        size = size - 1;
+        array[size] = None;
+    }
+    return array;
+};
+create_hash_map = fun(){
+    hash_map = {};
+    hash_map.exists = fun(key){
+        return !(hash_map[key] == None);
+    };
+    hash_map.add = fun(key){
+        hash_map[key] = true;
+    };
+    return hash_map;
+};
+twoSum = fun(arr, target){
+            i = 0;
+            hash_map = create_hash_map();
+            while (i < arr.size){
+                if (hash_map.exists(target - arr[i])){
+                    return true;
+                }
+                hash_map.add(arr[i]);
+                i = i + 1;
+            }
+            return false;
+        };
+
+test_array = create_arr(10);
+test_array[0] = 10;
+test_array[1] = 15;
+test_array[2] = 1;
+test_array[3] = 13;
+test_array[4] = 14;
+test_array[5] = 3;
+test_array[6] = 10;
+test_array[7] = 48;
+test_array[8] = 9;
+test_array[9] = 0;
+
+args = {arr: test_array; target:100;};
+
+print("inputs: " +  args +  ", output: " + twoSum(args.arr, args.target)); 
+args = {arr: test_array; target:24;};
+print("inputs: " +  args +  ", output: " + twoSum(args.arr, args.target)); 
+args = {arr: test_array; target:5;};
+print("inputs: " +  args +  ", output: " + twoSum(args.arr, args.target)); 
+args = {arr: test_array; target:27;};
+print("inputs: " +  args +  ", output: " + twoSum(args.arr, args.target)); 
+

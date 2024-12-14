@@ -1,0 +1,45 @@
+// assignment (variable assignment, heap assignment, heap index assignment)
+
+a1 = {a: 0; b: 1; c:2;};
+a2 = {d: 3; e: 4; f:5; a1: a1;};
+a3 = {g: 6; h: 7; i:8;};
+
+x = {r1: a1; r2: a2; r3: a3;};
+print(a1);
+print(a2);
+print(a3);
+print(x);
+
+x["r1"].a = -1;
+x["r1"].b = -2;
+print("");
+print(a1);
+print(a2);
+print(a3);
+print(x);
+
+x["r2"].d = "test1";
+print("");
+print(a1);
+print(a2);
+print(a3);
+print(x);
+
+r3 = "idx";
+x[r3] = 1;
+a3.g = 0;
+print("");
+print(a1);
+print(a2);
+print(a3);
+print(x);
+
+
+x["r2"].a1["a"] = -100;
+x["r2"].a1["b"] = -100;
+x["r2"].a1["c"] = -100;
+print("");
+print(a1);
+print(a2);
+print(a3);
+print(x);

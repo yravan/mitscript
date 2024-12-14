@@ -1,0 +1,21 @@
+a = fun () {
+  b = fun () {
+    return 3;
+  };
+  return b;
+};
+
+t = a();
+
+i = 0;
+while (i < 30000) {
+  a = fun () {
+    b = fun () {
+      return 4;
+    };
+    return b;
+  };
+  i = i + 1;
+}
+
+print(t());

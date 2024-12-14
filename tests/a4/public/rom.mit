@@ -1,0 +1,13 @@
+Vector = fun(x, y){
+  this = {
+    print : fun(){ 
+      print(x);
+      print("(" + x + y + ")"); 
+    };
+  };
+  return this;
+};
+
+v1 = Vector(2,2);
+v1.print();
+

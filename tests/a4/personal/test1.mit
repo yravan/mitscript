@@ -1,0 +1,10 @@
+i = 0;
+f = fun () {
+  j = 2;
+  return j;
+};
+while (i < 10000) {
+  temp = f();
+  i = i + 1;
+}
+print(temp);

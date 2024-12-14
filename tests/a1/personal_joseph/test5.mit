@@ -1,0 +1,25 @@
+x = 10;
+y = 5;
+z = 3;
+
+bool_1 = x > y;
+bool_2 = x > y & y > z;
+bool_3 = x == 10;
+bool_4 = x > y & y < 10;
+
+bool_5 = !(x < y);
+bool_6 = bool_1 | bool_2 | bool_3;
+bool_7 = bool_1 & bool_2 & bool_3;
+bool_8 = bool_1 | bool_2 & bool_3 | bool_4;
+
+arithmetic_1 = x * 2;
+arithmetic_2 = x + 3;
+arithmetic_3 = -y;
+
+arithmetic_4 = arithmetic_1 * arithmetic_2 + arithmetic_3;
+arithmetic_5 = arithmetic_1 - arithmetic_2 / arithmetic_3;
+
+a = -(2*x+5);
+a = !(11);
+a = !((((( (((((((!((  (((10*x))))))))) ))))))));
+

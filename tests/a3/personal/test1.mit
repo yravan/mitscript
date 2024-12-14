@@ -1,0 +1,41 @@
+a = "res: " + 5;
+print(a);
+
+a = 5 + " is the res";
+print(a);
+
+a = "res is: " + true;
+print(a);
+
+a = false + " is the res";
+print(a);
+
+a = "a" + "b" + "c" + "d";
+print(a);
+
+a = "res: " + None;
+print(a);
+
+a = None + " is the res";
+print(a);
+
+f = fun() {};
+a = "fun is: " + f;
+print(a);
+
+a = f + " is fun";
+print(a);
+
+a = "Builtin check " + print;
+print(a);
+
+r = {
+  a: 5;
+  c: true;
+  b: f;
+};
+a = "Record res is: " + r;
+print(a);
+
+a = r  + " is the other way";
+print(a);

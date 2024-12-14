@@ -1,0 +1,14 @@
+s = "c";
+i = 0;
+while (i < 14) {
+  s = s + s;
+  i = i + 1;
+}
+r = {};
+i = 0;
+while (i < 200) {
+  r[s + i] = i;
+  i = i + 1;
+}
+print("done");
+

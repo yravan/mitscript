@@ -1,0 +1,2 @@
+a = true + " is the result";
+print(a);

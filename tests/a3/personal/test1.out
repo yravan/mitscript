@@ -1,0 +1,12 @@
+res: 5
+5 is the res
+res is: true
+false is the res
+abcd
+res: None
+None is the res
+fun is: FUNCTION
+FUNCTION is fun
+Builtin check FUNCTION
+Record res is: {a:5 b:FUNCTION c:true }
+{a:5 b:FUNCTION c:true } is the other way

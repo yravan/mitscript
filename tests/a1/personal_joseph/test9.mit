@@ -1,0 +1,17 @@
+
+p = {x:0; y:0;};
+
+q = {m:1+2; n:1-2; q:2*3; s:2/3;};
+
+m = {a:none; b:none+"a";};
+
+l = {};
+
+b = {
+    x: "2349023480293dscjiodsc12u9csldsh";
+    a: fun (arg1, arg2) {
+      return None;
+    };
+    c: a|b|c&d;
+    NONE: None;
+};

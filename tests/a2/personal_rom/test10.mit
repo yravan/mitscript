@@ -1,0 +1,11 @@
+a = {};
+a.b = 2;
+a.b = {};
+print(a);
+a.b.c = 3;
+print(a);
+a.x = "None";
+a.x = "\n";
+a.y = "r";
+a.z = "\\";
+print(a);

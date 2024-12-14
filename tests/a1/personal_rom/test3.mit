@@ -1,0 +1,12 @@
+// Check Record parsing
+
+if (3+5) {
+  return {
+    x: "2349023480293dscjiodsc12u9csldsh";
+    a: fun (arg1, arg2) {
+      return None;
+    };
+    c: a|b|c&d;
+    NONE: None;
+  };
+}

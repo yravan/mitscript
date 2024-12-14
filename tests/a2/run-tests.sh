@@ -39,6 +39,9 @@ PTOTAL=0
 PCOUNT=0
 
 for filename in $ROOT/a2/private/*.mit; do
+    if [ ! -f "$filename" ]; then
+        break
+    fi
     echo $filename
     if test -f $filename.in; then
         timeout $TIMEOUT $INTERPRETER $filename < $filename.in > tmp1.out 2> tmp1.err

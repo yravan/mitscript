@@ -1,0 +1,7 @@
+// Check comments
+if (true) {//
+  // this is a comments
+  PRINT( //)
+  //
+  "tests");
+} // else

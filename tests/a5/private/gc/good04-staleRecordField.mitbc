@@ -1,0 +1,173 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = ["Hello", None],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [print],
+			instructions = 
+			[
+				load_global	0
+				load_const	0
+				call	1
+				pop
+				load_const	1
+				return
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", None],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [print],
+			instructions = 
+			[
+				load_global	0
+				load_const	0
+				call	1
+				pop
+				load_global	0
+				load_const	1
+				call	1
+				pop
+				load_global	0
+				load_const	2
+				call	1
+				pop
+				load_global	0
+				load_const	3
+				call	1
+				pop
+				load_global	0
+				load_const	4
+				call	1
+				pop
+				load_global	0
+				load_const	5
+				call	1
+				pop
+				load_global	0
+				load_const	6
+				call	1
+				pop
+				load_global	0
+				load_const	7
+				call	1
+				pop
+				load_global	0
+				load_const	8
+				call	1
+				pop
+				load_global	0
+				load_const	9
+				call	1
+				pop
+				load_const	10
+				return
+			]
+		}
+	],
+	constants = [0, "x", None, None, "y", 1, 100000],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [i, input, intcast, print, r, y, x],
+	instructions = 
+	[
+		load_func	0
+		alloc_closure	0
+		store_global	3
+		load_func	1
+		alloc_closure	0
+		store_global	1
+		load_func	2
+		alloc_closure	0
+		store_global	2
+		load_const	0
+		store_global	0
+		alloc_record
+		store_global	4
+		goto	27
+		load_func	3
+		alloc_closure	0
+		load_global	4
+		swap
+		load_const	1
+		swap
+		index_store
+		load_func	4
+		alloc_closure	0
+		load_global	4
+		swap
+		field_store	5
+		load_const	2
+		load_global	4
+		swap
+		field_store	6
+		load_const	3
+		load_global	4
+		swap
+		load_const	4
+		swap
+		index_store
+		load_global	0
+		load_const	5
+		add
+		store_global	0
+		load_global	0
+		load_const	6
+		swap
+		gt
+		if	-30
+	]
+}

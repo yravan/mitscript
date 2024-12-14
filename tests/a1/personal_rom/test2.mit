@@ -1,0 +1,41 @@
+// Test condition
+
+// Test if statement condition
+
+if (3+5) {
+  Print("Here");
+}
+if ({x:3; y:4;}) {
+    r = fun() {
+      x = 2;
+    };
+}
+if (true | !3) {
+  return 4;
+}
+
+if (fun () {
+  return 2;
+}) {
+  a = {x:1; y:2;};
+}
+
+// Test while loop condition
+
+while (3+5) {
+  Print("Here");
+}
+while ({x:3; y:4;}) {
+    r = fun() {
+      x = 2;
+    };
+}
+while (true | !3) {
+  return 4;
+}
+
+while (fun () {
+  return 2;
+}) {
+  a = {x:1; y:2;};
+}

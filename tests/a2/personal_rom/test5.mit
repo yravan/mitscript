@@ -1,0 +1,9 @@
+// test none assignment at start
+
+x = 10;
+a = fun() {
+  print("This should be None: " + x);
+
+  x = 5;
+};
+a();

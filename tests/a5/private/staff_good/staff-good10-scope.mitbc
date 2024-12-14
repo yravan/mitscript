@@ -1,0 +1,128 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions =
+			[
+				function
+				{
+					functions = [],
+					constants = ["Value = ", 10],
+					parameter_count = 0,
+					local_vars = [],
+					local_ref_vars = [],
+					free_vars = [],
+					names = [print, x],
+					labels = {0 : 12; 1 : 13},
+					instructions = 
+					[
+						load_global	0
+						load_const	0
+						load_global	1
+						add
+						call	1
+						pop
+						load_global	1
+						load_const	1
+						eq
+						if	0
+						goto	1
+						label	0
+						label	1
+					]
+				}
+			],
+			constants = [7],
+			parameter_count = 0,
+			local_vars = [g, x],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+				load_const	0
+				store_local	1
+				load_func	0
+				alloc_closure	0
+				store_local	0
+				load_local	0
+				return
+			]
+		}
+	],
+	constants = [5],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [f, h, input, intcast, print, x],
+	labels = {},
+	instructions = 
+	[
+		load_func	0
+		alloc_closure	0
+		store_global	4
+		load_func	1
+		alloc_closure	0
+		store_global	2
+		load_func	2
+		alloc_closure	0
+		store_global	3
+		load_const	0
+		store_global	5
+		load_func	3
+		alloc_closure	0
+		store_global	0
+		load_global	0
+		call	0
+		store_global	1
+		load_global	1
+		call	0
+		pop
+	]
+}

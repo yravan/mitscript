@@ -1,7 +1,9 @@
 #include "interpreter.h"
+#include "native_functions.h"
 #include <sstream>
 
 std::string Interpreter::string_cast(Value* v) {
+    DEBUG_PRINT("Entering string_cast with " + v->to_string());
     if (typeid(*v) == typeid(String)) {
         String* val = dynamic_cast<String*>(v);
         return val->val;  // If it's already a String, cast and return
@@ -17,7 +19,7 @@ std::string Interpreter::string_cast(Value* v) {
     if (typeid(*v) == typeid(None)) {
         return "None";  // None case returns a string "None"
     }
-    if (typeid(*v) == typeid(Function)) {
+    if (typeid(*v) == typeid(Function) || typeid(*v) == typeid(NativeFunction)) {
         return "FUNCTION";  // Placeholder for Function type
     }
     if (typeid(*v) == typeid(Record)) {

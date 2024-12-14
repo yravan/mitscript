@@ -1,0 +1,89 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [None, true, false],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			instructions =
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [None, true, false],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			instructions =
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [None, true, false],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			instructions =
+			[
+			]
+		}
+	],
+	constants = [None, true, false, 5, 1],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [print, input, intcast, x, y, a, b],
+	instructions =
+	[
+		  -- block 0 --
+		[  ]
+		load_func	0
+		alloc_closure	0
+		store_global	0
+		load_func	1
+		alloc_closure	0
+		store_global	1
+		load_func	2
+		alloc_closure	0
+		store_global	2
+		[ 1,  ]
+		  -- block 1 --
+		[ 0,  ]
+		load_const	3
+		store_global	3
+		load_global	3
+		assert_integer
+		unbox_integer
+		load_const	4
+		assert_integer
+		unbox_integer
+		sub_int32
+		store_global	4
+		load_global	3
+		load_global	4
+		add
+		store_global	5
+		load_global	3
+		load_global	4
+		add
+		store_global	6
+		load_const	0
+		return
+		[  ]
+	]
+}

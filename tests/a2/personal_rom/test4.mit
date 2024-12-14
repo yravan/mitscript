@@ -1,0 +1,31 @@
+// Lets check equality!
+a = "string one";
+b = "string one";
+print("this should be true: " + (a==b));
+
+a = 3;
+b = 3;
+c = 4;
+print("this should be true: " + (a==b));
+print("this should be false: " + (a==c));
+
+a = fun() {
+  b = fun() {};
+  return b;
+};
+
+c = fun() {
+  b = fun () {};
+  return b;
+};
+
+d = a();
+e = c();
+
+print("this should be false: " + (d==e));
+
+a = {};
+b = {};
+c = b;
+print("this should be false: " + (a==b));
+print("this should be true: " + (b==c));

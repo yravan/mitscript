@@ -16,10 +16,11 @@ run_gc_tests(){
     for filename in $ROOT/a4/public/garbagetest*.mit; do
         echo "RUNNING $(basename $filename)"
         rm -f tmp.out
+        echo $INTERPRETER -mem $MEM -s $filename 2>&1 
         USAGE=$(timeout $TIMEOUT time -v $INTERPRETER -mem $MEM -s $filename 2>&1 > tmp.out | grep Max | awk '{print $6}')
         CODE=$?
         if [[ $CODE = 0 ]]; then
-            if diff tmp.out $filename.out; then
+            if diff -q tmp.out $filename.out; then
                 if [[ $USAGE -gt $LIMIT ]]; then
                     echo "Fail: $(basename $filename) ($USAGE > $LIMIT)"
                 else
@@ -75,6 +76,6 @@ run_mem_tests(){
 }
 
 run_gc_tests public
-run_gc_tests private
-run_mem_tests
+# run_gc_tests private
+# run_mem_tests
 echo "Done"

@@ -17,13 +17,12 @@ v1.print();
 
 print("V2");
 v2.print();
+
 x = v1.plus(v1);
-
-
+ 
 if(x.equals(v2)){
-print("The vectors are equal");
-x.print();
-
+   print("The vectors are equal");
+   x.print();
 }
 
 

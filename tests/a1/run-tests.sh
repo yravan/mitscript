@@ -1,8 +1,7 @@
 #!/bin/bash
 # >>> ./run-tests.sh public ../../reference/mitscript-parser
-# >>> ./run-tests.sh public ../../cmake-build-grading/interpreter/mitscript-parser
 
-ROOT=".."
+ROOT="."
 TESTS="$1"
 PARSER="$2"
 
@@ -15,6 +14,7 @@ for filename in "$ROOT/a1/$TESTS"/bad*.mit; do
     if [[ $CODE -eq 0 ]] && [[ $OUT != *"Error"* ]]; then
         echo "Fail: $(basename $filename) (exit code $CODE)"
     else
+        echo "Passed: $(basename $filename)"
         COUNT=$((COUNT + 1))
     fi
     TOTAL=$((TOTAL + 1))
@@ -26,6 +26,7 @@ for filename in "$ROOT/a1/$TESTS"/good*.mit; do
     if [[ $CODE -ne 0 ]] || [[ $OUT = *"Error"* ]]; then
         echo "Fail: $(basename $filename) (exit code $CODE)"
     else
+        echo "Passed: $(basename $filename)"
         COUNT=$((COUNT + 1))
     fi
     TOTAL=$((TOTAL + 1))

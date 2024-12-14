@@ -1,0 +1,3 @@
+// Test field and index dereference
+
+return a["test"].s["sdf!sd"][sdfsd].sdfds.sfdds.sfd.s___sdf32;

@@ -7,7 +7,9 @@ add_library(CompilerSources OBJECT
         )
 
 add_library(BytecodeSources OBJECT
-        src/empty.cpp # TODO replace with your files
+        src/interpreter.cpp # TODO replace with your files
+        src/bytecode/types.cpp
+        src/bytecode/frame.cpp
         )
 
 add_executable(mitscriptc src/bytecode-compiler.cpp)

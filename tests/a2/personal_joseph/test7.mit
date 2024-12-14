@@ -1,0 +1,20 @@
+// test builtin functions print and intcast
+
+print("\"");
+print("\\");
+print("\\\\");
+
+print("\ttab");
+print("\\ttab");
+print("\\\ttab");
+
+print("\nnewline");
+print("\\nnewline");
+print("\\\nnewline");
+
+x = intcast("00002");
+print(x);
+
+x = intcast("-1");
+print(x);
+

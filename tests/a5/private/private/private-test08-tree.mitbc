@@ -1,0 +1,838 @@
+function
+{
+	functions =
+	[
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 0,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions = [],
+			constants = [],
+			parameter_count = 1,
+			local_vars = [],
+			local_ref_vars = [],
+			free_vars = [],
+			names = [],
+			labels = {},
+			instructions = 
+			[
+			]
+		},
+		function
+		{
+			functions =
+			[
+				function
+				{
+					functions =
+					[
+						function
+						{
+							functions = [],
+							constants = [1, None, None],
+							parameter_count = 0,
+							local_vars = [count],
+							local_ref_vars = [],
+							free_vars = [this],
+							names = [left, left, len, right, right, len],
+							labels = {0 : 11; 1 : 20; 2 : 29; 3 : 38},
+							instructions = 
+							[
+								load_const	0
+								store_local	0
+								push_ref	0
+								load_ref
+								field_load	0
+								load_const	1
+								eq
+								not
+								if	0
+								goto	1
+								label	0
+								load_local	0
+								push_ref	0
+								load_ref
+								field_load	1
+								field_load	2
+								call	0
+								add
+								store_local	0
+								label	1
+								push_ref	0
+								load_ref
+								field_load	3
+								load_const	2
+								eq
+								not
+								if	2
+								goto	3
+								label	2
+								load_local	0
+								push_ref	0
+								load_ref
+								field_load	4
+								field_load	5
+								call	0
+								add
+								store_local	0
+								label	3
+								load_local	0
+								return
+							]
+						},
+						function
+						{
+							functions = [],
+							constants = [true, None, false, None, false],
+							parameter_count = 1,
+							local_vars = [x],
+							local_ref_vars = [],
+							free_vars = [this],
+							names = [val, val, right, right, contains, left, left, contains],
+							labels = {4 : 8; 5 : 11; 6 : 38; 7 : 57; 8 : 33; 9 : 36; 10 : 53; 11 : 56},
+							instructions = 
+							[
+								load_local	0
+								push_ref	0
+								load_ref
+								field_load	0
+								eq
+								if	4
+								goto	5
+								label	4
+								load_const	0
+								return
+								label	5
+								load_local	0
+								push_ref	0
+								load_ref
+								field_load	1
+								swap
+								gt
+								if	6
+								push_ref	0
+								load_ref
+								field_load	2
+								load_const	1
+								eq
+								if	8
+								push_ref	0
+								load_ref
+								field_load	3
+								field_load	4
+								load_local	0
+								call	1
+								return
+								goto	9
+								label	8
+								load_const	2
+								return
+								label	9
+								goto	7
+								label	6
+								push_ref	0
+								load_ref
+								field_load	5
+								load_const	3
+								eq
+								if	10
+								push_ref	0
+								load_ref
+								field_load	6
+								field_load	7
+								load_local	0
+								call	1
+								return
+								goto	11
+								label	10
+								load_const	4
+								return
+								label	11
+								label	7
+							]
+						},
+						function
+						{
+							functions = [],
+							constants = [None, None],
+							parameter_count = 1,
+							local_vars = [x],
+							local_ref_vars = [],
+							free_vars = [Node, this],
+							names = [val, val, right, right, addx, right, left, left, addx, left],
+							labels = {12 : 42; 13 : 67; 14 : 15; 15 : 40; 16 : 30; 17 : 39; 18 : 57; 19 : 66},
+							instructions = 
+							[
+								load_local	0
+								push_ref	1
+								load_ref
+								field_load	0
+								swap
+								gt
+								if	12
+								load_local	0
+								push_ref	1
+								load_ref
+								field_load	1
+								gt
+								if	14
+								goto	15
+								label	14
+								push_ref	1
+								load_ref
+								field_load	2
+								load_const	0
+								eq
+								if	16
+								push_ref	1
+								load_ref
+								field_load	3
+								field_load	4
+								load_local	0
+								call	1
+								pop
+								goto	17
+								label	16
+								push_ref	0
+								load_ref
+								load_local	0
+								call	1
+								push_ref	1
+								load_ref
+								swap
+								field_store	5
+								label	17
+								label	15
+								goto	13
+								label	12
+								push_ref	1
+								load_ref
+								field_load	6
+								load_const	1
+								eq
+								if	18
+								push_ref	1
+								load_ref
+								field_load	7
+								field_load	8
+								load_local	0
+								call	1
+								pop
+								goto	19
+								label	18
+								push_ref	0
+								load_ref
+								load_local	0
+								call	1
+								push_ref	1
+								load_ref
+								swap
+								field_store	9
+								label	19
+								label	13
+							]
+						},
+						function
+						{
+							functions = [],
+							constants = [None],
+							parameter_count = 0,
+							local_vars = [],
+							local_ref_vars = [],
+							free_vars = [this],
+							names = [left, left, min, val],
+							labels = {20 : 14; 21 : 19},
+							instructions = 
+							[
+								push_ref	0
+								load_ref
+								field_load	0
+								load_const	0
+								eq
+								if	20
+								push_ref	0
+								load_ref
+								field_load	1
+								field_load	2
+								call	0
+								return
+								goto	21
+								label	20
+								push_ref	0
+								load_ref
+								field_load	3
+								return
+								label	21
+							]
+						},
+						function
+						{
+							functions = [],
+							constants = [None],
+							parameter_count = 0,
+							local_vars = [],
+							local_ref_vars = [],
+							free_vars = [this],
+							names = [right, right, max, val],
+							labels = {22 : 14; 23 : 19},
+							instructions = 
+							[
+								push_ref	0
+								load_ref
+								field_load	0
+								load_const	0
+								eq
+								if	22
+								push_ref	0
+								load_ref
+								field_load	1
+								field_load	2
+								call	0
+								return
+								goto	23
+								label	22
+								push_ref	0
+								load_ref
+								field_load	3
+								return
+								label	23
+							]
+						},
+						function
+						{
+							functions = [],
+							constants = [None, None],
+							parameter_count = 1,
+							local_vars = [f],
+							local_ref_vars = [],
+							free_vars = [this],
+							names = [left, left, forall, val, right, right, forall],
+							labels = {24 : 9; 25 : 17; 26 : 32; 27 : 40},
+							instructions = 
+							[
+								push_ref	0
+								load_ref
+								field_load	0
+								load_const	0
+								eq
+								not
+								if	24
+								goto	25
+								label	24
+								push_ref	0
+								load_ref
+								field_load	1
+								field_load	2
+								load_local	0
+								call	1
+								pop
+								label	25
+								load_local	0
+								push_ref	0
+								load_ref
+								field_load	3
+								call	1
+								pop
+								push_ref	0
+								load_ref
+								field_load	4
+								load_const	1
+								eq
+								not
+								if	26
+								goto	27
+								label	26
+								push_ref	0
+								load_ref
+								field_load	5
+								field_load	6
+								load_local	0
+								call	1
+								pop
+								label	27
+							]
+						}
+					],
+					constants = [None, None],
+					parameter_count = 1,
+					local_vars = [v, this],
+					local_ref_vars = [this],
+					free_vars = [Node],
+					names = [val, left, right, len, contains, addx, min, max, forall],
+					labels = {},
+					instructions = 
+					[
+						alloc_record
+						dup
+						load_local	0
+						field_store	0
+						dup
+						load_const	0
+						field_store	1
+						dup
+						load_const	1
+						field_store	2
+						dup
+						load_func	0
+						push_ref	0
+						alloc_closure	1
+						field_store	3
+						dup
+						load_func	1
+						push_ref	0
+						alloc_closure	1
+						field_store	4
+						dup
+						load_func	2
+						push_ref	0
+						push_ref	1
+						alloc_closure	2
+						field_store	5
+						dup
+						load_func	3
+						push_ref	0
+						alloc_closure	1
+						field_store	6
+						dup
+						load_func	4
+						push_ref	0
+						alloc_closure	1
+						field_store	7
+						dup
+						load_func	5
+						push_ref	0
+						alloc_closure	1
+						field_store	8
+						store_local	1
+						load_local	1
+						return
+					]
+				},
+				function
+				{
+					functions = [],
+					constants = [None, false],
+					parameter_count = 1,
+					local_vars = [x],
+					local_ref_vars = [],
+					free_vars = [this],
+					names = [root, root, contains],
+					labels = {28 : 15; 29 : 18},
+					instructions = 
+					[
+						push_ref	0
+						load_ref
+						field_load	0
+						load_const	0
+						eq
+						if	28
+						push_ref	0
+						load_ref
+						field_load	1
+						field_load	2
+						load_local	0
+						call	1
+						return
+						goto	29
+						label	28
+						load_const	1
+						return
+						label	29
+					]
+				},
+				function
+				{
+					functions = [],
+					constants = [None],
+					parameter_count = 1,
+					local_vars = [x],
+					local_ref_vars = [],
+					free_vars = [Node, this],
+					names = [root, root, addx, root],
+					labels = {30 : 15; 31 : 24},
+					instructions = 
+					[
+						push_ref	1
+						load_ref
+						field_load	0
+						load_const	0
+						eq
+						if	30
+						push_ref	1
+						load_ref
+						field_load	1
+						field_load	2
+						load_local	0
+						call	1
+						pop
+						goto	31
+						label	30
+						push_ref	0
+						load_ref
+						load_local	0
+						call	1
+						push_ref	1
+						load_ref
+						swap
+						field_store	3
+						label	31
+					]
+				},
+				function
+				{
+					functions = [],
+					constants = [None, "Error"],
+					parameter_count = 0,
+					local_vars = [],
+					local_ref_vars = [],
+					free_vars = [this],
+					names = [root, root, min],
+					labels = {32 : 14; 33 : 17},
+					instructions = 
+					[
+						push_ref	0
+						load_ref
+						field_load	0
+						load_const	0
+						eq
+						if	32
+						push_ref	0
+						load_ref
+						field_load	1
+						field_load	2
+						call	0
+						return
+						goto	33
+						label	32
+						load_const	1
+						return
+						label	33
+					]
+				},
+				function
+				{
+					functions = [],
+					constants = [None, "Error"],
+					parameter_count = 0,
+					local_vars = [],
+					local_ref_vars = [],
+					free_vars = [this],
+					names = [root, root, max],
+					labels = {34 : 14; 35 : 17},
+					instructions = 
+					[
+						push_ref	0
+						load_ref
+						field_load	0
+						load_const	0
+						eq
+						if	34
+						push_ref	0
+						load_ref
+						field_load	1
+						field_load	2
+						call	0
+						return
+						goto	35
+						label	34
+						load_const	1
+						return
+						label	35
+					]
+				},
+				function
+				{
+					functions = [],
+					constants = [None, 0],
+					parameter_count = 0,
+					local_vars = [],
+					local_ref_vars = [],
+					free_vars = [this],
+					names = [root, root, len],
+					labels = {36 : 14; 37 : 17},
+					instructions = 
+					[
+						push_ref	0
+						load_ref
+						field_load	0
+						load_const	0
+						eq
+						if	36
+						push_ref	0
+						load_ref
+						field_load	1
+						field_load	2
+						call	0
+						return
+						goto	37
+						label	36
+						load_const	1
+						return
+						label	37
+					]
+				},
+				function
+				{
+					functions = [],
+					constants = [None],
+					parameter_count = 1,
+					local_vars = [f],
+					local_ref_vars = [],
+					free_vars = [this],
+					names = [root, root, forall],
+					labels = {38 : 15; 39 : 16},
+					instructions = 
+					[
+						push_ref	0
+						load_ref
+						field_load	0
+						load_const	0
+						eq
+						if	38
+						push_ref	0
+						load_ref
+						field_load	1
+						field_load	2
+						load_local	0
+						call	1
+						pop
+						goto	39
+						label	38
+						label	39
+					]
+				}
+			],
+			constants = [None],
+			parameter_count = 0,
+			local_vars = [Node, this],
+			local_ref_vars = [Node, this],
+			free_vars = [],
+			names = [root, contains, addx, min, max, len, forall],
+			labels = {},
+			instructions = 
+			[
+				load_func	0
+				push_ref	0
+				alloc_closure	1
+				store_local	0
+				alloc_record
+				dup
+				load_const	0
+				field_store	0
+				dup
+				load_func	1
+				push_ref	1
+				alloc_closure	1
+				field_store	1
+				dup
+				load_func	2
+				push_ref	1
+				push_ref	0
+				alloc_closure	2
+				field_store	2
+				dup
+				load_func	3
+				push_ref	1
+				alloc_closure	1
+				field_store	3
+				dup
+				load_func	4
+				push_ref	1
+				alloc_closure	1
+				field_store	4
+				dup
+				load_func	5
+				push_ref	1
+				alloc_closure	1
+				field_store	5
+				dup
+				load_func	6
+				push_ref	1
+				alloc_closure	1
+				field_store	6
+				store_local	1
+				load_local	1
+				return
+			]
+		}
+	],
+	constants = [400, "5", 0, 0, "6", 1, 1, "Min = ", "Max = ", 0, 1, 1, "Range size = ", 1, "Missing = ", "Length = ", "After forall"],
+	parameter_count = 0,
+	local_vars = [],
+	local_ref_vars = [],
+	free_vars = [],
+	names = [M, N, Tree, i, input, intcast, inval, j, max, min, missing, print, t, addx, min, max, contains, len],
+	labels = {40 : 58; 41 : 26; 42 : 47; 43 : 35; 44 : 109; 45 : 91; 46 : 99; 47 : 104},
+	instructions = 
+	[
+		load_func	0
+		alloc_closure	0
+		store_global	11
+		load_func	1
+		alloc_closure	0
+		store_global	4
+		load_func	2
+		alloc_closure	0
+		store_global	5
+		load_func	3
+		alloc_closure	0
+		store_global	2
+		load_const	0
+		store_global	0
+		load_global	5
+		load_const	1
+		call	1
+		store_global	1
+		load_global	2
+		call	0
+		store_global	12
+		load_const	2
+		store_global	3
+		startwhile
+		goto	40
+		label	41
+		load_const	3
+		store_global	7
+		load_global	5
+		load_const	4
+		call	1
+		store_global	6
+		startwhile
+		goto	42
+		label	43
+		load_global	12
+		field_load	13
+		load_global	6
+		load_global	7
+		add
+		call	1
+		pop
+		load_global	7
+		load_const	5
+		add
+		store_global	7
+		label	42
+		load_global	7
+		load_global	0
+		swap
+		gt
+		if	43
+		endwhile
+		load_global	3
+		load_const	6
+		add
+		store_global	3
+		label	40
+		load_global	3
+		load_global	1
+		swap
+		gt
+		if	41
+		endwhile
+		load_global	12
+		field_load	14
+		call	0
+		store_global	9
+		load_global	12
+		field_load	15
+		call	0
+		store_global	8
+		load_global	11
+		load_const	7
+		load_global	9
+		add
+		call	1
+		pop
+		load_global	11
+		load_const	8
+		load_global	8
+		add
+		call	1
+		pop
+		load_global	9
+		store_global	3
+		load_const	9
+		store_global	10
+		startwhile
+		goto	44
+		label	45
+		load_global	12
+		field_load	16
+		load_global	3
+		call	1
+		not
+		if	46
+		goto	47
+		label	46
+		load_global	10
+		load_const	10
+		add
+		store_global	10
+		label	47
+		load_global	3
+		load_const	11
+		add
+		store_global	3
+		label	44
+		load_global	3
+		load_global	8
+		swap
+		geq
+		if	45
+		endwhile
+		load_global	11
+		load_const	12
+		load_global	8
+		load_global	9
+		sub
+		load_const	13
+		add
+		add
+		call	1
+		pop
+		load_global	11
+		load_const	14
+		load_global	10
+		add
+		call	1
+		pop
+		load_global	11
+		load_const	15
+		load_global	12
+		field_load	17
+		call	0
+		add
+		call	1
+		pop
+		load_global	11
+		load_const	16
+		call	1
+		pop
+	]
+}

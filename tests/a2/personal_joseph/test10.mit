@@ -1,0 +1,46 @@
+// equality
+
+
+// integers
+x1 = 1;
+x2 = 1;
+x3 = -2;
+
+print("integer equality");
+print(x1 == x2); // true
+print(x1 == x3); // false
+
+// strings
+s1 = "test";
+s2 = "test";
+s3 = "not test";
+
+print("string equality");
+print(s1 == s2); // true
+print(s1 == s3); // false
+
+// booleans
+b1 = true;
+b2 = true;
+b3 = false;
+
+print("boolean equality");
+print(b1 == b2); // true
+print(b1 == b3); // false
+
+
+// records
+r1 = {a1:1; a2:2; a3:3;};
+r2 = {a1:1; a2:2; a3:3;};
+r3 = r1;
+r4 = {a1:1; a2:2;};
+r5 = {};
+r6 = {};
+
+print("\nrecord equality");
+print(r1 == r2); // false
+print(r1 == r3); // true
+print(r1 == r4); // false
+print(r1 == r5); // false
+print(r5 == r5); // true
+print(r5 == r6); // false

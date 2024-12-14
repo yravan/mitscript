@@ -1,0 +1,49 @@
+// Best Time to Buy and Sell a Stock leetcode problem
+create_arr = fun(size){
+    array = {};
+    array.size=size;
+    while (size > 0){
+        size = size - 1;
+        array[size] = None;
+    }
+    return array;
+};
+len = fun(arr){
+    return arr.size;
+};
+max = fun(x,y){
+    if (x < y){
+        return y;
+    }
+    return x;
+};
+min = fun(x,y){
+    if (x > y){
+        return y;
+    }
+    return x;
+};
+
+solution = fun(prices){
+    min_price_so_far = prices[0];
+    max_profit = 0;
+    i = 1;
+    if (len(prices) == 1){
+        return None;
+    }
+    while (i < len(prices)){
+        max_profit = max(max_profit, prices[i] - min_price_so_far);
+        min_price_so_far = min(min_price_so_far, prices[i]);
+        i = i + 1;
+    }
+    return max_profit;
+};
+
+prices = create_arr(6);
+prices[0] = 7; prices[1] = 1; prices[2] = 5; prices[3] = 3; prices[4] = 6; prices[5] = 4;
+print("Max profit with prices " + prices + ":\n\t" + solution(prices));
+
+prices = create_arr(5);
+prices[0] = 7; prices[1] = 6; prices[2] = 4; prices[3] = 3; prices[4] = 1;
+print("Max profit with prices " + prices + ":\n\t" + solution(prices));
+

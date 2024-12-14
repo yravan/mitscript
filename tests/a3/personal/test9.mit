@@ -1,0 +1,33 @@
+f = fun() {
+  if (true) {
+    return "returned from f";
+  } else {
+    return "should not get this";
+  }
+  print("still in f");
+};
+print(f());
+
+g = fun() {
+  while (true) {
+    return "returned from g";
+  }
+  print("still in g");
+};
+print(g());
+
+h = fun() {};
+print(h());
+
+x = fun() {
+  g = fun() {
+    print("inside nested");
+    return 5;
+  };
+  print(g());
+  print("after nested");
+};
+x();
+
+return 5;
+print("should not run");

@@ -1,0 +1,111 @@
+eq = fun(a, b) {
+  return a == b;
+};
+
+lt = fun(a, b) {
+  return a < b;
+};
+
+lte = fun(a, b) {
+  return a <= b;
+};
+
+gt = fun(a, b) {
+  return a > b;
+};
+
+gte = fun(a, b) {
+  return a >= b;
+};
+
+cmp = fun(arg1, arg2, op) {
+  print(op(arg1, arg2));
+};
+
+// Anothers are done to make sure address equality is not the method of verifying
+int_literal = 5;
+another_int_literal = 5;
+bool_literal = true;
+another_bool_literal = true;
+none_literal = None;
+another_none_literal = None;
+empty_record = {};
+another_empty_record = {};
+function_literal = fun () {};
+another_function_literal = fun () {};
+string_literal = "basic string";
+another_string_literal = "basic string";
+
+// Equality
+
+// Ints
+print("int equality");
+cmp(another_int_literal, int_literal, eq);
+cmp(another_int_literal, bool_literal, eq);
+cmp(another_int_literal, none_literal, eq);
+cmp(another_int_literal, empty_record, eq);
+cmp(another_int_literal, function_literal, eq);
+cmp(another_int_literal, string_literal, eq);
+
+// Bools
+print("bool equality");
+cmp(another_bool_literal, int_literal, eq);
+cmp(another_bool_literal, bool_literal, eq);
+cmp(another_bool_literal, none_literal, eq);
+cmp(another_bool_literal, empty_record, eq);
+cmp(another_bool_literal, function_literal, eq);
+cmp(another_bool_literal, string_literal, eq);
+
+// None
+print("none equality");
+cmp(another_none_literal, int_literal, eq);
+cmp(another_none_literal, bool_literal, eq);
+cmp(another_none_literal, none_literal, eq);
+cmp(another_none_literal, empty_record, eq);
+cmp(another_none_literal, function_literal, eq);
+cmp(another_none_literal, string_literal, eq);
+
+// Records
+print("record equality");
+cmp(another_empty_record, int_literal, eq);
+cmp(another_empty_record, bool_literal, eq);
+cmp(another_empty_record, none_literal, eq);
+cmp(another_empty_record, function_literal, eq);
+cmp(another_empty_record, string_literal, eq);
+cmp(empty_record, empty_record, eq);
+cmp(another_empty_record, empty_record, eq); // <-- Should be false, record equality is the same address, 
+// potential optimizations could lead to incorrect changes
+
+// function_literal
+print("function equality");
+cmp(another_function_literal, int_literal, eq);
+cmp(another_function_literal, bool_literal, eq);
+cmp(another_function_literal, none_literal, eq);
+cmp(another_function_literal, empty_record, eq);
+cmp(another_function_literal, function_literal, eq); // VM function equality is always false
+cmp(function_literal, function_literal, eq); // VM function equality is always false
+cmp(another_function_literal, string_literal, eq);
+
+// string equality
+print("string equality");
+cmp(another_string_literal, int_literal, eq);
+cmp(another_string_literal, bool_literal, eq);
+cmp(another_string_literal, none_literal, eq);
+cmp(another_string_literal, empty_record, eq);
+cmp(another_string_literal, function_literal, eq);
+cmp(another_string_literal, string_literal, eq);
+
+// Comparison on ints
+print("comparison tests");
+cmp(int_literal, int_literal, lt);
+cmp(int_literal, int_literal, lte);
+cmp(int_literal, int_literal, gt);
+cmp(int_literal, int_literal, gte);
+
+int_literal1 = 6;
+int_literal2 = -3;
+
+cmp(int_literal1, int_literal2, lt);
+cmp(int_literal1, int_literal2, lte);
+cmp(int_literal1, int_literal2, gt);
+cmp(int_literal1, int_literal2, gte);

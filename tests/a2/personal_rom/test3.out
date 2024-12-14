@@ -1,0 +1,3 @@
+First we access
+{}
+If you got here, then there aren't segfaults due to map access without key!

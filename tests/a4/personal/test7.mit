@@ -1,0 +1,13 @@
+fibish = fun (a) {
+  if (a <= 1) {
+    return a;
+  }
+  return fibish(a - 1) + fibish(a - 2);
+};
+
+i = 0;
+while (i < 16) {
+  b = fibish(11);
+  i = i + 1;
+}
+print(b);

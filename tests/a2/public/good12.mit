@@ -1,11 +1,11 @@
 Array = fun(size){
   this = {
 	put: fun(idx, val){
-            if( idx < size){
-		this[idx] = val;
-	    }else{
-		print("Index " + idx + " out of bounds");
-            }
+        if( idx < size){
+			this[idx] = val;
+	    } else{
+			print("Index " + idx + " out of bounds");
+        }
 	};
 	get: fun(idx){
 	    if( idx < size){
@@ -18,9 +18,9 @@ Array = fun(size){
 	    i = 0;
 	    out = "";
 	    while(i<size){
-		out = out + this.get(i) + " ";
-		i = i + 1;
-            }
+			out = out + this.get(i) + " ";
+			i = i + 1;
+        }
 	    print("[" + out + "]");
 	};
 

@@ -114,13 +114,13 @@ class PrettyPrinter {
       os << "None";
     } else if (const auto *value =
                    dynamic_cast<const Constant::Boolean *>(&constant)) {
-      os << (value->value ? "true" : "false");
+      os << (value->getValue() ? "true" : "false");
     } else if (const auto *value =
                    dynamic_cast<const Constant::Integer *>(&constant)) {
-      os << value->value;
+      os << value->getValue();
     } else if (const auto *value =
                    dynamic_cast<const Constant::String *>(&constant)) {
-      os << '"' << unescape(value->value) << '"';
+      os << '"' << unescape(value->getValue()) << '"';
     }
   }
 

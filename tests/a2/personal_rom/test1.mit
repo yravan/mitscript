@@ -1,0 +1,76 @@
+// Calculates the longest common subsequence between two lists
+// O(len(a) * len(b)) runtime
+
+max = fun(a, b) {
+  if (a >= b) {
+    return a;
+  } else {
+    return b;
+  }
+};
+
+mod = fun(val, modulo) {
+  while (val > modulo) {
+    val = val - modulo;
+  }
+  return val;
+};
+
+lcs = fun(a, b) {
+  memo = {};
+  dp = fun(i, j) {
+
+    if (!(memo[i] == None)) {
+      level1 = memo[i];
+      if (!(level1[j] == None)) {
+        return level1[j];
+      }
+    }
+    if (i == a.size | j == b.size) {
+      return 0;
+    }
+    equalVal = 0;
+    if (a[i] == b[j]) {
+      equalVal = equalVal + 1;
+    }
+    res = max(max(dp(i+1, j), dp(i, j+1)), equalVal + dp(i+1, j+1));
+    if (memo[i] == None) {
+      memo[i] = {};
+    }
+    level1 = memo[i];
+    if (level1[j] == None) {
+      level1[j] = {};
+    }
+    level1[j] = res;
+    memo[i] = level1;
+    return memo[i][j];
+  };
+  return dp(0, 0);
+};
+
+MOD_VAlUE = 2001;
+createRandomArray = fun(size, seed) {
+  res = {
+    size: size;
+  };
+  i = size - 1;
+  while (i >= 0) {
+    seed = mod(seed * 3 / 2, MOD_VAlUE);
+    res[i] = seed;
+    i = i - 1;
+  }
+  return res;
+};
+
+arraySize = 100;
+a = createRandomArray(arraySize, 4);
+b = createRandomArray(arraySize, 5);
+a[14] = 4;
+a[18] = 9;
+b[4] = 4;
+b[12] = 9;
+print("The longest common subsequence between");
+print("a: " + a);
+print("and");
+print("b: " + b);
+print("is equal to " + lcs(a, b));

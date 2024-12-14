@@ -1,0 +1,33 @@
+True and False: false
+True or False: true
+ 
+6 + 3: 9
+6 - 3: 3
+6 * 3: 18
+6 / 3: 2
+6 + "3": 63
+ 
+-3: -3
+Not True: false
+ 
+1 > 0: true
+1 < 0: false
+1 >= 0: true
+1 <= 0: false
+ 
+None == None: true
+1 == 1: true
+1 == 0: false
+1 == intcast("1"): true
+"1" == "1": true
+"1" == "0": false
+true == true: true
+false == true: false
+a == b: false
+a == c: true
+a == x: false
+x == 10: false
+a: {x:1 z:2 }
+a.x: 1
+a.y: None
+a["z"]: 2

@@ -1,0 +1,66 @@
+// Check equality operators
+
+a = 3>5;
+a = 3+2|3>5;
+if (3>5) {
+  PRINT("here");
+} else {
+  PRINT("here");
+}
+while (10>"here") {
+  return "test"+"test">9;
+}
+a = !(3>5);
+a = !3>5+2;
+
+a = 3>=5;
+a = 3+2|3>=5;
+if (3>=5) {
+  PRINT("here");
+} else {
+  PRINT("here");
+}
+while (10>="here") {
+  return "test"+"test">=9;
+}
+a = !(3>=5);
+a = !3>=5+2;
+
+a = 3==5;
+a = 3+2|3==5;
+if (3==5) {
+  PRINT("here");
+} else {
+  PRINT("here");
+}
+while (10=="here") {
+  return "test"+"test"==9;
+}
+a = !(3==5);
+a = !3==5+2;
+
+a = 3<5;
+a = 3+2|3<5;
+if (3<5) {
+  PRINT("here");
+} else {
+  PRINT("here");
+}
+while (10<"here") {
+  return "test"+"test"<9;
+}
+a = !(3<5);
+a = !3<5+2;
+
+a = 3<=5;
+a = 3+2|3<5;
+if (3<5) {
+  PRINT("here");
+} else {
+  PRINT("here");
+}
+while (10<"here") {
+  return "test"+"test"<9;
+}
+a = !(3<5);
+a = !3<5+2;

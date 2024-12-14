@@ -1,0 +1,44 @@
+// Function that adds two numbers
+add = fun(a, b) {
+  return a + b;
+};
+
+// Function that greets the user
+greet = fun() {
+  print("Hello, World!");
+};
+
+// Function that multiplies two numbers
+multiply = fun(a, b) {
+  return a * b;
+};
+
+// Function that subtracts second number from first
+subtract = fun(a, b) {
+  return a - b;
+};
+
+// Function that demonstrates nested calls
+nestedFunction = fun(x) {
+  return multiply(x, add(x, 1)); // x * (x + 1)
+};
+
+
+// Test 1: Simple function declaration and call
+result = add(3, 4);
+print("Test 1: " + result); // Expected output: 7
+
+// Test 2: Function with no parameters
+greet();
+
+ // Test 3: Function with multiple parameters
+result = multiply(2, 5);
+print("Test 3: " + result); // Expected output: 10
+
+// Test 4: Function returning a value used in an expression
+result = subtract(add(10, 5), 3);
+print("Test 4: " + result); // Expected output: 12
+
+// Test 5: Nested function calls
+result = nestedFunction(2);
+print("Test 5: " + result); // Expected output: (2 * (2 + 1)) = 6

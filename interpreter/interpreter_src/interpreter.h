@@ -14,7 +14,7 @@ public:
     std::stack<Frame*> stack;
     Frame* global_stack_frame;
     None* none_value;
-    PrettyPrinter printer;
+    AST::PrettyPrinter printer;
     Value * rval;
     bool return_flag;
 

@@ -14,32 +14,43 @@ Value* Frame::pop() {
     return value;
 }
 
-Value* Frame::getLocalVar(std::string var) {
-    if (local_vars_.find(var) != local_vars_.end()) {
-        return local_vars_[var];
+Value* Frame::getLocalVar(int index) {
+    if (index >= local_vars_.size() || index < 0) {
+        throw RuntimeException("Invalid local variable index");
     }
-    throw UninitializedVariableException(var);
+    return local_vars_[index];
 }
 
-void Frame::setLocalVar(std::string var, Value* value) {
-    local_vars_[var] = value;
+void Frame::setLocalVar(int index, Value* value) {
+    local_vars_[index] = value;
 }
 
-void Frame::makeLocalReferences(std::vector<std::string> local_reference_vars) {
-    for (const std::string& var: local_reference_vars) {
-        local_reference_vars_[var] = new Reference(var, this);
+Value* Frame::getGlobalVar(std::string var) {
+    if (global_vars_.find(var) == global_vars_.end()) {
+        throw RuntimeException("Invalid global variable name");
+    }
+    return global_vars_[var];
+}
+
+void Frame::setGlobalVar(std::string var, Value* value) {
+    global_vars_[var] = value;
+}
+
+void Frame::makeLocalReferences(std::vector<int> local_reference_vars) {
+    for (const int index: local_reference_vars) {
+        local_reference_vars_.push_back(new Reference(index, this));
     }
 }
 
 void Frame::addFreeVariable(Reference* value) {
-    local_reference_vars_[value->getName()] = value;
+    local_reference_vars_.push_back(value);
 }
 
-Reference* Frame::getReference(std::string var) {
-    if (local_reference_vars_.find(var) != local_reference_vars_.end()) {
-        return dynamic_cast<Reference*>(local_reference_vars_[var]);
+Reference* Frame::getReference(int index) {
+    if (index >= local_reference_vars_.size() || index < 0) {
+        throw UninitializedVariableException("oops");
     }
-    throw UninitializedVariableException(var);
+    return local_reference_vars_[index];
 }
 
 

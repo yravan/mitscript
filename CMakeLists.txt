@@ -11,6 +11,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG_MODE)
+    add_definitions(-DDEBUG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0")
 else()

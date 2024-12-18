@@ -48,5 +48,5 @@ interpreter_src/native_functions.cpp
 interpreter_src/data_functions.cpp
         )
 
-add_executable(mitscript interpreter.cpp)
-target_link_libraries(mitscript InterpreterSources ParserSources)
+add_executable(mitscript-interpreter interpreter.cpp)
+target_link_libraries(mitscript-interpreter InterpreterSources ParserSources)

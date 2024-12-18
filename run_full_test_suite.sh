@@ -24,6 +24,36 @@ textproc.mit                      5.098 s
 treeproc.mit                       8.17 s
 "
 
+vm_bare_maps="
+bignum.mit                        8.414 s
+carsim.mit                        7.724 s
+kmediods.mit                      5.406 s
+life.mit                          4.224 s
+textproc.mit                      8.686 s
+treeproc.mit                       7.96 s
+"
+
+vm_bare_no_maps="
+bignum.mit                        5.659 s
+carsim.mit                        5.069 s
+kmediods.mit                      4.041 s
+life.mit                          2.846 s
+textproc.mit                      6.563 s
+treeproc.mit                      5.904 s
+"
+"----------------------------------------
+Derby Speedup:
+
+bignum.mit                          1.036
+carsim.mit                          0.935
+kmediods.mit                        1.065
+life.mit                            1.156
+textproc.mit                        0.736
+treeproc.mit                        1.364
+
+Mean Speedup:                       1.030
+----------------------------------------"
+
 # Parse the input and populate arrays
 while IFS= read -r line; do
     # Skip empty lines
@@ -46,6 +76,8 @@ VALGRIND_INTERPRETER=$ROOT/cmake-build-mem-debug/interpreter/mitscript
 TIMEOUT=90
 DEFAULT_MEM=4
 REFERENCE_BARE=false
+REFERENCE_VM_BYTECODE=false
+REFERENCE_VM=false
 
 TEST_DIR_BASE=$ROOT/tests/a5/private
 TEST_OUT=$TEST_DIR_BASE/tmp.out
@@ -94,22 +126,23 @@ run_test() {
     fi
     
     # Log info
-    if $VERBOSE_INPUT; then
-        if $REFERENCE_BARE; then
-            echo "Running $filename"
-        else
-            echo "Running $filename with --opt=all -mem=$mem_limit"
-        fi
-    fi
 
     # Execute interpreter
     expected_input=$TEST_DIR_BASE/$test_dir/$(basename $filename $TEST_FILE_EXT)$INPUT_FILE_EXT
     if $REFERENCE_BARE; then
         EXECUTE="timeout $TIMEOUT /usr/bin/time -v $INTERPRETER"
     fi
+    if $REFERENCE_VM; then
+        EXECUTE="timeout $TIMEOUT /usr/bin/time -v $INTERPRETER -s"
+    fi
+    if $REFERENCE_VM_BYTECODE; then
+        EXECUTE="timeout $TIMEOUT /usr/bin/time -v $INTERPRETER -b"
+        filename=$filename"bc"
+        echo $filename
+    fi
 
 
-    if $REFERENCE_BARE; then
+    if $REFERENCE_BARE || $REFERENCE_VM || $REFERENCE_VM_BYTECODE; then
        if test -f $expected_input; then
             $EXECUTE $filename < $expected_input > $TEST_OUT 2> $TEST_ERR
         else
@@ -124,6 +157,10 @@ run_test() {
     fi
 
     CODE=$?
+
+    if $REFERENCE_VM_BYTECODE; then
+        filename="${filename/bc/}"
+    fi
 
 
     # Save GNU time stats
@@ -493,8 +530,22 @@ run_valgrind-timing-tests() {
 flag=$1
 
 if [[ $flag == "--reference" ]]; then
-    INTERPRETER=$ROOT/cmake-build-grading/interpreter/mitscript
+    INTERPRETER=$ROOT/cmake-build-grading/interpreter/mitscript-interpreter
     REFERENCE_BARE=true
+    flag="--derby"
+    NUM_TESTS=$2
+fi
+
+if [[ $flag == "--reference-vm" ]]; then
+    INTERPRETER=$ROOT/cmake-build-grading/vm/mitscript
+    REFERENCE_VM=true
+    flag="--derby"
+    NUM_TESTS=$2
+fi
+
+if [[ $flag == "--reference-vm-bytecode" ]]; then
+    INTERPRETER=$ROOT/cmake-build-grading/vm/mitscript
+    REFERENCE_VM_BYTECODE=true
     flag="--derby"
     NUM_TESTS=$2
 fi
@@ -570,7 +621,7 @@ echo "Total time elapsed: ${TIME_ELAPSED}s"
 echo "----------------------------------------"
 echo ""
 
-if [[ "$REFERENCE_BARE" == true ]]; then
+if [[ "$REFERENCE_BARE" == true || "$REFERENCE_VM" == true  ]]; then
     SPEEDUPS=()
 
     if [[ ${#tests[@]} -gt 0 ]]; then

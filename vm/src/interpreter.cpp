@@ -1,4 +1,5 @@
 #include "interpreter.h"
+#include "assert.h"
 
 
 // ------------------------------------------------------------
@@ -14,47 +15,40 @@ void Interpreter::loadFunc(int index){
 }
 
 void Interpreter::loadLocal(int index){
-    std::string var = current_function_->getLocalVar(index);
-    Value* value = stack_frames_.back()->getLocalVar(var);
+    Value* value = stack_frames_.back()->getLocalVar(index);
     pushOntoStack(value);
 }
 
 void Interpreter::storeLocal(int index){
-    std::string var = current_function_->getLocalVar(index);
     Value* value = popFromStack();
-    stack_frames_.back()->setLocalVar(var, value);
+    stack_frames_.back()->setLocalVar(index, value);
 }
 
 void Interpreter::loadGlobal(int index){
-    std::string var = current_function_->getName(index);
-    Value* value = global_frame_->getLocalVar(var);
+    Value* value = global_frame_->getGlobalVar(current_function_->getName(index));
     pushOntoStack(value);
 }
 
 void Interpreter::storeGlobal(int index){
-    std::string var = current_function_->getName(index);
     Value* value = popFromStack();
-    global_frame_->setLocalVar(var, value);
+    global_frame_->setGlobalVar(current_function_->getName(index), value);
 }
 
 void Interpreter::pushReference(int index){
-    std::string var = current_function_->getReference(index);
-    Reference* ref = stack_frames_.back()->getReference(var);
+    Reference* ref = stack_frames_.back()->getReference(index);
     pushOntoStack(ref);
 }
 
 void Interpreter::loadReference(){
     Value* value = popFromStack();
-    validateValueType<Reference*>(value);
-    Reference* ref = static_cast<Reference*>(value);
+    Reference* ref = validateValueType<Reference*>(value);
     Value* ref_value = ref->getValue();
     pushOntoStack(ref_value);
 }
 
 void Interpreter::storeReference(){
     Value* value = popFromStack();
-    validateValueType<Reference*>(value);
-    Reference* ref = static_cast<Reference*>(value);
+    Reference* ref = validateValueType<Reference*>(value);
     Value* ref_value = popFromStack();
     ref->setValue(ref_value);
 }
@@ -70,8 +64,7 @@ void Interpreter::allocRecord(){
 
 void Interpreter::fieldLoad(int index){
     Value* value = popFromStack();
-    validateValueType<Record*>(value);
-    Record* record = static_cast<Record*>(value);
+    Record* record = validateValueType<Record*>(value);
     std::string field = current_function_->getName(index);
     Value* record_value = record->getValue(field);
     pushOntoStack(record_value);
@@ -81,8 +74,7 @@ void Interpreter::fieldStore(int index){
     std::string field = current_function_->getName(index);
     Value* record_value = popFromStack();
     Value* value = popFromStack();
-    validateValueType<Record*>(value);
-    Record* record = static_cast<Record*>(value);
+    Record* record = validateValueType<Record*>(value);
     record->setValue(field, record_value);
 } 
 
@@ -90,8 +82,7 @@ void Interpreter::indexLoad(){
     Value* index = popFromStack();
     std::string field = stringCast(index);
     Value* value = popFromStack();
-    validateValueType<Record*>(value);
-    Record* record = static_cast<Record*>(value);
+    Record* record = validateValueType<Record*>(value);
     Value* record_value = record->getValue(field);
     pushOntoStack(record_value);
 }
@@ -103,8 +94,7 @@ void Interpreter::indexStore(){
     std::string field = stringCast(index);
 
     Value* value = popFromStack();
-    validateValueType<Record*>(value);
-    Record* record = static_cast<Record*>(value);
+    Record* record = validateValueType<Record*>(value);
     record->setValue(field, record_value);
 }
 // ------------------------------------------------------------
@@ -116,13 +106,11 @@ void Interpreter::allocClosure(int num_free_vars){
     Closure* closure = new Closure(num_free_vars);
     for (int i = 0; i < num_free_vars; i++) {
         Value* free_var = popFromStack();
-        validateValueType<Reference*>(free_var);
-        Reference* free_var_ref = static_cast<Reference*>(free_var);
+        Reference* free_var_ref = validateValueType<Reference*>(free_var);
         closure->addFreeVar(num_free_vars - i - 1, free_var_ref);
     }
     Value* value = popFromStack();
-    validateValueType<Function*>(value);
-    Function* function = static_cast<Function*>(value);
+    Function* function = validateValueType<Function*>(value);
     closure->setFunction(function);
     pushOntoStack(closure);
 }
@@ -135,8 +123,7 @@ void Interpreter::call(int num_args){
         arguments[num_args - i - 1] = arg;
     }
     Value* value = popFromStack();
-    validateValueType<Closure*>(value);
-    Closure* closure = static_cast<Closure*>(value);
+    Closure* closure = validateValueType<Closure*>(value);
 
     Function* function = closure->getFunction();
     if (num_args != function->getParameterCount()) {
@@ -144,9 +131,14 @@ void Interpreter::call(int num_args){
     }
 
     Frame* frame = new Frame();
+    frame->setNumLocalVars(function->getLocalVars().size());
     stack_frames_.push_back(frame);
+    // set default values to None
+    for (int i = 0; i < function->getLocalVars().size(); i++) {
+        stack_frames_.back()->setLocalVar(i, new Constant::None());
+    }
     for (int i =0; i < num_args; i++) {
-        frame->setLocalVar(function->getLocalVar(i), arguments[i]);
+        frame->setLocalVar(i, arguments[i]);
     }
     frame->makeLocalReferences(function->getLocalReferenceVars());
     for (int i = 0; i < closure->getNumFreeVars(); i++) {
@@ -188,33 +180,27 @@ void Interpreter::add(){
 
 void Interpreter::sub(){
     Value* rightValue = popFromStack();
-    validateValueType<Constant::Integer*>(rightValue);
-    Constant::Integer* right = static_cast<Constant::Integer*>(rightValue);
+    Constant::Integer* right = validateValueType<Constant::Integer*>(rightValue);
     Value* leftValue = popFromStack();
-    validateValueType<Constant::Integer*>(leftValue);
-    Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
+    Constant::Integer* left = validateValueType<Constant::Integer*>(leftValue);
     Constant::Integer* result = new Constant::Integer(left->getValue() - right->getValue());
     pushOntoStack(result);
 }
 
 void Interpreter::mul(){
     Value* rightValue = popFromStack();
-    validateValueType<Constant::Integer*>(rightValue);
-    Constant::Integer* right = static_cast<Constant::Integer*>(rightValue);
+    Constant::Integer* right = validateValueType<Constant::Integer*>(rightValue);
     Value* leftValue = popFromStack();
-    validateValueType<Constant::Integer*>(leftValue);
-    Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
+    Constant::Integer* left = validateValueType<Constant::Integer*>(leftValue);
     Constant::Integer* result = new Constant::Integer(left->getValue() * right->getValue());
     pushOntoStack(result);
 }
 
 void Interpreter::div(){
     Value* rightValue = popFromStack();
-    validateValueType<Constant::Integer*>(rightValue);
-    Constant::Integer* right = static_cast<Constant::Integer*>(rightValue);
+    Constant::Integer* right = validateValueType<Constant::Integer*>(rightValue);
     Value* leftValue = popFromStack();
-    validateValueType<Constant::Integer*>(leftValue);
-    Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
+    Constant::Integer* left = validateValueType<Constant::Integer*>(leftValue);
     if (right->getValue() == 0) {
         throw IllegalArithmeticException();
     }
@@ -224,8 +210,7 @@ void Interpreter::div(){
 
 void Interpreter::neg(){
     Value* value = popFromStack();
-    validateValueType<Constant::Integer*>(value);
-    Constant::Integer* int_value = static_cast<Constant::Integer*>(value);
+    Constant::Integer* int_value = validateValueType<Constant::Integer*>(value);
     Constant::Integer* result = new Constant::Integer(-int_value->getValue());
     pushOntoStack(result);
 }
@@ -236,22 +221,18 @@ void Interpreter::neg(){
 // ------------------------------------------------------------
 void Interpreter::gt(){
     Value* rightValue = popFromStack();
-    validateValueType<Constant::Integer*>(rightValue);
-    Constant::Integer* right = static_cast<Constant::Integer*>(rightValue);
+    Constant::Integer* right = validateValueType<Constant::Integer*>(rightValue);
     Value* leftValue = popFromStack();
-    validateValueType<Constant::Integer*>(leftValue);
-    Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
+    Constant::Integer* left = validateValueType<Constant::Integer*>(leftValue);
     Constant::Boolean* result = new Constant::Boolean(left->getValue() > right->getValue());
     pushOntoStack(result);
 }
 
 void Interpreter::geq(){
     Value* rightValue = popFromStack();
-    validateValueType<Constant::Integer*>(rightValue);
-    Constant::Integer* right = static_cast<Constant::Integer*>(rightValue);
+    Constant::Integer* right = validateValueType<Constant::Integer*>(rightValue);
     Value* leftValue = popFromStack();
-    validateValueType<Constant::Integer*>(leftValue);
-    Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
+    Constant::Integer* left = validateValueType<Constant::Integer*>(leftValue);
     Constant::Boolean* result = new Constant::Boolean(left->getValue() >= right->getValue());
     pushOntoStack(result);
 }
@@ -260,48 +241,41 @@ void Interpreter::eq(){
     Value* right = popFromStack();
     Value* left = popFromStack();
 
-    Constant::Boolean* result;
+    Constant::Boolean* result = new Constant::Boolean(false);
     //PrimitiveEqualityMismatched
-    if (typeid(*left) != typeid(*right)) {
-        result = new Constant::Boolean(false);
-    }
-    else{
-
       //PrimitiveEquality
-      if (typeid(*left) == typeid(Constant::Integer)) {
+      if (dynamic_cast<Constant::Integer*>(left) && dynamic_cast<Constant::Integer*>(right)) {
           Constant::Integer* left_int = static_cast<Constant::Integer*>(left);
           Constant::Integer* right_int = static_cast<Constant::Integer*>(right);
-          DEBUG_PRINT("Exiting equalityOperation" );
           result = new Constant::Boolean(left_int->getValue() == right_int->getValue());
       }
-      if (typeid(*left) == typeid(Constant::Boolean)) {
+      if (dynamic_cast<Constant::Boolean*>(left) && dynamic_cast<Constant::Boolean*>(right)) {
           Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
           Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
-          DEBUG_PRINT("Exiting equalityOperation" );
           result = new Constant::Boolean(left_bool->getValue() == right_bool->getValue());
       }
-      if (typeid(*left) == typeid(Constant::String)) {
+      if (dynamic_cast<Constant::String*>(left) && dynamic_cast<Constant::String*>(right)) {
           Constant::String* left_str = static_cast<Constant::String*>(left);
           Constant::String* right_str = static_cast<Constant::String*>(right);
-          DEBUG_PRINT("Exiting equalityOperation" );
           result = new Constant::Boolean(left_str->getValue() == right_str->getValue());
       }
 
       //NoneEquality
-      if (typeid(*left) == typeid(Constant::None)) {
+      if (dynamic_cast<Constant::None*>(left) && dynamic_cast<Constant::None*>(right)) {
           result = new Constant::Boolean(true);
       }
 
       //FunctionEqualityTrue
-      if (typeid(*left) == typeid(Function)) {
+      if (dynamic_cast<Function*>(left) && dynamic_cast<Function*>(right)) {
           result = new Constant::Boolean(false);
       }
 
       //RecordEquality
-      if (typeid(*left) == typeid(Record)) {
+      if (dynamic_cast<Record*>(left) && dynamic_cast<Record*>(right)) {
           result = new Constant::Boolean(left == right);
       }
-    }
+      // DEBUG_PRINT("Equality not implemented for type: " << typeid(*left).name());
+      // assert(false);
 
     pushOntoStack(result);
 }
@@ -313,10 +287,8 @@ void Interpreter::eq(){
 void Interpreter::andStatement(){
     Value* right = popFromStack();
     Value* left = popFromStack();
-    validateValueType<Constant::Boolean*>(right);
-    validateValueType<Constant::Boolean*>(left);
-    Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
-    Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
+    Constant::Boolean* right_bool = validateValueType<Constant::Boolean*>(right);
+    Constant::Boolean* left_bool = validateValueType<Constant::Boolean*>(left);
     Constant::Boolean* result = new Constant::Boolean(left_bool->getValue() && right_bool->getValue());
     pushOntoStack(result);
 }
@@ -324,18 +296,15 @@ void Interpreter::andStatement(){
 void Interpreter::orStatement(){
     Value* right = popFromStack();
     Value* left = popFromStack();
-    validateValueType<Constant::Boolean*>(right);
-    validateValueType<Constant::Boolean*>(left);
-    Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
-    Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
+    Constant::Boolean* right_bool = validateValueType<Constant::Boolean*>(right);
+    Constant::Boolean* left_bool = validateValueType<Constant::Boolean*>(left);
     Constant::Boolean* result = new Constant::Boolean(left_bool->getValue() || right_bool->getValue());
     pushOntoStack(result);
 }
 
 void Interpreter::notStatement(){
     Value* value = popFromStack();
-    validateValueType<Constant::Boolean*>(value);
-    Constant::Boolean* bool_value = static_cast<Constant::Boolean*>(value);
+    Constant::Boolean* bool_value = validateValueType<Constant::Boolean*>(value);
     Constant::Boolean* result = new Constant::Boolean(!bool_value->getValue());
     pushOntoStack(result);
 }
@@ -349,8 +318,7 @@ void Interpreter::gotoStatement(int offset){
 
 void Interpreter::ifStatement(int offset){
     Value* value = popFromStack();
-    validateValueType<Constant::Boolean*>(value);
-    Constant::Boolean* bool_value = static_cast<Constant::Boolean*>(value);
+    Constant::Boolean* bool_value = validateValueType<Constant::Boolean*>(value);
     if (bool_value->getValue()) {
         gotoStatement(offset);
     }
@@ -370,6 +338,7 @@ void Interpreter::swap(){
 }
 
 void Interpreter::pop(){
+    // DEBUG_PRINT("Popping value from stack");
     popFromStack();
 }
 
@@ -415,11 +384,12 @@ Value* Interpreter::popFromStack(){
 }
 
 template <typename T>
-void Interpreter::validateValueType(Value* value){
+T Interpreter::validateValueType(Value* value){
     T temp = dynamic_cast<T>(value);
     if (temp == nullptr) {
         throw IllegalCastException();
     }
+    return temp;
 }
 
 std::string Interpreter::stringCast(Value* v) {

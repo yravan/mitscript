@@ -1,7 +1,7 @@
 #pragma once
 // #define DEBUG
 
-#ifdef DEBUG
+#ifdef DEBUG_PARSER
 #define DEBUG_PRINT(x) (std::cout<<x<<std::endl)
 #define DEBUG_PRINT_AST(node, printer) (node.accept(printer))
 #else

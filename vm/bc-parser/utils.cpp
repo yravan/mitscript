@@ -1,5 +1,6 @@
 #include "utils.h"
 
+namespace utils {
 std::string escape(std::string str) {
   std::string ret = "";
   auto it = str.begin();
@@ -50,4 +51,5 @@ std::string unescape(std::string str) {
     }
   }
   return ret;
+}
 }

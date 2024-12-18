@@ -23,7 +23,7 @@ public:
     std::string stringCast(Value* value);
 
     template <typename T>
-    void validateValueType(Value* value);
+    T validateValueType(Value* value);
 
     void executeProgram(Function* program);
     void executeFunction(Function* function);

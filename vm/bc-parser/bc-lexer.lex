@@ -69,7 +69,7 @@ comment      ("//"[^\n]*)
 {string_const}  {
 
 			string*  tmp = new string(yytext);
-			*tmp = escape(tmp->substr(1, tmp->size() -2));
+			*tmp = utils::escape(tmp->substr(1, tmp->size() -2));
 			yylval->strconst = tmp;
 			return T_string;
 		}

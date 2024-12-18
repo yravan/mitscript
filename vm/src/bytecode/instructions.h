@@ -220,11 +220,20 @@ enum class Operation {
 };
 
 struct Instruction {
+  Instruction(const Operation operation, std::string name)
+      : operation(operation), name_(std::move(name)) {}
+  Instruction(const Operation operation)
+      : operation(operation), operand0(std::nullopt) {}
   Instruction(const Operation operation, std::optional<int32_t> operand0)
       : operation(operation), operand0(operand0) {}
+  Instruction(const Operation operation, int32_t operand0)
+      : operation(operation), operand0(operand0) {}
+
+  void setOperand0(int32_t operand) { operand0 = operand; }
 
   Operation operation;
   std::optional<int32_t> operand0;
+  std::string name_;
 };
 
 typedef std::vector<Instruction> InstructionList;

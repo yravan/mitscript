@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 #include "instructions.h"
 #include "exceptions.h"
@@ -18,9 +19,10 @@ public:
 };
 
 class Constant : public Value {
-  virtual ~Constant() {}
 
 public:
+  virtual ~Constant() = default;
+  virtual bool equals(const Constant& other) = 0;
   class None;
   class Integer;
   class String;
@@ -31,6 +33,8 @@ class Constant::None : public Constant {
 public:
   virtual ~None() {}
   std::string toString() { return "None"; }
+  int getValue() const { return 0; }
+  bool equals (const Constant& other) { return dynamic_cast<const None*>(&other) != nullptr; }
 };
 
 class Constant::Integer : public Constant {
@@ -40,6 +44,12 @@ public:
   virtual ~Integer() {}
   int getValue() const { return value; }
   std::string toString() { return std::to_string(value); }
+  bool equals (const Constant& other) { 
+    if (dynamic_cast<const Integer*>(&other) == nullptr) {
+      return false;
+    }
+    return value == dynamic_cast<const Integer*>(&other)->getValue();
+  }
 };
 
 class Constant::String : public Constant {
@@ -49,6 +59,12 @@ public:
   std::string getValue() const { return value; }
   virtual ~String() {}
   std::string toString() { return value; }
+  bool equals (const Constant& other) { 
+    if (dynamic_cast<const String*>(&other) == nullptr) {
+      return false;
+    }
+    return value == dynamic_cast<const String*>(&other)->getValue();
+  }
 };
 
 class Constant::Boolean : public Constant {
@@ -58,6 +74,12 @@ public:
   bool getValue() const { return value; }
   virtual ~Boolean() {}
   std::string toString() { return value ? "true" : "false"; }
+  bool equals (const Constant& other) { 
+    if (dynamic_cast<const Boolean*>(&other) == nullptr) {
+      return false;
+    }
+    return value == dynamic_cast<const Boolean*>(&other)->getValue();
+  }
 };
 
 class Function : public Value{
@@ -72,7 +94,7 @@ public:
   std::vector<Constant *> constants_;
 
   // The number of parameters to the function
-  uint32_t parameter_count_;
+  uint32_t parameter_count_ = 0;
 
   // List of local variables
   // The first parameter_count_ variables are the function's parameters
@@ -111,30 +133,88 @@ public:
 
   std::string toString() {return "FUNCTION";};
   Instruction& getInstruction(uint index);
+
   Constant* getConstant(int index);
+  std::vector<Constant*> getConstants() { return constants_; }
+  void addConstant(Constant* constant) { constants_.push_back(constant);}
+
   Function* getFunction(int index);
+  int getFunction(Function* function) {
+    return std::distance(functions_.begin(), std::find(functions_.begin(), functions_.end(), function));
+  }
+  void addFunction(Function* function) { functions_.push_back(function);}
+  void setFunction(int index, Function* function) { functions_[index] = function; }
+
   std::string getLocalVar(int index);
+  std::vector<std::string> getLocalVars() { return local_vars_; }
+  int getLocalVar(std::string name) {
+    return std::distance(local_vars_.begin(), std::find(local_vars_.begin(), local_vars_.end(), name));
+  }
+  int getLocalReferenceVar(std::string name) {
+    return std::distance(local_reference_vars_.begin(), std::find(local_reference_vars_.begin(), local_reference_vars_.end(), name));
+  }
+  void addLocalVar(std::string name) { 
+    if(std::find(local_vars_.begin(), local_vars_.end(), name) == local_vars_.end()) {
+      local_vars_.push_back(name);
+    }
+  }
+  void addLocalReferenceVar(std::string name) { 
+    if (std::find(local_reference_vars_.begin(), local_reference_vars_.end(), name) == local_reference_vars_.end()) {
+      local_reference_vars_.push_back(name);
+    }
+  }
+  void addFreeVar(std::string name) {
+    if (std::find(free_vars_.begin(), free_vars_.end(), name) == free_vars_.end()) {
+      free_vars_.push_back(name);
+    }
+  }
+  int numFreeVars() { return free_vars_.size(); }
+  std::vector<std::string> getFreeVars() { return free_vars_; }
+
   std::string getName(int index);
+  std::vector<std::string> getNames() { return names_; }
+  void addName(std::string name) { 
+    if (std::find(names_.begin(), names_.end(), name) == names_.end()) {
+      names_.push_back(name);
+    }
+  }
+
   std::string getReference(int index);
   uint32_t getParameterCount();
+  void setParameterCount(uint32_t count) { parameter_count_ = count; }
   int numInstructions();
-  std::vector<std::string> getLocalReferenceVars();
-  void setFunction(int index, Function* function) { functions_[index] = function; }
+  InstructionList& getInstructions() { return instructions; }
+  std::vector<int> getLocalReferenceVars();
+
+  bool findLocalVar(std::string name) {
+    return std::find(local_vars_.begin(), local_vars_.end(), name) != local_vars_.end();
+  }
+  bool findGlobalVar(std::string name) {
+    return std::find(names_.begin(), names_.end(), name) != names_.end();
+  }
+  int getGlobalVar(std::string name) {
+    return std::distance(names_.begin(), std::find(names_.begin(), names_.end(), name));
+  }
+  int getFreeVar(std::string name) {
+    return std::distance(free_vars_.begin(), std::find(free_vars_.begin(), free_vars_.end(), name)) + local_reference_vars_.size();
+  }
+  
+  void setInstructionList(InstructionList instructions) { this->instructions = instructions; }
 
 };
 
 class Frame;
 
 class Reference : public Value{
-    std::string name_;
+    int index_;
     Frame* frame_;
 public:
     Reference() {}
-    Reference(std::string name, Frame* frame) : name_(name), frame_(frame) {}
+    Reference(int index, Frame* frame) : index_(index), frame_(frame) {}
     std::string toString() {throw RuntimeException("Attempting to print reference");};
     Value* getValue();
     void setValue(Value* value);
-    std::string getName() { return name_; }
+    int getIndex() { return index_; }
 };
 
 class Record : public Value {

@@ -55,14 +55,19 @@ int Function::numInstructions() {
     return instructions.size();
 }
 
-std::vector<std::string> Function::getLocalReferenceVars() {
-    return local_reference_vars_;
+std::vector<int> Function::getLocalReferenceVars() {
+    std::vector<int> indices;
+    for (const std::string& name : local_reference_vars_) {
+        auto it = std::distance(local_vars_.begin(), std::find(local_vars_.begin(), local_vars_.end(), name));
+        indices.push_back(it);
+    }
+    return indices;
 }
 
 Value* Reference::getValue() {
-    return frame_->getLocalVar(name_);
+    return frame_->getLocalVar(index_);
 }
 
 void Reference::setValue(Value* value) {
-    frame_->setLocalVar(name_, value);
+    frame_->setLocalVar(index_, value);
 }

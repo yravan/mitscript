@@ -19,7 +19,7 @@ class printFunction : public NativeFunction {
 public:
     printFunction() {local_vars_.push_back("x"); parameter_count_ = 1;}
     void execute() override {
-        std::cout << frame_->getLocalVar("x")->toString() << std::endl;
+        std::cout << frame_->getLocalVar(0)->toString() << std::endl;
         frame_->push(new Constant::None());
     }
 };
@@ -40,7 +40,7 @@ class intcastFunction : public NativeFunction {
 public:
     intcastFunction() {local_vars_.push_back("x"); parameter_count_ = 1;} 
     void execute() override {
-        Value* value = frame_->getLocalVar("x");
+        Value* value = frame_->getLocalVar(0);
         if (!dynamic_cast<Constant::String*>(value)) {
             throw IllegalCastException();
         }

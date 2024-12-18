@@ -120,7 +120,7 @@ class PrettyPrinter {
       os << value->getValue();
     } else if (const auto *value =
                    dynamic_cast<const Constant::String *>(&constant)) {
-      os << '"' << unescape(value->getValue()) << '"';
+      os << '"' << utils::unescape(value->getValue()) << '"';
     }
   }
 

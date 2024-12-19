@@ -1,5 +1,6 @@
 #pragma once
 #include "types.h"
+#include "frame.h"
 #include <iostream>
 
 class NativeFunction : public Function {
@@ -9,7 +10,6 @@ protected:
 public:
     NativeFunction() {}
     virtual ~NativeFunction() {}
-    std::string toString() { return "NATIVE_FUNCTION"; }
     void setFrame(Frame* frame) { frame_ = frame; }
     virtual void execute() = 0;
 };

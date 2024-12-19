@@ -2,7 +2,7 @@
 #include "exceptions.h"
 
 void Frame::push(Value* value) {
-    stack_.push_back(value);
+    stack_.emplace_back(value);
 }
 
 Value* Frame::pop() {
@@ -25,25 +25,17 @@ void Frame::setLocalVar(int index, Value* value) {
     local_vars_[index] = value;
 }
 
-Value* Frame::getGlobalVar(std::string var) {
-    if (global_vars_.find(var) == global_vars_.end()) {
-        throw RuntimeException("Invalid global variable name");
-    }
-    return global_vars_[var];
-}
-
-void Frame::setGlobalVar(std::string var, Value* value) {
-    global_vars_[var] = value;
-}
-
-void Frame::makeLocalReferences(std::vector<int> local_reference_vars) {
-    for (const int index: local_reference_vars) {
-        local_reference_vars_.push_back(new Reference(index, this));
+void Frame::makeLocalReferences(const std::vector<int>& local_reference_vars) {
+    local_reference_vars_.reserve(local_reference_vars.size());
+    for (int i = 0; i < local_reference_vars.size(); i++) {
+        local_reference_vars_.emplace_back(new Reference(local_reference_vars[i], this));
     }
 }
 
-void Frame::addFreeVariable(Reference* value) {
-    local_reference_vars_.push_back(value);
+void Frame::addFreeVariables(std::vector<Reference*>& free_vars) {
+    local_reference_vars_.insert(local_reference_vars_.end(),
+                                 std::make_move_iterator(free_vars.begin()),
+                                 std::make_move_iterator(free_vars.end()));
 }
 
 Reference* Frame::getReference(int index) {

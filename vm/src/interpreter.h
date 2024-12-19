@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <map>
+#include <unordered_set>
 #include "bytecode/frame.h"
 #include "bytecode/types.h"
 #include "bytecode/instructions.h"
@@ -9,21 +11,22 @@
 class Interpreter {
 private:
 
-    std::vector<Frame*> stack_frames_;
+    Frame* current_frame_;
     int instruction_pointer_;
     Function* current_function_;
-    Frame* global_frame_;
+    std::unordered_map<std::string, Value *> global_vars_;
+    std::unordered_set<Function*> native_functions_;
 
 
 public:
 
-    void pushOntoStack(Value* value);
-    Value* popFromStack();
+    inline void pushOntoStack(Value* value);
+    inline Value* popFromStack();
 
-    std::string stringCast(Value* value);
+    inline std::string stringCast(Value* value);
 
     template <typename T>
-    T validateValueType(Value* value);
+    void validateValueType(Value* value);
 
     void executeProgram(Function* program);
     void executeFunction(Function* function);
@@ -69,7 +72,7 @@ public:
 
     void dup();
     void swap();
-    void pop();
+    inline void pop();
 
 
 };

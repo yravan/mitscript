@@ -14,7 +14,7 @@ add_custom_command(
         DEPENDS bc-lexer.lex
 )
 
-add_library(BC_Parser ${CMAKE_CURRENT_BINARY_DIR}/bc-lexer.cpp ${CMAKE_CURRENT_BINARY_DIR}/bc-parser.cpp utils.cpp)
+add_library(BC_Parser ${CMAKE_CURRENT_BINARY_DIR}/bc-lexer.cpp ${CMAKE_CURRENT_BINARY_DIR}/bc-parser.cpp utils.cpp ../src/bytecode/types.cpp)
 target_include_directories(BC_Parser PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(bc-parser-example bc-parser-driver.cpp)

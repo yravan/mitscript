@@ -4,11 +4,11 @@ add_subdirectory(bc-parser)
 
 add_library(CompilerSources OBJECT
         src/compiler/compiler.cpp
+        src/bytecode/types.cpp
         )
 
 add_library(BytecodeSources OBJECT
         src/interpreter.cpp # TODO replace with your files
-        src/bytecode/types.cpp
         src/bytecode/frame.cpp
         )
 

@@ -24,7 +24,7 @@ textproc.mit                      5.098 s
 treeproc.mit                       8.17 s
 "
 
-vm_bare_maps="
+vm_raw_maps="
 bignum.mit                        8.414 s
 carsim.mit                        7.724 s
 kmediods.mit                      5.406 s
@@ -33,7 +33,7 @@ textproc.mit                      8.686 s
 treeproc.mit                       7.96 s
 "
 
-vm_bare_no_maps="
+vm_raw_no_maps="
 bignum.mit                        5.659 s
 carsim.mit                        5.069 s
 kmediods.mit                      4.041 s
@@ -41,6 +41,7 @@ life.mit                          2.846 s
 textproc.mit                      6.563 s
 treeproc.mit                      5.904 s
 "
+
 "----------------------------------------
 Derby Speedup:
 
@@ -53,6 +54,33 @@ treeproc.mit                        1.364
 
 Mean Speedup:                       1.030
 ----------------------------------------"
+
+vm_p3_well_written_unoptimized="
+----------------------------------------
+Derby Test Times:
+
+bignum.mit                        4.468 s
+carsim.mit                        3.112 s
+kmediods.mit                      2.274 s
+life.mit                          1.722 s
+textproc.mit                       3.22 s
+treeproc.mit                      3.432 s
+
+----------------------------------------"
+
+"----------------------------------------
+Derby Speedup:
+
+bignum.mit                          1.303
+carsim.mit                          1.670
+kmediods.mit                        1.953
+life.mit                            1.973
+textproc.mit                        1.583
+treeproc.mit                        2.381
+
+Mean Speedup:                       1.778
+----------------------------------------"
+
 
 # Parse the input and populate arrays
 while IFS= read -r line; do

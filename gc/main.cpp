@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
   rootset.clear();                          // clears the rootset.
   heap.gc(rootset.begin(), rootset.end());  // garbage collects again; this time
                                             // we expect to get an empty heap.
-  for (auto& obj : heap.objects_) {
+  for (auto obj : heap.objects_) {
     if (obj->marked_) {
       std::cout << "Error: object was not collected\n";
     }

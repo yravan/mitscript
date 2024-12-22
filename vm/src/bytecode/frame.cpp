@@ -9,12 +9,12 @@ std::string Frame::dump() {
       ss << "  " << value->toString() << "\n";
     }
     ss << "Local Variables:\n";
-    for (Value* value : local_vars_) {
-      ss << "  " << value->toString() << "\n";
+    for (int i = 0; i < num_local_vars_; i++) {
+      ss << "  " << local_vars_[i]->toString() << "\n";
     }
     ss << "Local Reference Variables:\n";
-    for (Reference* value : local_reference_vars_) {
-      ss << "  " << value->toString() << "\n";
+    for (int i = 0; i < num_local_reference_vars_ + num_free_vars_; i++) {
+      ss << "  " << local_reference_vars_[i]->toString() << "\n";
     }
     return ss.str();
   }
@@ -33,7 +33,7 @@ Value* Frame::pop() {
 }
 
 Value* Frame::getLocalVar(int index) {
-    if (index >= local_vars_.size() || index < 0) {
+    if (index >= num_local_vars_ || index < 0) {
         throw RuntimeException("Invalid local variable index");
     }
     return local_vars_[index];
@@ -44,20 +44,19 @@ void Frame::setLocalVar(int index, Value* value) {
 }
 
 void Frame::makeLocalReferences(const std::vector<int>& local_reference_vars) {
-    local_reference_vars_.reserve(local_reference_vars.size());
     for (int i = 0; i < local_reference_vars.size(); i++) {
-        local_reference_vars_.emplace_back(heap_->allocate<Reference>(local_reference_vars[i], this));
+        local_reference_vars_[i] = heap_->allocate<Reference>(local_reference_vars[i], this);
     }
 }
 
-void Frame::addFreeVariables(TrackingVector<Reference*>& free_vars) {
-    local_reference_vars_.insert(local_reference_vars_.end(),
-                                 std::make_move_iterator(free_vars.begin()),
-                                 std::make_move_iterator(free_vars.end()));
+void Frame::addFreeVariables(Reference** free_vars, int num_vars) {
+    for (int i = 0; i < num_vars; i++) {
+        local_reference_vars_[num_local_reference_vars_ + i] = free_vars[i];
+    }
 }
 
 Reference* Frame::getReference(int index) {
-    if (index >= local_reference_vars_.size() || index < 0) {
+    if (index >= num_local_reference_vars_ + num_free_vars_ || index < 0) {
         throw UninitializedVariableException("oops");
     }
     return local_reference_vars_[index];
@@ -67,11 +66,11 @@ void Frame::follow(CollectedHeap& heap) {
     for (Value* value : stack_) {
         heap.markSuccessors(value);
     }
-    for (Value* value : local_vars_) {
-        heap.markSuccessors(value);
+    for (int i = 0; i < num_local_vars_; i++) {
+        heap.markSuccessors(local_vars_[i]);
     }
-    for (Reference* ref : local_reference_vars_) {
-        heap.markSuccessors(ref);
+    for (int i = 0; i < num_local_reference_vars_ + num_free_vars_; i++) {
+        heap.markSuccessors(local_reference_vars_[i]);
     }
 }
 

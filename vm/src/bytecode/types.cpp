@@ -170,6 +170,8 @@ void Function::follow(CollectedHeap& heap) {
     }
 }
 
+Constant::None Record::none_;
+
 Value* Reference::getValue() {
     return frame_->getLocalVar(index_);
 }

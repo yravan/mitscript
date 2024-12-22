@@ -663,37 +663,35 @@ echo "Total time elapsed: ${TIME_ELAPSED}s"
 echo "----------------------------------------"
 echo ""
 
-if [[ "$REFERENCE_BARE" == true || "$REFERENCE_VM" == true  ]]; then
-    SPEEDUPS=()
+SPEEDUPS=()
 
-    if [[ ${#tests[@]} -gt 0 ]]; then
-        echo "----------------------------------------"
-        echo "Derby Speedup:"
-        echo ""
+if [[ ${#tests[@]} -gt 0 ]]; then
+    echo "----------------------------------------"
+    echo "Derby Speedup:"
+    echo ""
 
-        # Compute speedups
-        for ((i = 0; i < ${#tests[@]}; i++)); do
-            elem1="${times[$i]}"                    # Current test time
-            elem2="${REFERENCE_DERBY_TEST_TIMES[$i]}"  # Reference time
+    # Compute speedups
+    for ((i = 0; i < ${#tests[@]}; i++)); do
+        elem1="${times[$i]}"                    # Current test time
+        elem2="${REFERENCE_DERBY_TEST_TIMES[$i]}"  # Reference time
 
-            # Calculate speedup
-            speedup=$(awk "BEGIN {print $elem2 / $elem1}")
-            SPEEDUPS+=("$speedup")
+        # Calculate speedup
+        speedup=$(awk "BEGIN {print $elem2 / $elem1}")
+        SPEEDUPS+=("$speedup")
 
-            # Print speedup
-            printf "%-30s %10.3f\n" "$(basename "${tests[$i]}")" "$speedup"
-        done
+        # Print speedup
+        printf "%-30s %10.3f\n" "$(basename "${tests[$i]}")" "$speedup"
+    done
 
-        # Calculate geometric mean of speedups
-        product=1
-        for speedup in "${SPEEDUPS[@]}"; do
-            product=$(awk "BEGIN {print $product * $speedup}")
-        done
-        geometric_mean=$(awk "BEGIN {print $product ^ (1 / ${#SPEEDUPS[@]})}")
+    # Calculate geometric mean of speedups
+    product=1
+    for speedup in "${SPEEDUPS[@]}"; do
+        product=$(awk "BEGIN {print $product * $speedup}")
+    done
+    geometric_mean=$(awk "BEGIN {print $product ^ (1 / ${#SPEEDUPS[@]})}")
 
-        echo ""
-        printf "%-30s %10.3f\n" "Mean Speedup:" "$geometric_mean"
-        echo "----------------------------------------"
-    fi
+    echo ""
+    printf "%-30s %10.3f\n" "Mean Speedup:" "$geometric_mean"
+    echo "----------------------------------------"
 fi
 

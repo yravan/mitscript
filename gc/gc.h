@@ -10,7 +10,7 @@
 #include <limits>
 #include <malloc.h>
 #include "debug.h"
-#define MEGABYTE_TO_BYTE 1024*1024
+#define MEGABYTE_TO_BYTE 1000000
 
 class CollectedHeap;
 
@@ -104,26 +104,92 @@ using TrackingUnorderedMap = std::unordered_map<K, V, std::hash<K>, std::equal_t
 
 using TrackingString = std::basic_string<char, std::char_traits<char>, TrackingAllocator<char>>;
 
-class ListNode {
-protected:
-  ListNode* next_;
-  ListNode() : next_(nullptr) {}
-  friend class TrackingList;
-};
 
-class TrackingList {
-  ListNode* head_;
-  ListNode* tail_;
+template <typename T>
+class LinkedList {
+  T* head_;
+  int size_;
+public:
+  LinkedList() : head_(nullptr), size_(0) {}
 
-  void push_back(ListNode* node) {
-    if (head_ == nullptr) {
-      head_ = node;
-      tail_ = node;
-    } else {
-      tail_->next_ = node;
-      tail_ = node;
-    }
+  int size() {
+    return size_;
   }
+
+  void push_back(T* node) {
+    node->next_ = head_;
+    head_ = node;
+    size_++;
+  }
+  // Iterator Class
+    class Iterator {
+    public:
+        T* previous_;
+        T* current_;
+        // Constructor
+        explicit Iterator(T* node) : current_(node), previous_(nullptr) {}
+        explicit Iterator(T* node, T* previous) : current_(node), previous_(previous) {}
+
+        // Dereference operator
+        T* operator*() const {
+            return current_;
+        }
+
+        // Pre-increment operator
+        Iterator& operator++() {
+            if (current_ != nullptr) {
+                previous_ = current_;
+                current_ = current_->next_;
+            }
+            return *this;
+        }
+
+        // Post-increment operator
+        Iterator operator++(int) {
+            Iterator temp = *this;
+            ++(*this);
+            return temp;
+        }
+
+        // Equality operator
+        bool operator==(const Iterator& other) const {
+            return current_ == other.current_;
+        }
+
+        // Inequality operator
+        bool operator!=(const Iterator& other) const {
+            return current_ != other.current_;
+        }
+    };
+
+    // Begin iterator
+    Iterator begin() const {
+        return Iterator(head_);
+    }
+
+    // End iterator
+    Iterator end() const {
+        return Iterator(nullptr);
+    }
+
+    // Erase method
+    Iterator erase(Iterator it) {
+      if (it == end()) {
+        return end();
+      }
+
+      size_--;
+      T* node_to_delete = it.current_;
+      
+      if (node_to_delete == head_) { // Erasing head
+        head_ = head_->next_;
+        return begin();
+      }
+
+      T* previous = it.previous_;
+      previous->next_ = node_to_delete->next_;
+      return Iterator(previous->next_, previous);
+    }
 
 };
 
@@ -134,7 +200,7 @@ class CollectedHeap;
 
 // Any object that inherits from collectable can be created and tracked by the
 // garbage collector.
-class Collectable : ListNode {
+class Collectable{
  public:
   virtual ~Collectable() = default;
   bool marked_ = false;
@@ -147,6 +213,7 @@ class Collectable : ListNode {
   // is useful for the garbage collector.
   void mark() { marked_ = true; }
   void unmark() { marked_ = false; }
+  Collectable* next_= nullptr;
 
  protected:
   /*
@@ -168,6 +235,7 @@ class Collectable : ListNode {
   int base_size_bytes_;
 
   friend CollectedHeap;
+  friend LinkedList<Collectable>;
 };
 
 /*
@@ -179,20 +247,13 @@ class Collectable : ListNode {
     objects that are not reachable from a given set of objects
 */
 class CollectedHeap {
-  TrackingAllocator<Collectable*> allocator;
   int max_memory_bytes_;
   int current_memory_bytes_ = sizeof(*this);
 
  public:
-  TrackingVector<Collectable*> objects_;
-  CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {
-    allocator.setHeap(this);
-    objects_ = TrackingVector<Collectable*>(allocator);
-  }
-  CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {
-    allocator.setHeap(this);
-    objects_ = TrackingVector<Collectable*>(allocator);
-  }
+  LinkedList<Collectable> objects_{};
+  CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {}
+  CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {}
 
   size_t getMemoryUsage() {
     std::ifstream statm("/proc/self/statm");
@@ -211,6 +272,7 @@ class CollectedHeap {
 
     // Total memory usage of the process
     int totalUsage = getCurrentHeapUsage();
+    int allocatedMemory = getMemoryUsage();
 
     // Number of objects currently registered in the heap
     size_t objectCount = objects_.size();
@@ -219,7 +281,8 @@ class CollectedHeap {
     std::cout << "-------------------" << std::endl;
     std::cout << "CollectedHeap Dump:" << std::endl;
     std::cout << "Tracked Memory Usage: " << trackedUsage / 1000 << " kb" << std::endl;
-    std::cout << "Total Process Memory Usage: " << totalUsage / 1000 << " kb" << std::endl;
+    std::cout << "Total Process Allocated Memory Usage: " << allocatedMemory / 1000 << " kb" << std::endl;
+    std::cout << "Total Process Runtime Memory Usage: " << totalUsage / 1000 << " kb" << std::endl;
     std::cout << "Max Memory Capacity: " << max_memory_bytes_ / 1000 << " kb" << std::endl;
     std::cout << "Number of Registered Objects: " << objectCount << std::endl;
     std::cout << "-------------------" << std::endl << std::endl;
@@ -305,14 +368,13 @@ class CollectedHeap {
     for (auto it = objects_.begin(); it != objects_.end();) {
       if (!(*it)->marked_) {
         current_memory_bytes_ -= (*it)->base_size_bytes_;
-        delete *it;
+        auto obj = *it;
         it = objects_.erase(it);
+        delete obj;
       } else {
+        (*it)->unmark();
         ++it;
       }
-    }
-    for (auto& obj : objects_) {
-      obj->unmark();
     }
   }
 };

@@ -25,13 +25,13 @@ void Interpreter::storeLocal(int index){
 }
 
 void Interpreter::loadGlobal(int index){
-    Value* value = global_frame_->getLocalVar(global_indices_[TrackingString(current_function_->getName(index), stack_frames_.get_allocator())]);
+    Value* value = global_frame_->getLocalVar(global_indices_[current_function_->getName(index)]);
     pushOntoStack(value);
 }
 
 void Interpreter::storeGlobal(int index){
     Value* value = popFromStack();
-    global_frame_->setLocalVar(global_indices_[TrackingString(current_function_->getName(index), stack_frames_.get_allocator())], value);
+    global_frame_->setLocalVar(global_indices_[current_function_->getName(index)], value);
 }
 
 void Interpreter::pushReference(int index){
@@ -139,17 +139,16 @@ void Interpreter::call(int num_args){
         throw RuntimeException(num_args, function->getParameterCount());
     }
 
-    stack_frames_.push_back(heap_->allocate<Frame>());
-    stack_frames_.back()->setNumLocalVars(function->getLocalVars().size());
+    stack_frames_.push_back(heap_->allocate<Frame>(function->getLocalVars().size(), function->getLocalReferenceVars().size(), function->numFreeVars()));
     // set default values to None
     for (int i = 0; i < function->getLocalVars().size(); i++) {
-        stack_frames_.back()->setLocalVar(i, heap_->allocate<Constant::None>());
+        stack_frames_.back()->setLocalVar(i, none_);
     }
     for (int i =0; i < num_args; i++) {
         stack_frames_.back()->setLocalVar(i, arguments[i]);
     }
     stack_frames_.back()->makeLocalReferences(function->getLocalReferenceVars());
-    stack_frames_.back()->addFreeVariables(closure->getFreeVars());
+    stack_frames_.back()->addFreeVariables(closure->getFreeVars(), closure->getNumFreeVars());
 
     executeFunction(function);
 
@@ -239,8 +238,11 @@ void Interpreter::gt(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left->getValue() > right->getValue());
-    pushOntoStack(result);
+    if (left->getValue() > right->getValue()) {
+        pushOntoStack(true_);
+    } else {
+        pushOntoStack(false_);
+    }
 }
 
 void Interpreter::geq(){
@@ -250,15 +252,18 @@ void Interpreter::geq(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left->getValue() >= right->getValue());
-    pushOntoStack(result);
+    if (left->getValue() >= right->getValue()) {
+        pushOntoStack(true_);
+    } else {
+        pushOntoStack(false_);
+    }
 }
 
 void Interpreter::eq(){
     Value* right = popFromStack();
     Value* left = popFromStack();
 
-    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(false);
+    Constant::Boolean* result = false_;
     Value::Type left_type = left->getType();
     Value::Type right_type = right->getType();
     //PrimitiveEqualityMismatched
@@ -266,32 +271,32 @@ void Interpreter::eq(){
       if (left_type == Value::Type::Integer && right_type == Value::Type::Integer) {
           Constant::Integer* left_int = static_cast<Constant::Integer*>(left);
           Constant::Integer* right_int = static_cast<Constant::Integer*>(right);
-          result = heap_->allocate<Constant::Boolean>(left_int->getValue() == right_int->getValue());
+          result = (left_int->getValue() == right_int->getValue()) ? true_ : false_;
       }
       if (left_type == Value::Type::Boolean && right_type == Value::Type::Boolean) {
           Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
           Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
-          result = heap_->allocate<Constant::Boolean>(left_bool->getValue() == right_bool->getValue());
+          result = (left_bool->getValue() == right_bool->getValue()) ? true_ : false_;
       }
       if (left_type == Value::Type::String && right_type == Value::Type::String) {
           Constant::String* left_str = static_cast<Constant::String*>(left);
           Constant::String* right_str = static_cast<Constant::String*>(right);
-          result = heap_->allocate<Constant::Boolean>(left_str->getValue() == right_str->getValue());  
+          result = (left_str->getValue() == right_str->getValue()) ? true_ : false_;
       }
 
       //NoneEquality
       if (left_type == Value::Type::None && right_type == Value::Type::None) {
-          result = heap_->allocate<Constant::Boolean>(true);
+          result = true_;
       }
 
       //FunctionEqualityTrue
       if (left_type == Value::Type::Function && right_type == Value::Type::Function) {
-          result = heap_->allocate<Constant::Boolean>(left == right);
+          result = false_;
       }
 
       //RecordEquality
       if (left_type == Value::Type::Record && right_type == Value::Type::Record) {
-          result = heap_->allocate<Constant::Boolean>(left == right);
+          result = left == right ? true_ : false_;
       }
       // DEBUG_PRINT("Equality not implemented for type: " << typeid(*left).name());
       // assert(false);
@@ -310,8 +315,11 @@ void Interpreter::andStatement(){
     validateValueType<Constant::Boolean>(left);
     Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
     Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
-    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left_bool->getValue() && right_bool->getValue());
-    pushOntoStack(result);
+    if (left_bool->getValue() && right_bool->getValue()) {
+        pushOntoStack(true_);
+    } else {
+        pushOntoStack(false_);
+    }
 }
 
 void Interpreter::orStatement(){
@@ -321,16 +329,22 @@ void Interpreter::orStatement(){
     validateValueType<Constant::Boolean>(left);
     Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
     Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
-    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left_bool->getValue() || right_bool->getValue());
-    pushOntoStack(result);
+    if (left_bool->getValue() || right_bool->getValue()) {
+        pushOntoStack(true_);
+    } else {
+        pushOntoStack(false_);
+    }
 }
 
 void Interpreter::notStatement(){
     Value* value = popFromStack();
     validateValueType<Constant::Boolean>(value);
     Constant::Boolean* bool_value = static_cast<Constant::Boolean*>(value);
-    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(!bool_value->getValue());
-    pushOntoStack(result);
+    if (!bool_value->getValue()) {
+        pushOntoStack(true_);
+    } else {
+        pushOntoStack(false_);
+    }
 }
 // ------------------------------------------------------------
 
@@ -369,27 +383,33 @@ void Interpreter::pop(){
 
 
 void Interpreter::executeProgram(Function* program) {
+    heap_->addMemory(sizeof(*this));
     #ifdef DEBUG
     DEBUG_PRINT("Executing program");
     heap_->dump();
     #endif
-    current_function_ = program;
     TrackingAllocator<Frame*> allocator;
     allocator.setHeap(heap_);
+
     stack_frames_ = TrackingVector<Frame*>(allocator);
-    global_indices_ = TrackingUnorderedMap<TrackingString, int>(allocator);
+    global_indices_ = TrackingUnorderedMap<std::string, int>(allocator);
     native_functions_ = TrackingUnorderedSet<Function*>(allocator);
 
-    global_frame_ = heap_->allocate<Frame>();
+    current_function_ = program;
+    global_frame_ = heap_->allocate<Frame>(program->getNames().size(), program->getLocalReferenceVars().size(), program->numFreeVars());
     stack_frames_.push_back(global_frame_);
+    none_ = new Constant::None();
+    true_ = new Constant::Boolean(true);
+    false_ = new Constant::Boolean(false);
     
     int num_global_var = 0;
     for (const std::string& global_var : program->getNames()) {
-        global_indices_[TrackingString(global_var, allocator)] = num_global_var++;
+        global_indices_[global_var] = num_global_var++;
+        heap_->addMemory(global_var.capacity());
     }
     global_frame_->setNumLocalVars(num_global_var);
     for (int i = 0; i < num_global_var; i++) {
-        global_frame_->setLocalVar(i, heap_->allocate<Constant::None>());
+        global_frame_->setLocalVar(i, none_);
     }
 
     initializeNativeFunctions();

@@ -17,10 +17,14 @@ private:
     TrackingVector<Frame*> stack_frames_;
     int instruction_pointer_;
     Function* current_function_;
-    TrackingUnorderedMap<TrackingString, int> global_indices_;
+    TrackingUnorderedMap<std::string, int> global_indices_;
     TrackingUnorderedSet<Function*> native_functions_;
     CollectedHeap* heap_;
     int max_memory_bytes_;
+
+    Constant::None* none_;
+    Constant::Boolean* true_;
+    Constant::Boolean* false_;
 
 
 public:

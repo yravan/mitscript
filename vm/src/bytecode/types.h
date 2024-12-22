@@ -42,6 +42,7 @@ public:
 class Constant::None : public Constant {
   inline static const std::string name_ = "None";
 public:
+  None() = default;
   virtual ~None() {}
   std::string toString() { return name_; }
   bool equals (const Constant& other) { return other.getType() == Value::Type::None; }
@@ -193,41 +194,48 @@ class Frame : public Collectable {
   TrackingVector<Value*> stack_;
 
   // The local variables
-  TrackingVector<Value*> local_vars_;
+  Value** local_vars_;
+  int num_local_vars_;
 
   // The local reference variables
-  TrackingVector<Reference*> local_reference_vars_;
+  Reference** local_reference_vars_;
+  int num_local_reference_vars_;
+  int num_free_vars_;
 
 public: 
   Frame() {
     // stack_.reserve(10);
   } 
+  Frame(int num_local_vars, int num_local_reference_vars, int num_free_vars) : num_local_vars_(num_local_vars), num_local_reference_vars_(num_local_reference_vars), num_free_vars_(num_free_vars) {
+    local_vars_ = new Value*[num_local_vars];
+    local_reference_vars_ = new Reference*[num_local_reference_vars + num_free_vars];
+  }
+  ~Frame() {
+    delete[] local_vars_;
+    delete[] local_reference_vars_;
+  }
   inline std::string toString() { return "FRAME"; }
   std::string dump();
   void push(Value* value);
   Value* pop();
-  void setNumLocalVars(int num_vars) { local_vars_.resize(num_vars); }
+  void setNumLocalVars(int num_vars) { local_vars_ = new Value*[num_vars]; }
   Value* getLocalVar(int index);
   void setLocalVar(int index, Value* value);
   void makeLocalReferences(const std::vector<int>& local_reference_vars);
-  void addFreeVariables(TrackingVector<Reference*>& free_vars);
+  void addFreeVariables(Reference** free_vars, int num_vars);
   Reference* getReference(int index);
 
   void follow(CollectedHeap& heap) override;
-  void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
+  void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + num_local_vars_ * sizeof(Value*) + num_local_reference_vars_ * sizeof(Reference*); }
   void initializeDynamicMemory(CollectedHeap* heap) override {
     TrackingAllocator<Value*> allocator;
     allocator.setHeap(heap);
     stack_ = TrackingVector<Value*>(allocator);
     stack_.reserve(10);
-    local_vars_ = TrackingVector<Value*>(allocator);
-    local_reference_vars_ = TrackingVector<Reference*>(allocator);
   }
   size_t getCurrentSize() override {
-    size_t size = sizeof(*this);
+    size_t size = base_size_bytes_;
     size += stack_.get_allocator().getCurrentMemory();
-    size += local_vars_.get_allocator().getCurrentMemory();
-    size += local_reference_vars_.get_allocator().getCurrentMemory();
     return size;
   }
 };
@@ -252,10 +260,13 @@ public:
 };
 
 class Record : public Value {
-  TrackingUnorderedMap<TrackingString, Value*> map_;
-  TrackingSet<TrackingString> fields_;
+  TrackingUnorderedMap<std::string, Value*> map_;
+  TrackingSet<std::string> fields_;
+  static Constant::None none_;
+  int dynamic_string_memory_bytes_;
 public:
   Record() = default;
+  ~Record() {heap_->addMemory(-dynamic_string_memory_bytes_);}
   std::string toString() {
     std::stringstream ss;
     ss << "{";
@@ -266,15 +277,15 @@ public:
     return ss.str();
   }
   Value* getValue(const std::string& field) { 
-    TrackingString temp(field, map_.get_allocator());
-    auto it = map_.find(temp);
-    return (it != map_.end()) ? it->second : heap_->allocate<Constant::None>();
+    auto it = map_.find(field);
+    return (it != map_.end()) ? it->second : &none_;
 }
   void setValue(const std::string& field, Value* value) {
-        TrackingString temp(field, map_.get_allocator());
-        auto [it, inserted] = map_.emplace(temp, value);
+        auto [it, inserted] = map_.emplace(field, value);
         if (inserted) {
-            fields_.insert(temp);
+            fields_.insert(field);
+            heap_->addMemory(field.capacity() * 2);
+            dynamic_string_memory_bytes_ += field.capacity() * 2;
         } else {
             it->second = value;
         }
@@ -287,56 +298,53 @@ public:
   }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   void initializeDynamicMemory(CollectedHeap* heap) override {
-    TrackingAllocator<std::pair<const TrackingString, Value*>> allocator;
+    TrackingAllocator<std::pair<const std::string, Value*>> allocator;
     allocator.setHeap(heap);
-    map_ = TrackingUnorderedMap<TrackingString, Value*>(allocator);
-    fields_ = TrackingSet<TrackingString>(allocator);
+    map_ = TrackingUnorderedMap<std::string, Value*>(allocator);
+    fields_ = TrackingSet<std::string>(allocator);
   }
   size_t getCurrentSize() override {
     size_t size = sizeof(*this);
     size += map_.get_allocator().getCurrentMemory();
     for (const auto& [field, value] : map_) {
-      size += field.get_allocator().getCurrentMemory();
+      size += field.capacity();
     }
     size += fields_.get_allocator().getCurrentMemory();
     for (const auto& field : fields_) {
-      size += field.get_allocator().getCurrentMemory();
+      size += field.capacity();
     }
     return size;
   }
 };
 
 class Closure : public Value {
-  TrackingVector<Reference*> free_vars_;
+  Reference** free_vars_; // Array of references to free variables
   Function* function_;
   inline static const std::string name_ = "FUNCTION";
   int num_free_vars_;
 public:
+  ~Closure() { delete[] free_vars_; }
   std::string toString() {return name_;};
-  Closure(int num_free_vars) : num_free_vars_(num_free_vars) {}
-  int getNumFreeVars() { return free_vars_.size(); }
+  Closure(int num_free_vars) : num_free_vars_(num_free_vars) { free_vars_ = new Reference*[num_free_vars]; }
+  int getNumFreeVars() { return num_free_vars_; }
   void addFreeVar(int index, Reference* value) { free_vars_[index] = value; }
   Reference* getFreeVar(int index) { return free_vars_[index]; }
-  TrackingVector<Reference*>& getFreeVars() { return free_vars_; }
+  Reference** getFreeVars() { return free_vars_; }
   void setFunction(Function* function) { function_ = function; }
   Function* getFunction() { return function_; }
   Type getType() const { return Type::Closure; }
   void follow(CollectedHeap& heap) override {
     heap.markSuccessors(function_);
-    for (Reference* ref : free_vars_) {
-      heap.markSuccessors(ref);
+    for (int i = 0; i < num_free_vars_; i++) {
+      heap.markSuccessors(free_vars_[i]);
     }
   }
-  void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
+  void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + num_free_vars_ * sizeof(Reference*); }
   void initializeDynamicMemory(CollectedHeap* heap) override {
     TrackingAllocator<Reference*> allocator;
     allocator.setHeap(heap);
-    free_vars_ = TrackingVector<Reference*>(allocator);
-    free_vars_.resize(num_free_vars_);
   }
   size_t getCurrentSize() override {
-    size_t size = sizeof(*this);
-    size += free_vars_.get_allocator().getCurrentMemory();
-    return size;
+    return base_size_bytes_;
   }
 };

@@ -42,7 +42,7 @@ public:
     intcastFunction() {local_vars_.push_back("x"); parameter_count_ = 1;} 
     void execute() override {
         Value* value = frame_->getLocalVar(0);
-        if (!dynamic_cast<Constant::String*>(value)) {
+        if (!(value->getType() == Value::Type::String)){
             throw IllegalCastException();
         }
         Constant::String* str = static_cast<Constant::String*>(value);

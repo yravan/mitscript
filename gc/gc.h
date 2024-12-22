@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <unistd.h>
 #include <type_traits>
 #include <vector>
@@ -7,8 +8,10 @@
 #include <unordered_set>
 #include <fstream>
 #include <iostream>
-#include <limits>
+#include <map>
+#include <sstream>
 #include <malloc.h>
+#include <sys/resource.h>
 #include "debug.h"
 #define MEGABYTE_TO_BYTE 1000000
 
@@ -17,8 +20,8 @@ class CollectedHeap;
 template <typename T>
 class TrackingAllocator {
 protected:
-  int total_bytes_allocated_;
-  int total_bytes_deallocated_;
+  size_t total_bytes_allocated_;
+  size_t total_bytes_deallocated_;
 public:
   CollectedHeap* heap_;
   using value_type = T; // The type of objects the allocator manages
@@ -43,13 +46,11 @@ public:
     heap_ = heap;
   }
 
-  int getCurrentMemory() const {
+  size_t getCurrentMemory() const {
     return total_bytes_allocated_ - total_bytes_deallocated_;
   }
 
   T* allocate(std::size_t n) {
-    if (n > std::numeric_limits<std::size_t>::max() / sizeof(T))
-        throw std::bad_alloc();
     total_bytes_allocated_ += n * sizeof(T);
     heap_->addMemory(n * sizeof(T));
     return static_cast<T*>(::operator new(n * sizeof(T)));
@@ -68,10 +69,6 @@ public:
 
   void destroy(T* p) noexcept {
     p->~T();
-  }
-
-  std::size_t max_size() const noexcept {
-    return std::numeric_limits<std::size_t>::max() / sizeof(T);
   }
 
   // Rebind structure to propagate the heap
@@ -102,13 +99,16 @@ using TrackingUnorderedSet = std::unordered_set<T, std::hash<T>, std::equal_to<T
 template <typename K, typename V>
 using TrackingUnorderedMap = std::unordered_map<K, V, std::hash<K>, std::equal_to<K>, TrackingAllocator<std::pair<const K, V>>>;
 
+template <typename K, typename V>
+using TrackingMap = std::map<K, V, std::less<K>, TrackingAllocator<std::pair<const K, V>>>;
+
 using TrackingString = std::basic_string<char, std::char_traits<char>, TrackingAllocator<char>>;
 
 
 template <typename T>
 class LinkedList {
   T* head_;
-  int size_;
+  uint16_t size_;
 public:
   LinkedList() : head_(nullptr), size_(0) {}
 
@@ -211,8 +211,6 @@ class Collectable{
   // the CollectedHeap (since it is declared as friend below).  You can think of
   // these fields as the header for the object, which will include metadata that
   // is useful for the garbage collector.
-  void mark() { marked_ = true; }
-  void unmark() { marked_ = false; }
   Collectable* next_= nullptr;
 
  protected:
@@ -232,7 +230,7 @@ class Collectable{
   void setHeap(CollectedHeap* heap) {
     heap_ = heap;
   }
-  int base_size_bytes_;
+  size_t base_size_bytes_;
 
   friend CollectedHeap;
   friend LinkedList<Collectable>;
@@ -247,24 +245,40 @@ class Collectable{
     objects that are not reachable from a given set of objects
 */
 class CollectedHeap {
-  int max_memory_bytes_;
-  int current_memory_bytes_ = sizeof(*this);
+  size_t max_memory_bytes_;
+  size_t current_memory_bytes_ = sizeof(*this);
 
  public:
   LinkedList<Collectable> objects_{};
   CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {}
   CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {}
 
-  size_t getMemoryUsage() {
-    std::ifstream statm("/proc/self/statm");
-    size_t totalMemory;
-    statm >> totalMemory; // Total memory in pages
-    return totalMemory * sysconf(_SC_PAGESIZE); // Convert to bytes
-  }
   size_t getCurrentHeapUsage() {
       struct mallinfo2 info = mallinfo2();
       return info.uordblks; // Bytes allocated by malloc
   }
+
+  size_t getResidentMemory() {
+    std::ifstream status("/proc/self/status");
+    std::string line;
+    while (std::getline(status, line)) {
+        if (line.find("VmRSS:") == 0) { // Resident Set Size
+            std::istringstream iss(line);
+            std::string key;
+            size_t value;
+            std::string unit;
+            iss >> key >> value >> unit; // VmRSS: <value> kB
+            return value * 1024; // Convert to bytes
+        }
+    }
+    return 0; // Fallback if VmRSS is not found
+}
+
+  size_t getResidentMemoryRusage() {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    return usage.ru_maxrss * 1024; // Convert kilobytes to bytes
+}
 
   void dump() {
     // Current tracked memory usage
@@ -272,7 +286,7 @@ class CollectedHeap {
 
     // Total memory usage of the process
     int totalUsage = getCurrentHeapUsage();
-    int allocatedMemory = getMemoryUsage();
+    int allocatedMemory = getResidentMemoryRusage();
 
     // Number of objects currently registered in the heap
     size_t objectCount = objects_.size();
@@ -320,7 +334,7 @@ class CollectedHeap {
   }
 
   bool isFull() {
-    return current_memory_bytes_ >= max_memory_bytes_ * 0.5;
+    return current_memory_bytes_ >= max_memory_bytes_ * 0.6;
   }
 
   void addMemory(int bytes) {
@@ -340,7 +354,7 @@ class CollectedHeap {
   */
   void markSuccessors(Collectable* next) {
     if (next->marked_) return;
-    next->mark();
+    next->marked_=true;
     next->follow(*this);
   }
 
@@ -372,7 +386,7 @@ class CollectedHeap {
         it = objects_.erase(it);
         delete obj;
       } else {
-        (*it)->unmark();
+        (*it)->marked_=false;
         ++it;
       }
     }

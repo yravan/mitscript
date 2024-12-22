@@ -26,7 +26,7 @@ int main(int argc, const char *argv[]) {
     return -1;
   }
 
-  int max_memory_mb = std::stoi(argv[2]);
+  int max_memory_mb = std::stoi(argv[2]) - 1;
   CollectedHeap heap(max_memory_mb * MEGABYTE_TO_BYTE);
 
   #ifdef DEBUG
@@ -83,6 +83,11 @@ int main(int argc, const char *argv[]) {
     if (bytecode_program == nullptr) {
       return 1;
     }
+    #ifdef DEBUG
+    PrettyPrinter bytecodePrinter;
+    bytecodePrinter.print(*bytecode_program, std::cout);
+    #endif
+
   } else {
     FILE* file = fopen(argv[4], "r");
     if (file == nullptr) {

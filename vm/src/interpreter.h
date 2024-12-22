@@ -2,7 +2,6 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
-#include <assert.h>
 #include "gc.h"
 // #include "bytecode/frame.h"
 #include "bytecode/types.h"
@@ -15,12 +14,12 @@ private:
 
     Frame* global_frame_;    
     TrackingVector<Frame*> stack_frames_;
-    int instruction_pointer_;
+    int instruction_pointer_ = 0;
     Function* current_function_;
     TrackingUnorderedMap<std::string, int> global_indices_;
     TrackingUnorderedSet<Function*> native_functions_;
     CollectedHeap* heap_;
-    int max_memory_bytes_;
+    int max_memory_bytes_ = 4*MEGABYTE_TO_BYTE;
 
     Constant::None* none_;
     Constant::Boolean* true_;
@@ -28,7 +27,7 @@ private:
 
 
 public:
-    Interpreter() {assert(false);}
+    Interpreter() {}
     Interpreter(CollectedHeap* heap) : heap_(heap) {}
 
     void setMemoryLimit(int max_memory_bytes) {

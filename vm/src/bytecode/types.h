@@ -1,7 +1,4 @@
 #pragma once
-
-#include <cstdint>
-#include <memory>
 #include <string>
 #include <vector>
 #include <map>
@@ -27,10 +24,8 @@ public:
 };
 
 class Constant : public Value {
-
 public:
   virtual ~Constant() = default;
-  virtual bool equals(const Constant& other) = 0;
   class None;
   class Integer;
   class String;
@@ -45,7 +40,6 @@ public:
   None() = default;
   virtual ~None() {}
   std::string toString() { return name_; }
-  bool equals (const Constant& other) { return other.getType() == Value::Type::None; }
   Type getType() const { return Type::None; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   size_t getCurrentSize() override {return sizeof(*this);}
@@ -59,12 +53,6 @@ public:
   virtual ~Integer() {}
   int getValue() const { return value_; }
   std::string toString() { return name_; }
-  bool equals (const Constant& other) { 
-    if(other.getType() != Value::Type::Integer) {
-      return false;
-    }
-    return value_ == static_cast<const Integer*>(&other)->getValue();
-  }
   Type getType() const { return Type::Integer; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + name_.capacity(); }
   size_t getCurrentSize() override {return sizeof(*this) + name_.capacity();}
@@ -77,12 +65,6 @@ public:
   const std::string& getValue() const { return value_; }
   virtual ~String() {}
   std::string toString() { return value_; }
-  bool equals (const Constant& other) { 
-    if (other.getType() != Value::Type::String) {
-      return false;
-    }
-    return value_ == static_cast<const String*>(&other)->getValue();
-  }
   Type getType() const { return Type::String; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + value_.capacity(); }
   size_t getCurrentSize() override {return sizeof(*this) + value_.capacity(); }
@@ -97,12 +79,6 @@ public:
   bool getValue() const { return value; }
   virtual ~Boolean() {}
   std::string toString() { if(value) {return true_string_;} return false_string_; }
-  bool equals (const Constant& other) { 
-    if (other.getType() != Value::Type::Boolean) {
-      return false;
-    }
-    return value == static_cast<const Boolean*>(&other)->getValue();
-  }
   Type getType() const { return Type::Boolean; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   size_t getCurrentSize() override {return sizeof(*this);}
@@ -114,7 +90,7 @@ class Function : public Value {
 public:
   std::vector<Function*> functions_;
   std::vector<Constant*> constants_;
-  uint32_t parameter_count_ = 0;
+  int parameter_count_ = 0;
   std::vector<std::string> local_vars_;
   std::vector<std::string> local_reference_vars_;
   std::vector<std::string> free_vars_;
@@ -124,7 +100,7 @@ public:
   Function() = default;
   Function(std::vector<Function*> functions,
            std::vector<Constant*> constants,
-           uint32_t parameter_count,
+           int parameter_count,
            std::vector<std::string> local_vars,
            std::vector<std::string> local_reference_vars,
            std::vector<std::string> free_vars,
@@ -195,12 +171,12 @@ class Frame : public Collectable {
 
   // The local variables
   Value** local_vars_;
-  int num_local_vars_;
+  uint16_t num_local_vars_;
 
   // The local reference variables
   Reference** local_reference_vars_;
-  int num_local_reference_vars_;
-  int num_free_vars_;
+  uint16_t num_local_reference_vars_;
+  uint16_t num_free_vars_;
 
 public: 
   Frame() {
@@ -241,7 +217,7 @@ public:
 };
 
 class Reference : public Value{
-    int index_;
+    uint16_t index_;
     Frame* frame_;
 public:
     Reference() {}
@@ -261,7 +237,7 @@ public:
 
 class Record : public Value {
   TrackingUnorderedMap<std::string, Value*> map_;
-  TrackingSet<std::string> fields_;
+  // TrackingSet<std::string> fields_;
   static Constant::None none_;
   int dynamic_string_memory_bytes_;
 public:
@@ -270,9 +246,22 @@ public:
   std::string toString() {
     std::stringstream ss;
     ss << "{";
-    for (const auto& field: fields_){
-        ss << field << ":" << map_[field]->toString() << " ";
+    std::vector<std::string> temp;
+    temp.reserve(map_.size());
+    for (const auto& kv : map_) {
+        temp.emplace_back(kv.first);
     }
+    std::sort(temp.begin(), temp.end());
+    for (const auto& key : temp) {
+        ss << key << ":" << map_[key]->toString() << " ";
+    }
+    // Copy elements to std::map
+    // std::map<std::string, Value*> sortedMap(map_.begin(), map_.end());
+
+    // // Print in lexical order
+    // for (const auto& [key, value] : sortedMap) {
+    //     ss << key << ":" << value->toString() << " ";
+    // }
     ss << "}";
     return ss.str();
   }
@@ -283,9 +272,8 @@ public:
   void setValue(const std::string& field, Value* value) {
         auto [it, inserted] = map_.emplace(field, value);
         if (inserted) {
-            fields_.insert(field);
-            heap_->addMemory(field.capacity() * 2);
-            dynamic_string_memory_bytes_ += field.capacity() * 2;
+            heap_->addMemory(field.capacity());
+            dynamic_string_memory_bytes_ += field.capacity();
         } else {
             it->second = value;
         }
@@ -301,16 +289,11 @@ public:
     TrackingAllocator<std::pair<const std::string, Value*>> allocator;
     allocator.setHeap(heap);
     map_ = TrackingUnorderedMap<std::string, Value*>(allocator);
-    fields_ = TrackingSet<std::string>(allocator);
   }
   size_t getCurrentSize() override {
     size_t size = sizeof(*this);
     size += map_.get_allocator().getCurrentMemory();
     for (const auto& [field, value] : map_) {
-      size += field.capacity();
-    }
-    size += fields_.get_allocator().getCurrentMemory();
-    for (const auto& field : fields_) {
       size += field.capacity();
     }
     return size;
@@ -321,7 +304,7 @@ class Closure : public Value {
   Reference** free_vars_; // Array of references to free variables
   Function* function_;
   inline static const std::string name_ = "FUNCTION";
-  int num_free_vars_;
+  uint16_t num_free_vars_;
 public:
   ~Closure() { delete[] free_vars_; }
   std::string toString() {return name_;};

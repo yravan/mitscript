@@ -439,8 +439,23 @@ bool Compiler::findReturn(const AST::Statement& s) {
 int Compiler::alloc_constant(Constant& constant) {
   int index = 0;
   for (Constant* c : enclosing_function_->getConstants()) {
-    if (c->equals(constant)) {
+    if (c->getType() == Value::Type::None && constant.getType() == Value::Type::None) {
       return index;
+    }
+    if (c->getType() == Value::Type::Integer && constant.getType() == Value::Type::Integer) {
+      if (static_cast<Constant::Integer*>(c)->getValue() == static_cast<Constant::Integer*>(&constant)->getValue()) {
+        return index;
+      }
+    }
+    if (c->getType() == Value::Type::String && constant.getType() == Value::Type::String) {
+      if (static_cast<Constant::String*>(c)->getValue() == static_cast<Constant::String*>(&constant)->getValue()) {
+        return index;
+      }
+    }
+    if (c->getType() == Value::Type::Boolean && constant.getType() == Value::Type::Boolean) {
+      if (static_cast<Constant::Boolean*>(c)->getValue() == static_cast<Constant::Boolean*>(&constant)->getValue()) {
+        return index;
+      }
     }
     index += 1;
   }

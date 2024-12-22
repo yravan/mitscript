@@ -1,5 +1,5 @@
 #include "interpreter.h"
-#include "assert.h"
+// #include "assert.h"
 
 
 // ------------------------------------------------------------
@@ -68,13 +68,13 @@ void Interpreter::fieldLoad(int index){
     Value* value = popFromStack();
     validateValueType<Record>(value);
     Record* record = static_cast<Record*>(value);
-    std::string field = std::move(current_function_->getName(index));
+    std::string field(std::move(current_function_->getName(index)));
     Value* record_value = record->getValue(field);
     pushOntoStack(record_value);
 }
 
 void Interpreter::fieldStore(int index){
-    std::string field = std::move(current_function_->getName(index));
+    std::string field(std::move(current_function_->getName(index)));
     Value* record_value = popFromStack();
     Value* value = popFromStack();
     validateValueType<Record>(value);
@@ -84,7 +84,7 @@ void Interpreter::fieldStore(int index){
 
 void Interpreter::indexLoad(){
     Value* index = popFromStack();
-    std::string field = std::move(stringCast(index));
+    std::string field(std::move(stringCast(index)));
     Value* value = popFromStack();
     validateValueType<Record>(value);
     Record* record = static_cast<Record*>(value);
@@ -96,7 +96,7 @@ void Interpreter::indexStore(){
     Value* record_value = popFromStack();
 
     Value* index = popFromStack();
-    std::string field = std::move(stringCast(index));
+    std::string field(std::move(stringCast(index)));
 
     Value* value = popFromStack();
     validateValueType<Record>(value);
@@ -501,7 +501,7 @@ void Interpreter::validateValueType(Value* value) {
     } else if constexpr (std::is_same_v<T, Function>) {
         expectedType = Value::Type::Function;
     } else {
-        assert(false);
+        // assert(false);
     }
 
     // Check if the type matches
@@ -518,7 +518,7 @@ std::string Interpreter::stringCast(Value* v) {
 void Interpreter::executeInstruction(){
     garbageCollect();
     Instruction current_instruction = current_function_->getInstruction(instruction_pointer_);
-    // DEBUG_PRINT("Executing instruction: " << current_instruction.toString());
+    DEBUG_PRINT("Executing instruction: " << current_instruction.toString());
 
     switch (current_instruction.operation) {
         case Operation::LoadConst:

@@ -31,17 +31,16 @@ public:
         CST::ProgramNode* cst_tree;
         try{
             cst_tree = CST::Program(tokens);
-            DEBUG_PRINT("------------------------------------\nCST:    " + cst_tree->to_string() + "\n");
+            DEBUG_PRINT("------------------------------------------------------------------------\nCST:    " + cst_tree->to_string() + "\n");
             CST::CSTConverter converter = CST::CSTConverter();
-            DEBUG_PRINT("------------------------------------\nConversion:    ");
+            DEBUG_PRINT("------------------------------------------------------------------------\nAST:    ");
             AST::Program* program = converter.convert(*cst_tree);
-
             AST::PrettyPrinter printer;
 
             #ifdef DEBUG
-            std::cout << "AST:        " << std::endl;
             program->accept(printer);
             #endif
+            DEBUG_PRINT("------------------------------------------------------------------------");
 
             result = program;
         }

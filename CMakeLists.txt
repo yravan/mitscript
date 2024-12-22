@@ -29,6 +29,7 @@ endif()
 
 add_subdirectory(interpreter)
 add_subdirectory(vm)
+add_subdirectory(gc)
 
 option(BUILD_TESTS "Build the unit tests" OFF)
 

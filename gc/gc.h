@@ -1,19 +1,152 @@
 #pragma once
+#include <unistd.h>
 #include <type_traits>
+#include <vector>
+#include <unordered_map>
+#include <set>
+#include <unordered_set>
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <malloc.h>
+#include "debug.h"
+#define MEGABYTE_TO_BYTE 1024*1024
 
 class CollectedHeap;
 
+template <typename T>
+class TrackingAllocator {
+protected:
+  int total_bytes_allocated_;
+  int total_bytes_deallocated_;
+public:
+  CollectedHeap* heap_;
+  using value_type = T; // The type of objects the allocator manages
+  using pointer = T*;
+  using const_pointer = const T*;
+  using void_pointer = void*;
+  using const_void_pointer = const void*;
+
+  using size_type = std::size_t;   // Type for sizes
+  using difference_type = std::ptrdiff_t; // Type for differences
+  using propagate_on_container_copy_assignment = std::true_type;
+  using propagate_on_container_move_assignment = std::true_type;
+  using propagate_on_container_swap = std::true_type;
+
+  TrackingAllocator() noexcept : heap_(nullptr), total_bytes_allocated_(0), total_bytes_deallocated_(0) {}
+
+  template <typename U>
+    TrackingAllocator(const TrackingAllocator<U>& alloc) noexcept
+        : heap_(alloc.heap_), total_bytes_allocated_(0), total_bytes_deallocated_(0) {}
+
+  void setHeap(CollectedHeap* heap) {
+    heap_ = heap;
+  }
+
+  int getCurrentMemory() const {
+    return total_bytes_allocated_ - total_bytes_deallocated_;
+  }
+
+  T* allocate(std::size_t n) {
+    if (n > std::numeric_limits<std::size_t>::max() / sizeof(T))
+        throw std::bad_alloc();
+    total_bytes_allocated_ += n * sizeof(T);
+    heap_->addMemory(n * sizeof(T));
+    return static_cast<T*>(::operator new(n * sizeof(T)));
+  }
+
+  void deallocate(T* p, std::size_t n) noexcept {
+    total_bytes_deallocated_ += n * sizeof(T);
+    heap_->addMemory(-n * sizeof(T));
+    ::operator delete(p);
+  }
+
+  template <typename... Args>
+  void construct(T* p, Args&&... args) {
+      ::new (static_cast<void*>(p)) T(std::forward<Args>(args)...);
+  }
+
+  void destroy(T* p) noexcept {
+    p->~T();
+  }
+
+  std::size_t max_size() const noexcept {
+    return std::numeric_limits<std::size_t>::max() / sizeof(T);
+  }
+
+  // Rebind structure to propagate the heap
+  template <typename U>
+  struct rebind {
+      using other = TrackingAllocator<U>;
+  };
+
+  bool operator==(const TrackingAllocator& other) const noexcept {
+        return heap_ == other.heap_;
+    }
+
+  bool operator!=(const TrackingAllocator& other) const noexcept {
+      return !(*this == other);
+  }
+
+};
+
+template <typename T>
+using TrackingVector = std::vector<T, TrackingAllocator<T>>;
+
+template <typename T>
+using TrackingSet = std::set<T, std::less<>, TrackingAllocator<T>>;
+
+template <typename T>
+using TrackingUnorderedSet = std::unordered_set<T, std::hash<T>, std::equal_to<T>, TrackingAllocator<T>>;
+
+template <typename K, typename V>
+using TrackingUnorderedMap = std::unordered_map<K, V, std::hash<K>, std::equal_to<K>, TrackingAllocator<std::pair<const K, V>>>;
+
+using TrackingString = std::basic_string<char, std::char_traits<char>, TrackingAllocator<char>>;
+
+class ListNode {
+protected:
+  ListNode* next_;
+  ListNode() : next_(nullptr) {}
+  friend class TrackingList;
+};
+
+class TrackingList {
+  ListNode* head_;
+  ListNode* tail_;
+
+  void push_back(ListNode* node) {
+    if (head_ == nullptr) {
+      head_ = node;
+      tail_ = node;
+    } else {
+      tail_->next_ = node;
+      tail_ = node;
+    }
+  }
+
+};
+
+
+class CollectedHeap;
+
+
+
 // Any object that inherits from collectable can be created and tracked by the
 // garbage collector.
-class Collectable {
+class Collectable : ListNode {
  public:
   virtual ~Collectable() = default;
+  bool marked_ = false;
+  CollectedHeap* heap_;
 
  private:
   // Any private fields you add to the Collectable class will be accessible by
   // the CollectedHeap (since it is declared as friend below).  You can think of
   // these fields as the header for the object, which will include metadata that
   // is useful for the garbage collector.
+  void mark() { marked_ = true; }
+  void unmark() { marked_ = false; }
 
  protected:
   /*
@@ -26,6 +159,13 @@ class Collectable {
   object is marked and marking it.
   */
   virtual void follow(CollectedHeap& heap) = 0;
+  virtual void calculateBaseSizeBytes() = 0;
+  virtual size_t getCurrentSize() = 0;
+  virtual void initializeDynamicMemory(CollectedHeap* heap) = 0;
+  void setHeap(CollectedHeap* heap) {
+    heap_ = heap;
+  }
+  int base_size_bytes_;
 
   friend CollectedHeap;
 };
@@ -39,7 +179,61 @@ class Collectable {
     objects that are not reachable from a given set of objects
 */
 class CollectedHeap {
+  TrackingAllocator<Collectable*> allocator;
+  int max_memory_bytes_;
+  int current_memory_bytes_ = sizeof(*this);
+
  public:
+  TrackingVector<Collectable*> objects_;
+  CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {
+    allocator.setHeap(this);
+    objects_ = TrackingVector<Collectable*>(allocator);
+  }
+  CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {
+    allocator.setHeap(this);
+    objects_ = TrackingVector<Collectable*>(allocator);
+  }
+
+  size_t getMemoryUsage() {
+    std::ifstream statm("/proc/self/statm");
+    size_t totalMemory;
+    statm >> totalMemory; // Total memory in pages
+    return totalMemory * sysconf(_SC_PAGESIZE); // Convert to bytes
+  }
+  size_t getCurrentHeapUsage() {
+      struct mallinfo2 info = mallinfo2();
+      return info.uordblks; // Bytes allocated by malloc
+  }
+
+  void dump() {
+    // Current tracked memory usage
+    int trackedUsage = current_memory_bytes_;
+
+    // Total memory usage of the process
+    int totalUsage = getCurrentHeapUsage();
+
+    // Number of objects currently registered in the heap
+    size_t objectCount = objects_.size();
+
+    // Print heap statistics
+    std::cout << "-------------------" << std::endl;
+    std::cout << "CollectedHeap Dump:" << std::endl;
+    std::cout << "Tracked Memory Usage: " << trackedUsage / 1000 << " kb" << std::endl;
+    std::cout << "Total Process Memory Usage: " << totalUsage / 1000 << " kb" << std::endl;
+    std::cout << "Max Memory Capacity: " << max_memory_bytes_ / 1000 << " kb" << std::endl;
+    std::cout << "Number of Registered Objects: " << objectCount << std::endl;
+    std::cout << "-------------------" << std::endl << std::endl;
+
+    // Print details of registered objects
+    // std::cout << "Registered Objects:" << std::endl;
+    // for (const auto& obj : objects_) {
+    //     std::cout << "  - Object at " << obj
+    //               << ", Base Size: " << obj->base_size_bytes_
+    //               << " bytes" << std::endl;
+    // }
+}
+
+
   /*
   This method allocates an object of type T, passing args to the constructor.
   T must be a subclass of Collectable.  Before returning the
@@ -47,7 +241,28 @@ class CollectedHeap {
   */
   template <typename T, typename... Args>
   T* allocate(Args&&... args) {
+    // DEBUG_PRINT("Allocating object of type " << typeid(T).name());
     static_assert(std::is_constructible_v<T, Args...>);
+    T* obj = new T(std::forward<Args>(args)...);
+    objects_.push_back(obj);
+    obj->setHeap(this);
+    obj->calculateBaseSizeBytes();
+    addMemory(obj->base_size_bytes_);
+    obj->initializeDynamicMemory(this);
+    return obj;
+  }
+
+  int getSize() {
+    return current_memory_bytes_;
+  }
+
+  bool isFull() {
+    return current_memory_bytes_ >= max_memory_bytes_ * 0.5;
+  }
+
+  void addMemory(int bytes) {
+    // DEBUG_PRINT("Adding " << bytes << " bytes to the heap");
+    current_memory_bytes_ += bytes;
   }
 
   /*
@@ -60,7 +275,11 @@ class CollectedHeap {
   object.  This is how a Collectable object lets the garbage collector know
   about other Collectable objects pointed to by itself.
   */
-  void markSuccessors(Collectable* next) {}
+  void markSuccessors(Collectable* next) {
+    if (next->marked_) return;
+    next->mark();
+    next->follow(*this);
+  }
 
   /*
   The gc method should be periodically invoked by your VM (or by other methods
@@ -76,5 +295,27 @@ class CollectedHeap {
   the rootset as arguments.
   */
   template <typename Iterator>
-  void gc(Iterator begin, Iterator end) {}
+  void gc(Iterator begin, Iterator end) {
+    // Mark phase
+    for (Iterator it = begin; it != end; ++it) {
+      markSuccessors(*it);
+    }
+
+    // Sweep phase
+    for (auto it = objects_.begin(); it != objects_.end();) {
+      if (!(*it)->marked_) {
+        current_memory_bytes_ -= (*it)->base_size_bytes_;
+        delete *it;
+        it = objects_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    for (auto& obj : objects_) {
+      obj->unmark();
+    }
+  }
 };
+
+
+

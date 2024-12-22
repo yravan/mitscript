@@ -111,6 +111,7 @@ void Compiler::visit(const AST::Return& node) {
 void Compiler::visit(const AST::FunctionDeclaration& node) {
   Function* prev_function = enclosing_function_;
   enclosing_function_ = new Function();
+  SymbolTable* prev_symbol_table = symbol_table_;
   symbol_table_ = new SymbolTable(symbol_table_);
   prev_function->addFunction(enclosing_function_);
   BasicBlock function_block = BasicBlock();
@@ -149,7 +150,8 @@ void Compiler::visit(const AST::FunctionDeclaration& node) {
   function_block.push_back(Instruction(Operation::AllocClosure, enclosing_function_->numFreeVars())); 
 
   enclosing_function_ = prev_function;
-  symbol_table_ = symbol_table_->parent_;
+  delete symbol_table_;
+  symbol_table_ = prev_symbol_table;
   current_block_ = function_block;
 }
 void Compiler::visit(const AST::BinaryExpression& node) {

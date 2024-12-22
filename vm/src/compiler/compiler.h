@@ -3,6 +3,7 @@
 #include "Visitor.h"
 #include "types.h"
 #include "symbol_table.h"
+#include "assert.h"
 #include <unordered_set>
 
 using BasicBlock = std::vector<Instruction>;
@@ -15,8 +16,14 @@ class Compiler: Visitor {
   // std::unordered_set<Constant*> current_constants;
   BasicBlock current_block_;
   bool lhs_;
+  CollectedHeap* heap_;
 
 public:
+  Compiler() {assert(false);}
+  Compiler(CollectedHeap* heap) : heap_(heap) {}
+  ~Compiler() {
+    delete global_symbol_table_;
+  }
   void visit(const AST::Block& node) override;
   void visit(const AST::Global& node) override;
   void visit(const AST::Expression& node) override;

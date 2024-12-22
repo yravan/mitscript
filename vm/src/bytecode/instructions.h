@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
+#include <string>
+#include <sstream>
 
 enum class Operation {
   // Description: push a constant onto the operand stack
@@ -219,6 +221,7 @@ enum class Operation {
   Pop
 };
 
+
 struct Instruction {
   Instruction(const Operation operation, std::string name)
       : operation(operation), name_(std::move(name)) {}
@@ -229,7 +232,63 @@ struct Instruction {
   Instruction(const Operation operation, int32_t operand0)
       : operation(operation), operand0(operand0) {}
 
+static std::string operationToString(Operation op) {
+    switch (op) {
+        case Operation::LoadConst: return "LoadConst";
+        case Operation::LoadFunc: return "LoadFunc";
+        case Operation::LoadLocal: return "LoadLocal";
+        case Operation::StoreLocal: return "StoreLocal";
+        case Operation::LoadGlobal: return "LoadGlobal";
+        case Operation::StoreGlobal: return "StoreGlobal";
+        case Operation::PushReference: return "PushReference";
+        case Operation::LoadReference: return "LoadReference";
+        case Operation::StoreReference: return "StoreReference";
+        case Operation::AllocRecord: return "AllocRecord";
+        case Operation::FieldLoad: return "FieldLoad";
+        case Operation::FieldStore: return "FieldStore";
+        case Operation::IndexLoad: return "IndexLoad";
+        case Operation::IndexStore: return "IndexStore";
+        case Operation::AllocClosure: return "AllocClosure";
+        case Operation::Call: return "Call";
+        case Operation::Return: return "Return";
+        case Operation::Add: return "Add";
+        case Operation::Sub: return "Sub";
+        case Operation::Mul: return "Mul";
+        case Operation::Div: return "Div";
+        case Operation::Neg: return "Neg";
+        case Operation::Gt: return "Gt";
+        case Operation::Geq: return "Geq";
+        case Operation::Eq: return "Eq";
+        case Operation::And: return "And";
+        case Operation::Or: return "Or";
+        case Operation::Not: return "Not";
+        case Operation::Goto: return "Goto";
+        case Operation::If: return "If";
+        case Operation::Dup: return "Dup";
+        case Operation::Swap: return "Swap";
+        case Operation::Pop: return "Pop";
+        default: return "Unknown";
+    }
+}
   void setOperand0(int32_t operand) { operand0 = operand; }
+  std::string toString() const {
+    std::ostringstream oss;
+
+    // Use operationToString to get readable operation name
+    oss << "Operation: " << operationToString(operation);
+
+    // Print the operation's name (if provided)
+    // if (!name_.empty()) {
+    //     oss << " (" << name_ << ")";
+    // }
+
+    // Print the operand if present
+    if (operand0.has_value()) {
+        oss << "\t" << operand0.value();
+    }
+
+    return oss.str();
+}
 
   Operation operation;
   std::optional<int32_t> operand0;

@@ -1,6 +1,6 @@
 #pragma once
 #include "types.h"
-#include "frame.h"
+// #include "frame.h"
 #include <iostream>
 
 class NativeFunction : public Function {
@@ -12,6 +12,7 @@ public:
     virtual ~NativeFunction() {}
     void setFrame(Frame* frame) { frame_ = frame; }
     virtual void execute() = 0;
+    void setHeap(CollectedHeap* heap) { heap_ = heap; }
 };
 
 class printFunction : public NativeFunction { 
@@ -20,7 +21,7 @@ public:
     printFunction() {local_vars_.push_back("x"); parameter_count_ = 1;}
     void execute() override {
         std::cout << frame_->getLocalVar(0)->toString() << std::endl;
-        frame_->push(new Constant::None());
+        frame_->push(heap_->allocate<Constant::None>());
     }
 };
 
@@ -31,7 +32,7 @@ public:
     void execute() override {
         std::string input;
         std::cin >> input;
-        frame_->push(new Constant::String(input));
+        frame_->push(heap_->allocate<Constant::String>(input));
     }
 };
 
@@ -49,7 +50,7 @@ public:
         if (num == 0 && str->getValue() != "0"){
             throw IllegalCastException();
         }
-        frame_->push(new Constant::Integer(num));
+        frame_->push(heap_->allocate<Constant::Integer>(num));
     }
 };
 

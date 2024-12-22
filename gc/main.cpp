@@ -1,7 +1,8 @@
 #include <cstdlib>
 
 #include "timerclass.h"
-#include "vm/types.h"
+#include "types.h"
+#include "gc.h"
 
 void allocate_objects(int N, CollectedHeap& heap,
                       std::vector<std::string>& names,
@@ -12,18 +13,18 @@ void allocate_objects(int N, CollectedHeap& heap,
   Record* r = heap.allocate<Record>();
   Record* q = heap.allocate<Record>();
   for (int i = 0; i < N; ++i) {
-    Integer* ii = heap.allocate<Integer>(5);
-    String* s = heap.allocate<String>("name");
+    Constant::Integer* ii = heap.allocate<Constant::Integer>(5);
+     Constant::String* s = heap.allocate<Constant::String>("name");
 
     int t = rand() % 3;
     if (t == 0) {
-      r->set(names[i % names.size()], ii);
+      r->setValue(names[i % names.size()], ii);
     }
     if (t == 1) {
-      r->set(names[i % names.size()], s);
+      r->setValue(names[i % names.size()], s);
     }
     if (t == 2) {
-      r->set(names[i % names.size()], q);
+      r->setValue(names[i % names.size()], q);
     }
 
     if (rand() % 7 == 0) {
@@ -51,7 +52,7 @@ int main(int argc, char** argv) {
     // argument. If you run twice with the same seed you should get see
     // repeatable results.
     int s = atoi(argv[1]);
-    cout << " seed " << s << endl;
+    std::cout << " seed " << s << std::endl;
     srand(s);
   }
 
@@ -89,11 +90,16 @@ int main(int argc, char** argv) {
   rootset.clear();                          // clears the rootset.
   heap.gc(rootset.begin(), rootset.end());  // garbage collects again; this time
                                             // we expect to get an empty heap.
+  for (auto& obj : heap.objects_) {
+    if (obj->marked_) {
+      std::cout << "Error: object was not collected\n";
+    }
+  }
   timer.stop();  // stops the second phase of the timer.
 
-  cout << "Heap size before gc: " << before << endl;
-  cout << "Heap size after first gc: " << after1 << endl;
-  cout << "Heap size after gc: " << heap.getSize() << endl;
+  std::cout << "Heap size before gc: " << before << std::endl;
+  std::cout << "Heap size after first gc: " << after1 << std::endl;
+  std::cout << "Heap size after gc: " << heap.getSize() << std::endl;
 
   timer.print();  // prints the time for both the second phase and the sum of
                   // all phases.

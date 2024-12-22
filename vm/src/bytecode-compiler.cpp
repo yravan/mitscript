@@ -38,7 +38,8 @@ int main(int argc, const char *argv[]) {
     return 1;
   }
 
-  Compiler compiler;
+  CollectedHeap heap;
+  Compiler compiler(&heap);
   Function* bytecode_program = compiler.compile(*program);
 
   if (bytecode_program == nullptr) {

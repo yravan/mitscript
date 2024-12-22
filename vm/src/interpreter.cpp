@@ -15,27 +15,27 @@ void Interpreter::loadFunc(int index){
 }
 
 void Interpreter::loadLocal(int index){
-    Value* value = current_frame_->getLocalVar(index);
+    Value* value = stack_frames_.back()->getLocalVar(index);
     pushOntoStack(value);
 }
 
 void Interpreter::storeLocal(int index){
     Value* value = popFromStack();
-    current_frame_->setLocalVar(index, value);
+    stack_frames_.back()->setLocalVar(index, value);
 }
 
 void Interpreter::loadGlobal(int index){
-    Value* value = global_vars_[current_function_->getName(index)];
+    Value* value = global_frame_->getLocalVar(global_indices_[TrackingString(current_function_->getName(index), stack_frames_.get_allocator())]);
     pushOntoStack(value);
 }
 
 void Interpreter::storeGlobal(int index){
     Value* value = popFromStack();
-    global_vars_[current_function_->getName(index)] = value;
+    global_frame_->setLocalVar(global_indices_[TrackingString(current_function_->getName(index), stack_frames_.get_allocator())], value);
 }
 
 void Interpreter::pushReference(int index){
-    Reference* ref = current_frame_->getReference(index);
+    Reference* ref = stack_frames_.back()->getReference(index);
     pushOntoStack(ref);
 }
 
@@ -60,7 +60,7 @@ void Interpreter::storeReference(){
 // Record instructions
 // ------------------------------------------------------------
 void Interpreter::allocRecord(){
-    Record* record = new Record();
+    Record* record = heap_->allocate<Record>();
     pushOntoStack(record);
 }
 
@@ -109,7 +109,7 @@ void Interpreter::indexStore(){
 // Closure instructions
 // ------------------------------------------------------------
 void Interpreter::allocClosure(int num_free_vars){
-    Closure* closure = new Closure(num_free_vars);
+    Closure* closure = heap_->allocate<Closure>(num_free_vars);
     for (int i = 0; i < num_free_vars; i++) {
         Value* free_var = popFromStack();
         validateValueType<Reference>(free_var);
@@ -139,24 +139,22 @@ void Interpreter::call(int num_args){
         throw RuntimeException(num_args, function->getParameterCount());
     }
 
-    Frame* frame = new Frame();
-    frame->setNumLocalVars(function->getLocalVars().size());
-    Frame* prev_frame = current_frame_;
-    current_frame_ = frame;
+    stack_frames_.push_back(heap_->allocate<Frame>());
+    stack_frames_.back()->setNumLocalVars(function->getLocalVars().size());
     // set default values to None
     for (int i = 0; i < function->getLocalVars().size(); i++) {
-        current_frame_->setLocalVar(i, new Constant::None());
+        stack_frames_.back()->setLocalVar(i, heap_->allocate<Constant::None>());
     }
     for (int i =0; i < num_args; i++) {
-        frame->setLocalVar(i, arguments[i]);
+        stack_frames_.back()->setLocalVar(i, arguments[i]);
     }
-    frame->makeLocalReferences(function->getLocalReferenceVars());
-    frame->addFreeVariables(closure->getFreeVars());
+    stack_frames_.back()->makeLocalReferences(function->getLocalReferenceVars());
+    stack_frames_.back()->addFreeVariables(closure->getFreeVars());
 
     executeFunction(function);
 
     Value* return_value = popFromStack();
-    current_frame_ = prev_frame;
+    stack_frames_.pop_back();
     pushOntoStack(return_value);
 }
 
@@ -175,14 +173,14 @@ void Interpreter::add(){
     if (left->getType() == Value::Type::Integer && right->getType() == Value::Type::Integer) {
         Constant::Integer* right_int = static_cast<Constant::Integer*>(right);
         Constant::Integer* left_int = static_cast<Constant::Integer*>(left);
-        Constant::Integer* result = new Constant::Integer(left_int->getValue() + right_int->getValue());
+        Constant::Integer* result = heap_->allocate<Constant::Integer>(left_int->getValue() + right_int->getValue());
         pushOntoStack(result);
         return;
     }
     if (!(left->getType() == Value::Type::String) && !(right->getType() == Value::Type::String)) {
         throw IllegalCastException();
     }
-    Constant::String* result = new Constant::String(stringCast(left) + stringCast(right));
+    Constant::String* result = heap_->allocate<Constant::String>(left->toString() + right->toString());
     pushOntoStack(result);
 }
 
@@ -193,7 +191,7 @@ void Interpreter::sub(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Integer* result = new Constant::Integer(left->getValue() - right->getValue());
+    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() - right->getValue());
     pushOntoStack(result);
 }
 
@@ -204,7 +202,7 @@ void Interpreter::mul(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Integer* result = new Constant::Integer(left->getValue() * right->getValue());
+    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() * right->getValue());
     pushOntoStack(result);
 }
 
@@ -218,7 +216,7 @@ void Interpreter::div(){
     if (right->getValue() == 0) {
         throw IllegalArithmeticException();
     }
-    Constant::Integer* result = new Constant::Integer(left->getValue() / right->getValue());
+    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() / right->getValue());
     pushOntoStack(result);
 }
 
@@ -226,7 +224,7 @@ void Interpreter::neg(){
     Value* value = popFromStack();
     validateValueType<Constant::Integer>(value);
     Constant::Integer* int_value = static_cast<Constant::Integer*>(value);
-    Constant::Integer* result = new Constant::Integer(-int_value->getValue());
+    Constant::Integer* result = heap_->allocate<Constant::Integer>(-int_value->getValue());
     pushOntoStack(result);
 }
 // ------------------------------------------------------------ 
@@ -241,7 +239,7 @@ void Interpreter::gt(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Boolean* result = new Constant::Boolean(left->getValue() > right->getValue());
+    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left->getValue() > right->getValue());
     pushOntoStack(result);
 }
 
@@ -252,7 +250,7 @@ void Interpreter::geq(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Boolean* result = new Constant::Boolean(left->getValue() >= right->getValue());
+    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left->getValue() >= right->getValue());
     pushOntoStack(result);
 }
 
@@ -260,7 +258,7 @@ void Interpreter::eq(){
     Value* right = popFromStack();
     Value* left = popFromStack();
 
-    Constant::Boolean* result = new Constant::Boolean(false);
+    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(false);
     Value::Type left_type = left->getType();
     Value::Type right_type = right->getType();
     //PrimitiveEqualityMismatched
@@ -268,32 +266,32 @@ void Interpreter::eq(){
       if (left_type == Value::Type::Integer && right_type == Value::Type::Integer) {
           Constant::Integer* left_int = static_cast<Constant::Integer*>(left);
           Constant::Integer* right_int = static_cast<Constant::Integer*>(right);
-          result = new Constant::Boolean(left_int->getValue() == right_int->getValue());
+          result = heap_->allocate<Constant::Boolean>(left_int->getValue() == right_int->getValue());
       }
       if (left_type == Value::Type::Boolean && right_type == Value::Type::Boolean) {
           Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
           Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
-          result = new Constant::Boolean(left_bool->getValue() == right_bool->getValue());
+          result = heap_->allocate<Constant::Boolean>(left_bool->getValue() == right_bool->getValue());
       }
       if (left_type == Value::Type::String && right_type == Value::Type::String) {
           Constant::String* left_str = static_cast<Constant::String*>(left);
           Constant::String* right_str = static_cast<Constant::String*>(right);
-          result = new Constant::Boolean(left_str->getValue() == right_str->getValue());
+          result = heap_->allocate<Constant::Boolean>(left_str->getValue() == right_str->getValue());  
       }
 
       //NoneEquality
       if (left_type == Value::Type::None && right_type == Value::Type::None) {
-          result = new Constant::Boolean(true);
+          result = heap_->allocate<Constant::Boolean>(true);
       }
 
       //FunctionEqualityTrue
       if (left_type == Value::Type::Function && right_type == Value::Type::Function) {
-          result = new Constant::Boolean(false);
+          result = heap_->allocate<Constant::Boolean>(left == right);
       }
 
       //RecordEquality
       if (left_type == Value::Type::Record && right_type == Value::Type::Record) {
-          result = new Constant::Boolean(left == right);
+          result = heap_->allocate<Constant::Boolean>(left == right);
       }
       // DEBUG_PRINT("Equality not implemented for type: " << typeid(*left).name());
       // assert(false);
@@ -312,7 +310,7 @@ void Interpreter::andStatement(){
     validateValueType<Constant::Boolean>(left);
     Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
     Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
-    Constant::Boolean* result = new Constant::Boolean(left_bool->getValue() && right_bool->getValue());
+    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left_bool->getValue() && right_bool->getValue());
     pushOntoStack(result);
 }
 
@@ -323,7 +321,7 @@ void Interpreter::orStatement(){
     validateValueType<Constant::Boolean>(left);
     Constant::Boolean* right_bool = static_cast<Constant::Boolean*>(right);
     Constant::Boolean* left_bool = static_cast<Constant::Boolean*>(left);
-    Constant::Boolean* result = new Constant::Boolean(left_bool->getValue() || right_bool->getValue());
+    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(left_bool->getValue() || right_bool->getValue());
     pushOntoStack(result);
 }
 
@@ -331,7 +329,7 @@ void Interpreter::notStatement(){
     Value* value = popFromStack();
     validateValueType<Constant::Boolean>(value);
     Constant::Boolean* bool_value = static_cast<Constant::Boolean*>(value);
-    Constant::Boolean* result = new Constant::Boolean(!bool_value->getValue());
+    Constant::Boolean* result = heap_->allocate<Constant::Boolean>(!bool_value->getValue());
     pushOntoStack(result);
 }
 // ------------------------------------------------------------
@@ -371,31 +369,56 @@ void Interpreter::pop(){
 
 
 void Interpreter::executeProgram(Function* program) {
+    #ifdef DEBUG
+    DEBUG_PRINT("Executing program");
+    heap_->dump();
+    #endif
     current_function_ = program;
-    current_frame_ = new Frame();
-    
+    TrackingAllocator<Frame*> allocator;
+    allocator.setHeap(heap_);
+    stack_frames_ = TrackingVector<Frame*>(allocator);
+    global_indices_ = TrackingUnorderedMap<TrackingString, int>(allocator);
+    native_functions_ = TrackingUnorderedSet<Function*>(allocator);
 
+    global_frame_ = heap_->allocate<Frame>();
+    stack_frames_.push_back(global_frame_);
+    
+    int num_global_var = 0;
     for (const std::string& global_var : program->getNames()) {
-       global_vars_[global_var] = new Constant::None();
+        global_indices_[TrackingString(global_var, allocator)] = num_global_var++;
+    }
+    global_frame_->setNumLocalVars(num_global_var);
+    for (int i = 0; i < num_global_var; i++) {
+        global_frame_->setLocalVar(i, heap_->allocate<Constant::None>());
     }
 
+    initializeNativeFunctions();
+
+    executeFunction(program);
+}
+
+void Interpreter::initializeNativeFunctions() {
     NativeFunction* print_function = new printFunction();
     NativeFunction* input_function = new inputFunction();
     NativeFunction* intcast_function = new intcastFunction();
+
+    print_function->setHeap(heap_);
+    input_function->setHeap(heap_);
+    intcast_function->setHeap(heap_);
+
     native_functions_.insert(print_function);
     native_functions_.insert(input_function);
     native_functions_.insert(intcast_function);
 
-    program->setFunction(0, print_function);
-    program->setFunction(1, input_function);
-    program->setFunction(2, intcast_function);
-    executeFunction(program);
+    current_function_->setFunction(0, print_function);
+    current_function_->setFunction(1, input_function);
+    current_function_->setFunction(2, intcast_function);
 }
 
 void Interpreter::executeFunction(Function* function) {
     if (native_functions_.find(function) != native_functions_.end()) {
         NativeFunction* native_function = static_cast<NativeFunction*>(function);
-        native_function->setFrame(current_frame_);
+        native_function->setFrame(stack_frames_.back());
         native_function->execute();
         return;
     }
@@ -413,13 +436,27 @@ void Interpreter::executeFunction(Function* function) {
     instruction_pointer_ = prev_instruction_pointer;
 }
 
+void Interpreter::garbageCollect() {
+    if (heap_->isFull()) {
+        #ifdef DEBUG
+        DEBUG_PRINT("Garbage collecting");
+        heap_->dump();
+        #endif
+        heap_->gc(stack_frames_.begin(), stack_frames_.end());
+        #ifdef DEBUG
+        DEBUG_PRINT("Garbage collection complete");
+        heap_->dump();
+        #endif
+    }
+}
+
 
 void Interpreter::pushOntoStack(Value* value){
-    current_frame_->push(value);
+    stack_frames_.back()->push(value);
 }
 
 Value* Interpreter::popFromStack(){
-    return current_frame_->pop();
+    return stack_frames_.back()->pop();
 }
 
 template <typename T>
@@ -459,7 +496,9 @@ std::string Interpreter::stringCast(Value* v) {
 
 
 void Interpreter::executeInstruction(){
+    garbageCollect();
     Instruction current_instruction = current_function_->getInstruction(instruction_pointer_);
+    // DEBUG_PRINT("Executing instruction: " << current_instruction.toString());
 
     switch (current_instruction.operation) {
         case Operation::LoadConst:

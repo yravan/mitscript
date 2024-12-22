@@ -2,7 +2,9 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
-#include "bytecode/frame.h"
+#include <assert.h>
+#include "gc.h"
+// #include "bytecode/frame.h"
 #include "bytecode/types.h"
 #include "bytecode/instructions.h"
 #include "bytecode/exceptions.h"
@@ -11,14 +13,23 @@
 class Interpreter {
 private:
 
-    Frame* current_frame_;
+    Frame* global_frame_;    
+    TrackingVector<Frame*> stack_frames_;
     int instruction_pointer_;
     Function* current_function_;
-    std::unordered_map<std::string, Value *> global_vars_;
-    std::unordered_set<Function*> native_functions_;
+    TrackingUnorderedMap<TrackingString, int> global_indices_;
+    TrackingUnorderedSet<Function*> native_functions_;
+    CollectedHeap* heap_;
+    int max_memory_bytes_;
 
 
 public:
+    Interpreter() {assert(false);}
+    Interpreter(CollectedHeap* heap) : heap_(heap) {}
+
+    void setMemoryLimit(int max_memory_bytes) {
+        max_memory_bytes_ = max_memory_bytes;
+    }
 
     inline void pushOntoStack(Value* value);
     inline Value* popFromStack();
@@ -29,8 +40,10 @@ public:
     void validateValueType(Value* value);
 
     void executeProgram(Function* program);
+    void initializeNativeFunctions();
     void executeFunction(Function* function);
     void executeInstruction();
+    void garbageCollect();
 
     void loadConst(int index);
     void loadFunc(int index);

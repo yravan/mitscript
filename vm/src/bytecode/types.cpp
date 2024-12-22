@@ -1,6 +1,6 @@
 #include "types.h"
 #include "exceptions.h"
-#include "frame.h"
+// #include "frame.h"
 
 
 std::string Function::toString() {
@@ -159,6 +159,15 @@ std::vector<int> Function::getLocalReferenceVars() {
         indices.push_back(it);
     }
     return indices;
+}
+
+void Function::follow(CollectedHeap& heap) {
+    for (Constant* constant : constants_) {
+        heap.markSuccessors(constant);
+    }
+    for (Function* function : functions_) {
+        heap.markSuccessors(function);
+    }
 }
 
 Value* Reference::getValue() {

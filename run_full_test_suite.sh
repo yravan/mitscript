@@ -81,6 +81,19 @@ treeproc.mit                        2.381
 Mean Speedup:                       1.778
 ----------------------------------------"
 
+vm_p4_base_unoptimized="
+----------------------------------------
+Derby Test Times:
+
+bignum.mit                      timeout s
+carsim.mit                        49.71 s
+kmediods.mit                      32.85 s
+life.mit                          27.18 s
+textproc.mit                      73.18 s
+treeproc.mit                      67.11 s
+
+----------------------------------------"
+
 
 # Parse the input and populate arrays
 while IFS= read -r line; do
@@ -157,6 +170,7 @@ run_test() {
 
     # Execute interpreter
     expected_input=$TEST_DIR_BASE/$test_dir/$(basename $filename $TEST_FILE_EXT)$INPUT_FILE_EXT
+    EXECUTE="timeout $TIMEOUT /usr/bin/time -v $INTERPRETER"
     if $REFERENCE_BARE; then
         EXECUTE="timeout $TIMEOUT /usr/bin/time -v $INTERPRETER"
     fi
@@ -178,9 +192,9 @@ run_test() {
         fi
     else
         if test -f $expected_input; then
-            $EXECUTE -mem $mem_limit --opt=all $filename < $expected_input > $TEST_OUT 2> $TEST_ERR
+            $EXECUTE -mem $mem_limit -s $filename < $expected_input > $TEST_OUT 2> $TEST_ERR
         else
-            $EXECUTE -mem $mem_limit --opt=all $filename > $TEST_OUT 2> $TEST_ERR
+            $EXECUTE -mem $mem_limit -s $filename > $TEST_OUT 2> $TEST_ERR
         fi
     fi
 

@@ -6,7 +6,7 @@ Written by me
 
 namespace CST{
     RecordPrimeNode* RecordPrime(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering RecordPrime() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::NAME) {
             tokens.consume();
@@ -18,14 +18,14 @@ namespace CST{
                 if (token_3->getType() == MITScript::SEMICOLON) {
                     tokens.consume();
                     RecordPrimeNode* result = new RecordPrimeNode(token, expr, RecordPrime(tokens));
-                    DEBUG_PRINT("Exiting RecordPrime() with token " + tokens.get(tokens.index())->getText());
+
                     return result;
                 }
                 reportError(*token_3);
             }
         }
         if (token->getType() == MITScript::RBRACE) {
-            DEBUG_PRINT("Exiting RecordPrime() with nullptr with token " + tokens.get(tokens.index())->getText());
+
             return nullptr;
         }
         reportError(*token);
@@ -33,7 +33,7 @@ namespace CST{
     }
 
     RecordNode* Record(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Record() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::LBRACE) {
             tokens.consume();
@@ -42,7 +42,7 @@ namespace CST{
             if (next_token->getType() == MITScript::RBRACE) {
                 tokens.consume();
                 RecordNode* result = new RecordNode(inside);
-                DEBUG_PRINT("Exiting Record() with token " + tokens.get(tokens.index())->getText());
+
                 return result;
             }
             reportError(*next_token);
@@ -52,7 +52,7 @@ namespace CST{
     }
 
     LHSPrimeNode* LHSPrime(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering LHSPrime() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::DOT) {
             tokens.consume();
@@ -60,7 +60,7 @@ namespace CST{
             if (token_2->getType() == MITScript::NAME) {
                 tokens.consume();
                 LHSPrimeNode* result = new LHSPrimeNode(token_2, nullptr, LHSPrime(tokens));
-                DEBUG_PRINT("Exiting LHSPrime() with token " + tokens.get(tokens.index())->getText());
+
                 return result;
             }
             reportError(*token_2);
@@ -72,22 +72,22 @@ namespace CST{
             if (token_2->getType() == MITScript::RBRACKET) {
                 tokens.consume();
                 LHSPrimeNode* result = new LHSPrimeNode(nullptr, expr, LHSPrime(tokens));
-                DEBUG_PRINT("Exiting LHSPrime() with token " + tokens.get(tokens.index())->getText());
+
                 return result;
             }
             reportError(*token_2);
         }
-        DEBUG_PRINT("Exiting LHSPrime() with nullptr with token " + tokens.get(tokens.index())->getText());
+
         return nullptr;
     }
 
     LHSNode* LHS(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering LHS() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::NAME) {
             tokens.consume();
             LHSNode* result = new LHSNode(token, LHSPrime(tokens));
-            DEBUG_PRINT("Exiting LHS() with token " + tokens.get(tokens.index())->getText());
+
             return result;
         }
         reportError(*token);
@@ -95,7 +95,7 @@ namespace CST{
     }
 
     ReturnNode* Return(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Return() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::RETURN) {
             tokens.consume();
@@ -104,7 +104,7 @@ namespace CST{
             if (token_2->getType() == MITScript::SEMICOLON) {
                 tokens.consume();
                 ReturnNode* result = new ReturnNode(expr);
-                DEBUG_PRINT("Exiting Return() with token " + tokens.get(tokens.index())->getText());
+
                 return result;
             }
             reportError(*token_2);
@@ -114,7 +114,7 @@ namespace CST{
     }
 
     ExpressionNode* Expression(antlr4::CommonTokenStream &tokens) { // NOT fully implemented
-        DEBUG_PRINT("Entering Expression() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         ExpressionNode* result = nullptr;
 
@@ -131,41 +131,41 @@ namespace CST{
                 result = new ExpressionNode(nullptr, Boolean(tokens), nullptr);
             }
         }
-        DEBUG_PRINT("Exiting Expression() with token " + tokens.get(tokens.index())->getText());
+
         return result;
     }
 
     ParameterPrimeNode* ParameterPrime(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering ParameterPrime() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::COMMA) {
             tokens.consume();
             auto expr = Expression(tokens);
             auto rest = ParameterPrime(tokens);
             ParameterPrimeNode* result = new ParameterPrimeNode(expr, rest);
-            DEBUG_PRINT("Exiting ParameterPrime() with token " + tokens.get(tokens.index())->getText());
+
             return result;
         }
-        DEBUG_PRINT("Exiting ParameterPrime() with nullptr with token " + tokens.get(tokens.index())->getText());
+
         return nullptr;
     }
 
     ParameterNode* Parameter(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Parameter() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::RPAREN) {
-            DEBUG_PRINT("Exiting Parameter() with nullptr with token " + tokens.get(tokens.index())->getText());
+
             return nullptr;
         }
         auto expr = Expression(tokens);
         auto rest = ParameterPrime(tokens);
         ParameterNode* result = new ParameterNode(expr, rest);
-        DEBUG_PRINT("Exiting Parameter() with token " + tokens.get(tokens.index())->getText());
+
         return result;
     }
 
     CallNode* Call(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Call() with token " + tokens.get(tokens.index())->getText());
+
         auto lhs = LHS(tokens);
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::LPAREN) {
@@ -175,7 +175,7 @@ namespace CST{
             if (token_2->getType() == MITScript::RPAREN) {
                 tokens.consume();
                 CallNode* result = new CallNode(lhs, args);
-                DEBUG_PRINT("Exiting Call() with token " + tokens.get(tokens.index())->getText());
+
                 return result;
             }
             reportError(*token_2);
@@ -185,13 +185,13 @@ namespace CST{
     }
 
     CallStatementNode* CallStatement(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering CallStatement() with token " + tokens.get(tokens.index())->getText());
+
         auto call = Call(tokens);
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::SEMICOLON) {
             tokens.consume();
             CallStatementNode* result = new CallStatementNode(call);
-            DEBUG_PRINT("Exiting CallStatement() with token " + tokens.get(tokens.index())->getText());
+
             return result;
         }
         reportError(*token);
@@ -199,7 +199,7 @@ namespace CST{
     }
 
     AssignmentNode* Assignment(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Assignment() with token " + tokens.get(tokens.index())->getText());
+
         auto lhs = LHS(tokens);
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::ASSIGN) {
@@ -209,7 +209,7 @@ namespace CST{
             if (token_2->getType() == MITScript::SEMICOLON) {
                 tokens.consume();
                 AssignmentNode* result = new AssignmentNode(lhs, expr);
-                DEBUG_PRINT("Exiting Assignment() with token " + tokens.get(tokens.index())->getText());
+
                 return result;
             }
             reportError(*token_2);
@@ -219,7 +219,7 @@ namespace CST{
     }
 
     GlobalNode* Global(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Global() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         if (token->getType() == MITScript::GLOBAL) {
             tokens.consume();
@@ -230,7 +230,7 @@ namespace CST{
                 if (thirdToken->getType() == MITScript::SEMICOLON) {
                     tokens.consume();
                     GlobalNode* result = new GlobalNode(nextToken);
-                    DEBUG_PRINT("Exiting Global() with token " + tokens.get(tokens.index())->getText());
+
                     return result;
                 }
                 reportError(*thirdToken);
@@ -242,7 +242,7 @@ namespace CST{
     }
 
     UnitNode* Unit(antlr4::CommonTokenStream &tokens) {
-        DEBUG_PRINT("Entering Unit() with token " + tokens.get(tokens.index())->getText());
+
         antlr4::Token *token = tokens.get(tokens.index());
         bool minus = false;
 
@@ -257,7 +257,7 @@ namespace CST{
             antlr4::Token *token = tokens.get(tokens.index());
             if (token->getType() == MITScript::RPAREN){
                 tokens.consume();
-                DEBUG_PRINT("Exiting Unit() with token " + tokens.get(tokens.index())->getText());
+
                 return new UnitNode(minus, nullptr, nullptr, nullptr, boolean);
             }
             reportError(*token);
@@ -269,14 +269,14 @@ namespace CST{
             token = tokens.get(tokens.index());
             if (token->getType() == MITScript::LPAREN) {
                 tokens.seek(cur_token_index);
-                DEBUG_PRINT("Exiting Unit() with token " + token->getText());
+
                 return new UnitNode(minus, nullptr, nullptr, Call(tokens), nullptr);
             }
-            DEBUG_PRINT("Exiting Unit() with token " + token->getText());
+
             return new UnitNode(minus, lhs, nullptr, nullptr, nullptr);
         }
 
-        DEBUG_PRINT("Exiting Unit() with token " + token->getText() + " of type " + std::to_string(token->getType()));
+
         UnitNode* result = new UnitNode(minus, nullptr, Constant(tokens), nullptr, nullptr);
         return result;
     }

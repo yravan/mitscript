@@ -1,15 +1,13 @@
-include_directories(. src bc-parser src/bytecode src/compiler ../interpreter)
+include_directories(. src bc-parser src/bytecode src/compiler ../interpreter ../gc)
 
 add_subdirectory(bc-parser)
 
 add_library(CompilerSources OBJECT
         src/compiler/compiler.cpp
-        src/bytecode/types.cpp
         )
 
 add_library(BytecodeSources OBJECT
         src/interpreter.cpp # TODO replace with your files
-        src/bytecode/frame.cpp
         )
 
 add_executable(mitscriptc src/bytecode-compiler.cpp)

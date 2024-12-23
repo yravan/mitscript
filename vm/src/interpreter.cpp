@@ -172,7 +172,7 @@ void Interpreter::add(){
     if (left->getType() == Value::Type::Integer && right->getType() == Value::Type::Integer) {
         Constant::Integer* right_int = static_cast<Constant::Integer*>(right);
         Constant::Integer* left_int = static_cast<Constant::Integer*>(left);
-        Constant::Integer* result = heap_->allocate<Constant::Integer>(left_int->getValue() + right_int->getValue());
+        Constant::Integer* result = integer_cache_.get(left_int->getValue() + right_int->getValue(), heap_);
         pushOntoStack(result);
         return;
     }
@@ -190,7 +190,7 @@ void Interpreter::sub(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() - right->getValue());
+    Constant::Integer* result = integer_cache_.get(left->getValue() - right->getValue(), heap_);
     pushOntoStack(result);
 }
 
@@ -201,7 +201,7 @@ void Interpreter::mul(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() * right->getValue());
+    Constant::Integer* result = integer_cache_.get(left->getValue() * right->getValue(), heap_);
     pushOntoStack(result);
 }
 
@@ -215,7 +215,7 @@ void Interpreter::div(){
     if (right->getValue() == 0) {
         throw IllegalArithmeticException();
     }
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() / right->getValue());
+    Constant::Integer* result = integer_cache_.get(left->getValue() / right->getValue(), heap_);
     pushOntoStack(result);
 }
 
@@ -223,7 +223,7 @@ void Interpreter::neg(){
     Value* value = popFromStack();
     validateValueType<Constant::Integer>(value);
     Constant::Integer* int_value = static_cast<Constant::Integer*>(value);
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(-int_value->getValue());
+    Constant::Integer* result = integer_cache_.get(-int_value->getValue(), heap_);
     pushOntoStack(result);
 }
 // ------------------------------------------------------------ 
@@ -390,6 +390,7 @@ void Interpreter::executeProgram(Function* program) {
     #endif
     TrackingAllocator<Frame*> allocator;
     allocator.setHeap(heap_);
+    integer_cache_ = LRUCache(10);
 
     stack_frames_ = TrackingVector<Frame*>(allocator);
     global_indices_ = TrackingUnorderedMap<std::string, int>(allocator);
@@ -462,6 +463,7 @@ void Interpreter::garbageCollect() {
         DEBUG_PRINT("Garbage collecting");
         heap_->dump();
         #endif
+        integer_cache_.mark();
         heap_->gc(stack_frames_.begin(), stack_frames_.end());
         #ifdef DEBUG
         DEBUG_PRINT("Garbage collection complete");

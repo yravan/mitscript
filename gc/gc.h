@@ -206,6 +206,9 @@ class Collectable{
   bool marked_ = false;
   CollectedHeap* heap_;
 
+  void setHeap(CollectedHeap* heap) {
+    heap_ = heap;
+  }
  private:
   // Any private fields you add to the Collectable class will be accessible by
   // the CollectedHeap (since it is declared as friend below).  You can think of
@@ -227,9 +230,6 @@ class Collectable{
   virtual void calculateBaseSizeBytes() = 0;
   virtual size_t getCurrentSize() = 0;
   virtual void initializeDynamicMemory(CollectedHeap* heap) = 0;
-  void setHeap(CollectedHeap* heap) {
-    heap_ = heap;
-  }
   size_t base_size_bytes_;
 
   friend CollectedHeap;

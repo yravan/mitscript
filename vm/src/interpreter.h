@@ -3,11 +3,12 @@
 #include <map>
 #include <unordered_set>
 #include "gc.h"
-// #include "bytecode/frame.h"
 #include "bytecode/types.h"
 #include "bytecode/instructions.h"
 #include "bytecode/exceptions.h"
 #include "bytecode/native_functions.h"
+
+
 
 class Interpreter {
 private:
@@ -90,6 +91,79 @@ public:
     void swap();
     inline void pop();
 
+
+  class LRUCache {
+    class Node {
+    public:
+        Constant::Integer* value = nullptr;
+        int key = 0;
+        Node* prev = nullptr;
+        Node* next = nullptr;
+    };
+    std::unordered_map<int, Node*> cache_;
+    int capacity_;
+    Node* head_;
+    Node* tail_;
+  public:
+    LRUCache(): capacity_(10) {
+        head_ = new Node();
+        tail_ = new Node();
+        tail_->prev = head_;
+        head_->next = tail_;
+        cache_.reserve(capacity_);
+    }
+    LRUCache(int capacity) : capacity_(capacity) {
+        head_ = new Node();
+        tail_ = new Node();
+        tail_->prev = head_;
+        head_->next = tail_;
+        cache_.reserve(capacity_);
+    }
+
+    Constant::Integer* get(int key, CollectedHeap* heap_) {
+        if (cache_.find(key) != cache_.end()) {
+            Node* node = cache_[key];
+            node->prev->next = node->next;
+            node->next->prev = node->prev;
+            node->next = head_->next;
+            node->next->prev = node;
+            head_->next = node;
+            node->prev = head_;
+            return node->value;
+        }
+        Constant::Integer* value = heap_->allocate<Constant::Integer>(key);
+        if (capacity_ == cache_.size()) {
+          cache_.erase(tail_->prev->key);
+          Node* node = tail_->prev;
+          node->prev->next = tail_;
+          tail_->prev = node->prev;
+          node->next = head_->next;
+          node->next->prev = node;
+          head_->next = node;
+          node->prev = head_;
+          node->value = value;
+          node->key = key;
+          cache_[key] = node;
+        } else {
+          Node* node = new Node();
+          node->value = value;
+          node->key = key;
+          node->next = head_->next;
+          node->next->prev = node;
+          head_->next = node;
+          node->prev = head_;
+          cache_[key] = node;
+        }
+        return value;
+    }
+    void mark() {
+        for (auto& [key, node] : cache_) {
+            node->value->marked_=true;
+        }
+    }
+};
+private:
+  LRUCache integer_cache_;
 
 };
 

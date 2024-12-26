@@ -26,7 +26,7 @@ int main(int argc, const char *argv[]) {
     return -1;
   }
 
-  int max_memory_mb = std::stoi(argv[2]) - 1;
+  int max_memory_mb = std::stoi(argv[2]) - 1.5;
   CollectedHeap heap(max_memory_mb * MEGABYTE_TO_BYTE);
 
   #ifdef DEBUG

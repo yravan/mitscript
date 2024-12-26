@@ -419,6 +419,7 @@ void Interpreter::executeProgram(Function* program) {
 
 void Interpreter::initializeNativeFunctions() {
     NativeFunction* print_function = new printFunction();
+    print_function->setNone(none_);
     NativeFunction* input_function = new inputFunction();
     NativeFunction* intcast_function = new intcastFunction();
 
@@ -439,7 +440,8 @@ void Interpreter::executeFunction(Function* function) {
     if (native_functions_.find(function) != native_functions_.end()) {
         NativeFunction* native_function = static_cast<NativeFunction*>(function);
         native_function->setFrame(stack_frames_.back());
-        native_function->execute();
+        Value* return_value = native_function->execute();
+        pushOntoStack(return_value);
         return;
     }
     auto prev_function = current_function_;

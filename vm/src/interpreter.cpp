@@ -21,7 +21,7 @@ void Interpreter::loadLocal(int index){
 
 void Interpreter::storeLocal(int index){
     Value* value = popFromStack();
-    stack_frames_.back()->setLocalVar(index, value);
+    setLocalVar(index, value, stack_frames_.back());
 }
 
 void Interpreter::loadGlobal(int index){
@@ -31,7 +31,7 @@ void Interpreter::loadGlobal(int index){
 
 void Interpreter::storeGlobal(int index){
     Value* value = popFromStack();
-    global_frame_->setLocalVar(global_indices_[current_function_->getName(index)], value);
+    setLocalVar(global_indices_[current_function_->getName(index)], value, global_frame_);
 }
 
 void Interpreter::pushReference(int index){
@@ -52,7 +52,7 @@ void Interpreter::storeReference(){
     validateValueType<Reference>(value);
     Reference* ref = static_cast<Reference*>(value);
     Value* ref_value = popFromStack();
-    ref->setValue(ref_value);
+    setReferenceValue(ref_value, ref);
 }
 // ------------------------------------------------------------
 
@@ -60,7 +60,7 @@ void Interpreter::storeReference(){
 // Record instructions
 // ------------------------------------------------------------
 void Interpreter::allocRecord(){
-    Record* record = heap_->allocate<Record>();
+    Record* record = gen1_heap_->allocate<Record>();
     pushOntoStack(record);
 }
 
@@ -79,7 +79,7 @@ void Interpreter::fieldStore(int index){
     Value* value = popFromStack();
     validateValueType<Record>(value);
     Record* record = static_cast<Record*>(value);
-    record->setValue(field, record_value);
+    setRecordValue(field, record_value, record);
 } 
 
 void Interpreter::indexLoad(){
@@ -101,7 +101,7 @@ void Interpreter::indexStore(){
     Value* value = popFromStack();
     validateValueType<Record>(value);
     Record* record = static_cast<Record*>(value);
-    record->setValue(field, record_value);
+    setRecordValue(field, record_value, record);
 }
 // ------------------------------------------------------------
 
@@ -109,7 +109,7 @@ void Interpreter::indexStore(){
 // Closure instructions
 // ------------------------------------------------------------
 void Interpreter::allocClosure(int num_free_vars){
-    Closure* closure = heap_->allocate<Closure>(num_free_vars);
+    Closure* closure = gen1_heap_->allocate<Closure>(num_free_vars);
     for (int i = 0; i < num_free_vars; i++) {
         Value* free_var = popFromStack();
         validateValueType<Reference>(free_var);
@@ -139,7 +139,8 @@ void Interpreter::call(int num_args){
         throw RuntimeException(num_args, function->getParameterCount());
     }
 
-    stack_frames_.push_back(heap_->allocate<Frame>(function->getLocalVars().size(), function->getLocalReferenceVars().size(), function->numFreeVars()));
+    stack_frames_.push_back(gen1_heap_->allocate<Frame>(function->getLocalVars().size(), function->getLocalReferenceVars().size(), function->numFreeVars()));
+    gen1_roots_.insert(stack_frames_.back());
     // set default values to None
     for (int i = 0; i < function->getLocalVars().size(); i++) {
         stack_frames_.back()->setLocalVar(i, none_);
@@ -153,6 +154,10 @@ void Interpreter::call(int num_args){
     executeFunction(function);
 
     Value* return_value = popFromStack();
+    auto it = gen1_roots_.find(stack_frames_.back());
+    if (it != gen1_roots_.end()) {
+        gen1_roots_.erase(it);
+    }
     stack_frames_.pop_back();
     pushOntoStack(return_value);
 }
@@ -172,14 +177,14 @@ void Interpreter::add(){
     if (left->getType() == Value::Type::Integer && right->getType() == Value::Type::Integer) {
         Constant::Integer* right_int = static_cast<Constant::Integer*>(right);
         Constant::Integer* left_int = static_cast<Constant::Integer*>(left);
-        Constant::Integer* result = heap_->allocate<Constant::Integer>(left_int->getValue() + right_int->getValue());
+        Constant::Integer* result = gen1_heap_->allocate<Constant::Integer>(left_int->getValue() + right_int->getValue());
         pushOntoStack(result);
         return;
     }
     if (!(left->getType() == Value::Type::String) && !(right->getType() == Value::Type::String)) {
         throw IllegalCastException();
     }
-    Constant::String* result = heap_->allocate<Constant::String>(left->toString() + right->toString());
+    Constant::String* result = gen1_heap_->allocate<Constant::String>(left->toString() + right->toString());
     pushOntoStack(result);
 }
 
@@ -190,7 +195,7 @@ void Interpreter::sub(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() - right->getValue());
+    Constant::Integer* result = gen1_heap_->allocate<Constant::Integer>(left->getValue() - right->getValue());
     pushOntoStack(result);
 }
 
@@ -201,7 +206,7 @@ void Interpreter::mul(){
     Value* leftValue = popFromStack();
     validateValueType<Constant::Integer>(leftValue);
     Constant::Integer* left = static_cast<Constant::Integer*>(leftValue);
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() * right->getValue());
+    Constant::Integer* result = gen1_heap_->allocate<Constant::Integer>(left->getValue() * right->getValue());
     pushOntoStack(result);
 }
 
@@ -215,7 +220,7 @@ void Interpreter::div(){
     if (right->getValue() == 0) {
         throw IllegalArithmeticException();
     }
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(left->getValue() / right->getValue());
+    Constant::Integer* result = gen1_heap_->allocate<Constant::Integer>(left->getValue() / right->getValue());
     pushOntoStack(result);
 }
 
@@ -223,7 +228,7 @@ void Interpreter::neg(){
     Value* value = popFromStack();
     validateValueType<Constant::Integer>(value);
     Constant::Integer* int_value = static_cast<Constant::Integer*>(value);
-    Constant::Integer* result = heap_->allocate<Constant::Integer>(-int_value->getValue());
+    Constant::Integer* result = gen1_heap_->allocate<Constant::Integer>(-int_value->getValue());
     pushOntoStack(result);
 }
 // ------------------------------------------------------------ 
@@ -383,29 +388,33 @@ void Interpreter::pop(){
 
 
 void Interpreter::executeProgram(Function* program) {
-    heap_->addMemory(sizeof(*this));
+    gen2_heap_->addMemory(sizeof(*this));
+    gen1_heap_->setParentHeap(gen2_heap_);
     #ifdef DEBUG
     DEBUG_PRINT("Executing program");
-    heap_->dump();
+    gen1_heap_->dump();
     #endif
     TrackingAllocator<Frame*> allocator;
-    allocator.setHeap(heap_);
+    allocator.setHeap(gen2_heap_);
 
     stack_frames_ = TrackingVector<Frame*>(allocator);
     global_indices_ = TrackingUnorderedMap<std::string, int>(allocator);
     native_functions_ = TrackingUnorderedSet<Function*>(allocator);
+    gen1_roots_ = TrackingUnorderedMultiset<Collectable*>(allocator);
 
     current_function_ = program;
-    global_frame_ = heap_->allocate<Frame>(program->getNames().size(), program->getLocalReferenceVars().size(), program->numFreeVars());
+    global_frame_ = gen1_heap_->allocate<Frame>(program->getNames().size(), program->getLocalReferenceVars().size(), program->numFreeVars());
+    gen1_roots_.insert(global_frame_);
     stack_frames_.push_back(global_frame_);
     none_ = new Constant::None();
+    // none_->setHeap(gen2_heap_);
     true_ = new Constant::Boolean(true);
     false_ = new Constant::Boolean(false);
     
     int num_global_var = 0;
     for (const std::string& global_var : program->getNames()) {
         global_indices_[global_var] = num_global_var++;
-        heap_->addMemory(global_var.capacity());
+        gen2_heap_->addMemory(global_var.capacity());
     }
     global_frame_->setNumLocalVars(num_global_var);
     for (int i = 0; i < num_global_var; i++) {
@@ -423,9 +432,9 @@ void Interpreter::initializeNativeFunctions() {
     NativeFunction* input_function = new inputFunction();
     NativeFunction* intcast_function = new intcastFunction();
 
-    print_function->setHeap(heap_);
-    input_function->setHeap(heap_);
-    intcast_function->setHeap(heap_);
+    print_function->setHeap(gen1_heap_);
+    input_function->setHeap(gen1_heap_);
+    intcast_function->setHeap(gen1_heap_);
 
     native_functions_.insert(print_function);
     native_functions_.insert(input_function);
@@ -440,7 +449,8 @@ void Interpreter::executeFunction(Function* function) {
     if (native_functions_.find(function) != native_functions_.end()) {
         NativeFunction* native_function = static_cast<NativeFunction*>(function);
         native_function->setFrame(stack_frames_.back());
-        native_function->execute();
+        Value* return_value = native_function->execute();
+        pushOntoStack(return_value);
         return;
     }
     auto prev_function = current_function_;
@@ -458,15 +468,37 @@ void Interpreter::executeFunction(Function* function) {
 }
 
 void Interpreter::garbageCollect() {
-    if (heap_->isFull()) {
+    if (gen1_heap_->isFull()) {
         #ifdef DEBUG
-        DEBUG_PRINT("Garbage collecting");
-        heap_->dump();
+        DEBUG_PRINT("Garbage collecting Gen 1");
+        gen1_heap_->dump();
+        gen2_heap_->dump();
         #endif
-        heap_->gc(stack_frames_.begin(), stack_frames_.end());
+
+        gen1_heap_->gc(gen1_roots_.begin(), gen1_roots_.end());
+        gen1_roots_.clear();
+        
         #ifdef DEBUG
         DEBUG_PRINT("Garbage collection complete");
-        heap_->dump();
+        gen1_heap_->dump();
+        gen2_heap_->dump();
+        #endif
+    }
+    if (gen2_heap_->isFull()) {
+        #ifdef DEBUG
+        DEBUG_PRINT("Garbage collecting Gen 1 and Gen 2");
+        gen1_heap_->dump();
+        gen2_heap_->dump();
+        #endif
+
+        gen1_heap_->gc(gen1_roots_.begin(), gen1_roots_.end());
+        gen1_roots_.clear();
+        gen2_heap_->gc(stack_frames_.begin(), stack_frames_.end());
+
+        #ifdef DEBUG
+        DEBUG_PRINT("Garbage collection complete");
+        gen1_heap_->dump();
+        gen2_heap_->dump();
         #endif
     }
 }
@@ -474,10 +506,59 @@ void Interpreter::garbageCollect() {
 
 void Interpreter::pushOntoStack(Value* value){
     stack_frames_.back()->push(value);
+    if (stack_frames_.back()->heap_ == gen2_heap_ && value->heap_ == gen1_heap_) {
+        gen1_roots_.insert(value);
+    }
 }
 
 Value* Interpreter::popFromStack(){
-    return stack_frames_.back()->pop();
+    Value* value = stack_frames_.back()->pop();
+    if (stack_frames_.back()->heap_ == gen2_heap_ && value->heap_ == gen1_heap_) {
+        auto it = gen1_roots_.find(value);
+        if (it != gen1_roots_.end()) {
+            gen1_roots_.erase(it);
+        }
+    }
+    return value;
+}
+
+void Interpreter::setLocalVar(int index, Value* value, Frame* frame){
+    if (frame->heap_ == gen2_heap_ && frame->getLocalVar(index)->heap_ == gen1_heap_) {
+        auto it = gen1_roots_.find(frame->getLocalVar(index));
+        if (it != gen1_roots_.end()) {
+            gen1_roots_.erase(it);
+        }
+    }
+    frame->setLocalVar(index, value);
+    if (frame->heap_ == gen2_heap_ && value->heap_ == gen1_heap_) {
+        gen1_roots_.insert(value);
+    }
+}
+
+void Interpreter::setRecordValue(std::string field, Value* value, Record* record){
+    if (record->heap_ == gen2_heap_ && record->getValue(field)->heap_ == gen1_heap_) {
+        auto it = gen1_roots_.find(record->getValue(field));
+        if (it != gen1_roots_.end()) {
+            gen1_roots_.erase(it);
+        }
+    }
+    record->setValue(field, value);
+    if (record->heap_ == gen2_heap_ && value->heap_ == gen1_heap_) {
+        gen1_roots_.insert(value);
+    }
+}
+
+void Interpreter::setReferenceValue(Value* value, Reference* ref){
+    if (ref->heap_ == gen2_heap_ && ref->getValue()->heap_ == gen1_heap_) {
+        auto it = gen1_roots_.find(ref->getValue());
+        if (it != gen1_roots_.end()) {
+            gen1_roots_.erase(it);
+        }
+    }
+    ref->setValue(value);
+    if (ref->heap_ == gen2_heap_ && value->heap_ == gen1_heap_) {
+        gen1_roots_.insert(value);
+    }
 }
 
 template <typename T>

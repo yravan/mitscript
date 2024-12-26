@@ -96,11 +96,16 @@ using TrackingSet = std::set<T, std::less<>, TrackingAllocator<T>>;
 template <typename T>
 using TrackingUnorderedSet = std::unordered_set<T, std::hash<T>, std::equal_to<T>, TrackingAllocator<T>>;
 
+template <typename T>
+using TrackingUnorderedMultiset = std::unordered_multiset<T, std::hash<T>, std::equal_to<T>, TrackingAllocator<T>>;
+
 template <typename K, typename V>
 using TrackingUnorderedMap = std::unordered_map<K, V, std::hash<K>, std::equal_to<K>, TrackingAllocator<std::pair<const K, V>>>;
 
 template <typename K, typename V>
 using TrackingMap = std::map<K, V, std::less<K>, TrackingAllocator<std::pair<const K, V>>>;
+
+
 
 using TrackingString = std::basic_string<char, std::char_traits<char>, TrackingAllocator<char>>;
 
@@ -204,7 +209,7 @@ class Collectable{
  public:
   virtual ~Collectable() = default;
   bool marked_ = false;
-  CollectedHeap* heap_;
+  CollectedHeap* heap_ = nullptr;
 
  private:
   // Any private fields you add to the Collectable class will be accessible by
@@ -227,6 +232,7 @@ class Collectable{
   virtual void calculateBaseSizeBytes() = 0;
   virtual size_t getCurrentSize() = 0;
   virtual void initializeDynamicMemory(CollectedHeap* heap) = 0;
+  virtual void copy(CollectedHeap* heap) = 0;
   void setHeap(CollectedHeap* heap) {
     heap_ = heap;
   }
@@ -247,11 +253,16 @@ class Collectable{
 class CollectedHeap {
   size_t max_memory_bytes_;
   size_t current_memory_bytes_ = sizeof(*this);
+  CollectedHeap* parent_heap_ = nullptr;
 
  public:
   LinkedList<Collectable> objects_{};
   CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {}
   CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {}
+
+  void setParentHeap(CollectedHeap* parent) {
+    parent_heap_ = parent;
+  }
 
   size_t getCurrentHeapUsage() {
       struct mallinfo2 info = mallinfo2();
@@ -329,6 +340,12 @@ class CollectedHeap {
     return obj;
   }
 
+  void addObject(Collectable* obj) {
+    objects_.push_back(obj);
+    obj->setHeap(this);
+    addMemory(obj->base_size_bytes_);
+  }
+
   int getSize() {
     return current_memory_bytes_;
   }
@@ -354,6 +371,7 @@ class CollectedHeap {
   */
   void markSuccessors(Collectable* next) {
     if (next->marked_) return;
+    if (next->heap_ != this) return;
     next->marked_=true;
     next->follow(*this);
   }
@@ -381,13 +399,20 @@ class CollectedHeap {
     // Sweep phase
     for (auto it = objects_.begin(); it != objects_.end();) {
       if (!(*it)->marked_) {
-        current_memory_bytes_ -= (*it)->base_size_bytes_;
         auto obj = *it;
         it = objects_.erase(it);
+        addMemory(-obj->base_size_bytes_);
         delete obj;
       } else {
         (*it)->marked_=false;
-        ++it;
+        if (parent_heap_ != nullptr) {
+          auto obj = *it;
+          it = objects_.erase(it);
+          addMemory(-obj->base_size_bytes_);
+          obj->copy(parent_heap_);
+        } else{
+          ++it;
+        }
       }
     }
   }

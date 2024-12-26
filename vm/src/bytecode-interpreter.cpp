@@ -26,12 +26,13 @@ int main(int argc, const char *argv[]) {
     return -1;
   }
 
-  int max_memory_mb = std::stoi(argv[2]) - 1.1;
-  CollectedHeap heap(max_memory_mb * MEGABYTE_TO_BYTE);
+  int max_memory_mb = std::stoi(argv[2]) - 1;
+  CollectedHeap gen1_heap(max_memory_mb * MEGABYTE_TO_BYTE * 0.2);
+  CollectedHeap gen2_heap(max_memory_mb * MEGABYTE_TO_BYTE * 0.8);
 
   #ifdef DEBUG
   DEBUG_PRINT("Initial heap dump:");
-  heap.dump();
+  gen1_heap.dump();
   #endif
 
   Function* bytecode_program;
@@ -46,7 +47,7 @@ int main(int argc, const char *argv[]) {
 
     #ifdef DEBUG
     DEBUG_PRINT("After opening file:");
-    heap.dump();
+    gen1_heap.dump();
     #endif
     // Create lexer
     antlr4::ANTLRInputStream input(file);
@@ -58,7 +59,7 @@ int main(int argc, const char *argv[]) {
 
     #ifdef DEBUG
     DEBUG_PRINT("After filling tokens:");
-    heap.dump();
+    gen1_heap.dump();
     #endif
 
     Parser parser;
@@ -72,16 +73,16 @@ int main(int argc, const char *argv[]) {
 
     #ifdef DEBUG
     DEBUG_PRINT("After parsing program:");
-    heap.dump();
+    gen1_heap.dump();
     #endif
 
-    Compiler compiler(&heap);
+    Compiler compiler(&gen1_heap);
     bytecode_program = compiler.compile(*program);
     delete program;
 
     #ifdef DEBUG
     DEBUG_PRINT("After compiling program:");
-    heap.dump();
+    gen1_heap.dump();
     #endif
 
     if (bytecode_program == nullptr) {
@@ -109,7 +110,7 @@ int main(int argc, const char *argv[]) {
     }
   }
 
-  Interpreter interpreter(&heap);
+  Interpreter interpreter(&gen1_heap, &gen2_heap);
   try {
       interpreter.executeProgram(bytecode_program);
   }

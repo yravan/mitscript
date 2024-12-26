@@ -18,7 +18,10 @@ private:
     Function* current_function_;
     TrackingUnorderedMap<std::string, int> global_indices_;
     TrackingUnorderedSet<Function*> native_functions_;
-    CollectedHeap* heap_;
+    CollectedHeap* gen1_heap_;
+    TrackingUnorderedMultiset<Collectable*> gen1_roots_;
+
+    CollectedHeap* gen2_heap_;
     int max_memory_bytes_ = 4*MEGABYTE_TO_BYTE;
 
     Constant::None* none_;
@@ -28,7 +31,8 @@ private:
 
 public:
     Interpreter() {}
-    Interpreter(CollectedHeap* heap) : heap_(heap) {}
+    // Interpreter(CollectedHeap* heap) : heap_(heap) {}
+    Interpreter(CollectedHeap* gen1_heap, CollectedHeap* gen2_heap) : gen1_heap_(gen1_heap), gen2_heap_(gen2_heap) {}
 
     void setMemoryLimit(int max_memory_bytes) {
         max_memory_bytes_ = max_memory_bytes;
@@ -36,6 +40,9 @@ public:
 
     inline void pushOntoStack(Value* value);
     inline Value* popFromStack();
+    inline void setLocalVar(int index, Value* value, Frame* frame);
+    inline void setRecordValue(std::string field, Value* value, Record* record);
+    inline void setReferenceValue(Value* value, Reference* ref);
 
     inline std::string stringCast(Value* value);
 

@@ -43,6 +43,9 @@ public:
   Type getType() const { return Type::None; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   size_t getCurrentSize() override {return sizeof(*this);}
+  void copy(CollectedHeap* heap) override {
+    heap->addObject(this);
+  }
 };
 
 class Constant::Integer : public Constant {
@@ -56,6 +59,9 @@ public:
   Type getType() const { return Type::Integer; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + name_.capacity(); }
   size_t getCurrentSize() override {return sizeof(*this) + name_.capacity();}
+  void copy(CollectedHeap* heap) override {
+    heap->addObject(this);
+  }
 };
 
 class Constant::String : public Constant {
@@ -68,6 +74,9 @@ public:
   Type getType() const { return Type::String; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + value_.capacity(); }
   size_t getCurrentSize() override {return sizeof(*this) + value_.capacity(); }
+  void copy(CollectedHeap* heap) override {
+    heap->addObject(this);
+  }
 };
 
 class Constant::Boolean : public Constant {
@@ -82,6 +91,9 @@ public:
   Type getType() const { return Type::Boolean; }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   size_t getCurrentSize() override {return sizeof(*this);}
+  void copy(CollectedHeap* heap) override {
+    heap->addObject(this);
+  }
 };
 
 class Function : public Value {
@@ -162,6 +174,9 @@ public:
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   void initializeDynamicMemory(CollectedHeap* heap) override {}
   size_t getCurrentSize() override {return sizeof(*this);}
+  void copy(CollectedHeap* heap) override {
+    // #TODO Implement
+  }
 };
 
 class Reference;
@@ -214,6 +229,17 @@ public:
     size += stack_.get_allocator().getCurrentMemory();
     return size;
   }
+  void copy(CollectedHeap* heap) override {
+    TrackingAllocator<Value*> allocator;
+    allocator.setHeap(heap);
+    TrackingVector<Value*> new_stack(allocator);
+    new_stack.reserve(stack_.size());
+    for (Value* value : stack_) {
+      new_stack.emplace_back(value);
+    }
+    std::swap(stack_, new_stack);
+    heap->addObject(this);
+  }
 };
 
 class Reference : public Value{
@@ -233,11 +259,13 @@ public:
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   void initializeDynamicMemory(CollectedHeap* heap) override {}
   size_t getCurrentSize() override {return sizeof(*this);}
+  void copy(CollectedHeap* heap) override {
+    heap->addObject(this);
+  }
 };
 
 class Record : public Value {
   TrackingUnorderedMap<std::string, Value*> map_;
-  // TrackingSet<std::string> fields_;
   static Constant::None none_;
   int dynamic_string_memory_bytes_;
 public:
@@ -293,10 +321,20 @@ public:
   size_t getCurrentSize() override {
     size_t size = sizeof(*this);
     size += map_.get_allocator().getCurrentMemory();
-    for (const auto& [field, value] : map_) {
-      size += field.capacity();
-    }
+    size += dynamic_string_memory_bytes_;
     return size;
+  }
+  void copy(CollectedHeap* heap) override {
+    TrackingAllocator<std::pair<const std::string, Value*>> allocator;
+    allocator.setHeap(heap);
+    TrackingUnorderedMap<std::string, Value*> new_map(allocator);
+    new_map.reserve(map_.size());
+    for (const auto& [field, value] : map_) {
+      new_map.emplace(field, value);
+    }
+    std::swap(map_, new_map);
+    this->heap_->addMemory(-dynamic_string_memory_bytes_);
+    heap->addObject(this);
   }
 };
 
@@ -323,11 +361,11 @@ public:
     }
   }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + num_free_vars_ * sizeof(Reference*); }
-  void initializeDynamicMemory(CollectedHeap* heap) override {
-    TrackingAllocator<Reference*> allocator;
-    allocator.setHeap(heap);
-  }
+  void initializeDynamicMemory(CollectedHeap* heap) override {}
   size_t getCurrentSize() override {
     return base_size_bytes_;
+  }
+  void copy(CollectedHeap* heap) override {
+    heap->addObject(this);
   }
 };

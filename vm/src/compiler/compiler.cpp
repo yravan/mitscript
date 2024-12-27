@@ -343,18 +343,18 @@ void Compiler::globals(const AST::Statement& s) {
     // do nothing
   }
   if (typeid(s) == typeid(AST::IfStatement)){
-    AST::IfStatement statement = dynamic_cast<const AST::IfStatement&>(s);
+    const AST::IfStatement& statement = dynamic_cast<const AST::IfStatement&>(s);
     globals(*statement.thenPart);
     if (statement.elsePart != nullptr){
       globals(*statement.elsePart);
     }
   }
   if (typeid(s) == typeid(AST::WhileLoop)){
-    AST::WhileLoop statement = dynamic_cast<const AST::WhileLoop&>(s);
+    const AST::WhileLoop& statement = dynamic_cast<const AST::WhileLoop&>(s);
     globals(*statement.body);
   }
   if (typeid(s) == typeid(AST::Block)){
-    AST::Block statement = dynamic_cast<const AST::Block&>(s);
+    const AST::Block& statement = dynamic_cast<const AST::Block&>(s);
     if (statement.statements.size() > 0){
       for (const auto& state: statement.statements){
         globals(*state);
@@ -368,7 +368,7 @@ void Compiler::globals(const AST::Statement& s) {
 
 void Compiler::assigns(const AST::Statement& s) {
   if (typeid(s) == typeid(AST::Assignment)){
-    AST::Assignment statement = dynamic_cast<const AST::Assignment&>(s);
+    const AST::Assignment& statement = dynamic_cast<const AST::Assignment&>(s);
     if (typeid(*statement.lhs) == typeid(AST::Expression)){
       //VarAssignment
       if (enclosing_function_ == global_function_ || symbol_table_->lookup_locally(statement.lhs->name) == SymbolTable::SymbolType::GLOBAL){
@@ -386,18 +386,18 @@ void Compiler::assigns(const AST::Statement& s) {
     // do nothing
   }
   if (typeid(s) == typeid(AST::IfStatement)){
-    AST::IfStatement statement = dynamic_cast<const AST::IfStatement&>(s);
+    const AST::IfStatement& statement = dynamic_cast<const AST::IfStatement&>(s);
     assigns(*statement.thenPart);
     if (statement.elsePart != nullptr){
       assigns(*statement.elsePart);
     }
   }
   if (typeid(s) == typeid(AST::WhileLoop)){
-    AST::WhileLoop statement = dynamic_cast<const AST::WhileLoop&>(s);
+    const AST::WhileLoop& statement = dynamic_cast<const AST::WhileLoop&>(s);
     assigns(*statement.body);
   }
   if (typeid(s) == typeid(AST::Block)){
-    AST::Block statement = dynamic_cast<const AST::Block&>(s);
+    const AST::Block& statement = dynamic_cast<const AST::Block&>(s);
     if (statement.statements.size() > 0){
       for (const auto& state: statement.statements){
         assigns(*state);
@@ -412,7 +412,7 @@ bool Compiler::findReturn(const AST::Statement& s) {
     found = true;
   }
   if (typeid(s) == typeid(AST::IfStatement)){
-    AST::IfStatement statement = dynamic_cast<const AST::IfStatement&>(s);
+    const AST::IfStatement& statement = dynamic_cast<const AST::IfStatement&>(s);
     found = findReturn(*statement.thenPart);
     if (statement.elsePart != nullptr){
       found = found && findReturn(*statement.elsePart);
@@ -422,11 +422,11 @@ bool Compiler::findReturn(const AST::Statement& s) {
     }
   }
   if (typeid(s) == typeid(AST::WhileLoop)){
-    AST::WhileLoop statement = dynamic_cast<const AST::WhileLoop&>(s);
+    const AST::WhileLoop& statement = dynamic_cast<const AST::WhileLoop&>(s);
     found = findReturn(*statement.body);
   }
   if (typeid(s) == typeid(AST::Block)){
-    AST::Block statement = dynamic_cast<const AST::Block&>(s);
+    const AST::Block& statement = dynamic_cast<const AST::Block&>(s);
     if (statement.statements.size() > 0){
       for (const auto& state: statement.statements){
         found = found || findReturn(*state);

@@ -1,18 +1,18 @@
-	Command being timed: "/src/cmake-build-grading/interpreter/mitscript /src/tests/a5/private/derby/treeproc.mit"
-	User time (seconds): 8.34
-	System time (seconds): 0.73
+	Command being timed: "/src/cmake-build-grading/vm/mitscript -mem 6 -s /src/tests/a5/private/derby/treeproc.mit"
+	User time (seconds): 3.30
+	System time (seconds): 0.00
 	Percent of CPU this job got: 99%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:09.08
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.30
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 1622916
+	Maximum resident set size (kbytes): 9656
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 9
-	Minor (reclaiming a frame) page faults: 404696
-	Voluntary context switches: 33
-	Involuntary context switches: 73
+	Minor (reclaiming a frame) page faults: 1346
+	Voluntary context switches: 36
+	Involuntary context switches: 29
 	Swaps: 0
 	File system inputs: 0
 	File system outputs: 0

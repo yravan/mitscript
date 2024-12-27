@@ -2,6 +2,61 @@
 #include "Visitor.h"
 
 
+AST::Program::~Program() {
+    delete mainBlock;
+}
+AST::Block::~Block() {
+    for (Statement* stmt : statements) {
+        delete stmt;
+    }
+}
+AST::Assignment::~Assignment() {
+    delete lhs;
+    delete expr;
+}
+AST::CallStatement::~CallStatement() {
+    delete callExpr;
+}
+AST::IfStatement::~IfStatement() {
+    delete condition;
+    delete thenPart;
+    delete elsePart;
+}
+AST::WhileLoop::~WhileLoop() {
+    delete condition;
+    delete body;
+}
+AST::Return::~Return() {
+    delete expr;
+}
+AST::FunctionDeclaration::~FunctionDeclaration() {
+    delete body;
+}
+AST::BinaryExpression::~BinaryExpression() {
+    delete left;
+    delete right;
+}
+AST::UnaryExpression::~UnaryExpression() {
+    delete operand;
+}
+AST::FieldDereference::~FieldDereference() {
+    delete baseExpr;
+}
+AST::IndexExpression::~IndexExpression() {
+    delete baseExpr;
+    delete index;
+}
+AST::Call::~Call() {
+    for (Expression* arg : arguments) {
+        delete arg;
+    }
+}
+AST::Record::~Record() {
+    for (const auto& field : fields) {
+        delete field.second;
+    }
+}
+
 void AST::Program::accept(Visitor &v) const {v.visit(*this);}
 void AST::Expression::accept(Visitor &v) const {v.visit(*this);}
 void AST::Statement::accept(Visitor &v) const {v.visit(*this);}

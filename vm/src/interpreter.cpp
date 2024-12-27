@@ -519,7 +519,7 @@ std::string Interpreter::stringCast(Value* v) {
 void Interpreter::executeInstruction(){
     garbageCollect();
     Instruction current_instruction = current_function_->getInstruction(instruction_pointer_);
-    DEBUG_PRINT("Executing instruction: " << current_instruction.toString());
+    // DEBUG_PRINT("Executing instruction: " << current_instruction.toString());
 
     switch (current_instruction.operation) {
         case Operation::LoadConst:

@@ -26,7 +26,7 @@ int main(int argc, const char *argv[]) {
     return -1;
   }
 
-  int max_memory_mb = std::stoi(argv[2]) - 1;
+  int max_memory_mb = std::stoi(argv[2]) - 1.1;
   CollectedHeap heap(max_memory_mb * MEGABYTE_TO_BYTE);
 
   #ifdef DEBUG
@@ -66,6 +66,9 @@ int main(int argc, const char *argv[]) {
     if (program == nullptr) {
       return 1;
     }
+    // delete &tokens;
+    // delete & lexer;
+    // delete &input;
 
     #ifdef DEBUG
     DEBUG_PRINT("After parsing program:");
@@ -74,6 +77,7 @@ int main(int argc, const char *argv[]) {
 
     Compiler compiler(&heap);
     bytecode_program = compiler.compile(*program);
+    delete program;
 
     #ifdef DEBUG
     DEBUG_PRINT("After compiling program:");

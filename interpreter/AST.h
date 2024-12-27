@@ -39,6 +39,7 @@ namespace AST {
     // Program class representing the main program
     class Program : public AST_node {
     public:
+        ~Program();
         class Block* mainBlock; // Forward declaration for Block
         Program(Block* mainBlock_) : mainBlock(mainBlock_) {}
         void accept(Visitor &v) const override;
@@ -65,6 +66,7 @@ namespace AST {
     // Block class representing a list of statements
     class Block : public Statement {
     public:
+        ~Block() ;
         std::vector<Statement*> statements;
         Block(const std::vector<Statement*>& stmts) : statements(stmts) {}
         void accept(Visitor &v) const override;
@@ -83,6 +85,7 @@ namespace AST {
     // Assignment class representing an assignment statement
     class Assignment : public Statement {
     public:
+        ~Assignment();
         Expression* lhs;
         Expression* expr;
         Assignment(Expression* lhs_, Expression* expr_) : lhs(lhs_), expr(expr_) {}
@@ -93,6 +96,7 @@ namespace AST {
     // CallStatement class representing a call statement
     class CallStatement : public Statement {
     public:
+        ~CallStatement();
         class Call* callExpr; // Forward declaration for Call
         CallStatement(Call* callExpr_) : callExpr(callExpr_) {}
         void accept(Visitor &v) const override;
@@ -102,6 +106,7 @@ namespace AST {
     // IfStatement class representing an if statement
     class IfStatement : public Statement {
     public:
+        ~IfStatement();
         Expression* condition;
         Block* thenPart;
         Block* elsePart;
@@ -114,6 +119,7 @@ namespace AST {
     // WhileLoop class representing a while loop
     class WhileLoop : public Statement {
     public:
+        ~WhileLoop();
         Expression* condition;
         Block* body;
         WhileLoop(Expression* condition_, Block* body_)
@@ -125,6 +131,7 @@ namespace AST {
     // Return class representing a return statement
     class Return : public Statement {
     public:
+        ~Return();
         Expression* expr;
         Return(Expression* expr_) : expr(expr_) {}
         void accept(Visitor &v) const override;
@@ -134,6 +141,7 @@ namespace AST {
     // FunctionDeclaration class representing a function declaration
     class FunctionDeclaration : public Expression {
     public:
+        ~FunctionDeclaration();
         std::vector<std::string> arguments;
         Block* body;
         FunctionDeclaration(const std::vector<std::string>& args, Block* body_)
@@ -145,6 +153,7 @@ namespace AST {
     // BinaryExpression class representing a binary expression
     class BinaryExpression : public Expression {
     public:
+        ~BinaryExpression();
         Expression* left;
         Operator op;
         Expression* right;
@@ -157,6 +166,7 @@ namespace AST {
     // UnaryExpression class representing a unary expression
     class UnaryExpression : public Expression {
     public:
+        ~UnaryExpression();
         // the operator is always preceding (! or -)
         Expression* operand;
         Operator op;
@@ -169,6 +179,7 @@ namespace AST {
     // FieldDereference class representing a field dereference
     class FieldDereference : public Expression {
     public:
+        ~FieldDereference();
         Expression* baseExpr;
         std::string field;
         FieldDereference(Expression* baseExpr_, const std::string& field_)
@@ -180,6 +191,7 @@ namespace AST {
     // IndexExpression class representing an index expression
     class IndexExpression : public Expression {
     public:
+        ~IndexExpression();
         Expression* baseExpr;
         Expression* index;
         IndexExpression(Expression* baseExpr_, Expression* index_)
@@ -191,6 +203,7 @@ namespace AST {
     // Call class representing a function call
     class Call : public Expression {
     public:
+        ~Call() ;
         Expression* targetExpr;
         std::vector<Expression*> arguments;
         Call(Expression* targetExpr_, const std::vector<Expression*>& args)
@@ -202,6 +215,7 @@ namespace AST {
     // Record class representing a record structure
     class Record : public Expression {
     public:
+        ~Record();
         std::vector<std::pair<std::string, Expression*>> fields;
         Record(const std::vector<std::pair<std::string, Expression*>> & fields_) : fields(fields_) {}
         void accept(Visitor &v) const override;

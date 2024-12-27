@@ -418,7 +418,8 @@ void Interpreter::executeProgram(Function* program) {
 }
 
 void Interpreter::initializeNativeFunctions() {
-    NativeFunction* print_function = new printFunction();
+    printFunction* print_function = new printFunction();
+    print_function->setNone(none_);
     NativeFunction* input_function = new inputFunction();
     NativeFunction* intcast_function = new intcastFunction();
 

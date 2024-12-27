@@ -16,12 +16,13 @@ public:
 };
 
 class printFunction : public NativeFunction { 
-
+  Constant::None* none_;
 public:
     printFunction() {local_vars_.push_back("x"); parameter_count_ = 1;}
+    void setNone(Constant::None* none) { none_ = none; }
     void execute() override {
         std::cout << frame_->getLocalVar(0)->toString() << std::endl;
-        frame_->push(heap_->allocate<Constant::None>());
+        frame_->push(none_);
     }
 };
 

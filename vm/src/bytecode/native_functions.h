@@ -6,14 +6,12 @@
 class NativeFunction : public Function {
 protected:
     Frame* frame_;
-    Constant::None* none_;
 
 public:
     NativeFunction() {}
-    void setNone(Constant::None* none) { none_ = none; }
     virtual ~NativeFunction() {}
     void setFrame(Frame* frame) { frame_ = frame; }
-    virtual Value* execute() = 0;
+    virtual void execute() = 0;
     void setHeap(CollectedHeap* heap) { heap_ = heap; }
 };
 
@@ -21,9 +19,9 @@ class printFunction : public NativeFunction {
 
 public:
     printFunction() {local_vars_.push_back("x"); parameter_count_ = 1;}
-    Value* execute() override {
+    void execute() override {
         std::cout << frame_->getLocalVar(0)->toString() << std::endl;
-        return none_;
+        frame_->push(heap_->allocate<Constant::None>());
     }
 };
 
@@ -31,10 +29,10 @@ class inputFunction : public NativeFunction {
 
 public:
     inputFunction() {}
-    Value* execute() override {
+    void execute() override {
         std::string input;
         std::cin >> input;
-        return heap_->allocate<Constant::String>(input);
+        frame_->push(heap_->allocate<Constant::String>(input));
     }
 };
 
@@ -42,7 +40,7 @@ class intcastFunction : public NativeFunction {
 
 public:
     intcastFunction() {local_vars_.push_back("x"); parameter_count_ = 1;} 
-    Value* execute() override {
+    void execute() override {
         Value* value = frame_->getLocalVar(0);
         if (!(value->getType() == Value::Type::String)){
             throw IllegalCastException();
@@ -52,7 +50,7 @@ public:
         if (num == 0 && str->getValue() != "0"){
             throw IllegalCastException();
         }
-        return heap_->allocate<Constant::Integer>(num);
+        frame_->push(heap_->allocate<Constant::Integer>(num));
     }
 };
 

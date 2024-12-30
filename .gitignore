@@ -5,3 +5,5 @@
 vm/mitscript
 vm/mitscriptc
 .vscode
+/tests/**/*.err
+/tests/**/*.out

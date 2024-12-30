@@ -76,21 +76,78 @@ void Compiler::visit(const AST::IfStatement& node) {
   BasicBlock condition_block = current_block_;
   node.thenPart->accept(*this);
   BasicBlock then_block = current_block_;
+  BasicBlock else_block;
   if (node.elsePart){
     node.elsePart->accept(*this);
-    BasicBlock else_block = current_block_;
-
+    else_block = current_block_;
     else_block.push_back(Instruction(Operation::Goto, then_block.size() + 1));
+  }
+
+  if (typeid(*node.condition) == typeid(AST::BinaryExpression)){
+    if (dynamic_cast<const AST::BinaryExpression&>(*node.condition).op == AST::Operator::AND){
+      const AST::BinaryExpression& binary = dynamic_cast<const AST::BinaryExpression&>(*node.condition);
+      binary.left->accept(*this);
+      BasicBlock left_block = current_block_;
+      left_block.push_back(Instruction(Operation::Not));
+      binary.right->accept(*this);
+      BasicBlock right_block = current_block_;
+      if (node.elsePart){
+        left_block.push_back(Instruction(Operation::If, right_block.size() + 2)); // jump to the start of else block
+      }
+      else{
+        left_block.push_back(Instruction(Operation::If, right_block.size() + then_block.size() + 1 + 2)); // jump to the end
+      }
+      left_block.insert(left_block.end(), std::make_move_iterator(right_block.begin()), std::make_move_iterator(right_block.end()));
+      condition_block = left_block;
+    }
+    if (dynamic_cast<const AST::BinaryExpression&>(*node.condition).op == AST::Operator::OR){
+      const AST::BinaryExpression& binary = dynamic_cast<const AST::BinaryExpression&>(*node.condition);
+      binary.left->accept(*this);
+      BasicBlock left_block = current_block_;
+      binary.right->accept(*this);
+      BasicBlock right_block = current_block_;
+      if (node.elsePart){
+        left_block.push_back(Instruction(Operation::If, right_block.size() + else_block.size() + 1 + 1)); // jump to the start of else block
+      }
+      else{
+        left_block.push_back(Instruction(Operation::If, right_block.size() + 2)); // jump to the end
+      }
+      left_block.insert(left_block.end(), std::make_move_iterator(right_block.begin()), std::make_move_iterator(right_block.end()));
+      condition_block = left_block;
+    }
+  }
+
+  if (node.elsePart){
     condition_block.push_back(Instruction(Operation::If, else_block.size() + 1));
 
     condition_block.insert(condition_block.end(), std::make_move_iterator(else_block.begin()), std::make_move_iterator(else_block.end()));
-    condition_block.insert(condition_block.end(), std::make_move_iterator(then_block.begin()), std::make_move_iterator(then_block.end()));
   }
   else{
     condition_block.push_back(Instruction(Operation::Not));
     condition_block.push_back(Instruction(Operation::If, then_block.size() + 1));
-    condition_block.insert(condition_block.end(), std::make_move_iterator(then_block.begin()), std::make_move_iterator(then_block.end()));
   }
+  condition_block.insert(condition_block.end(), std::make_move_iterator(then_block.begin()), std::make_move_iterator(then_block.end()));
+  
+  // if (typeid(*node.condition) == typeid(AST::UnaryExpression)){
+  //   if (dynamic_cast<const AST::UnaryExpression&>(*node.condition).op == AST::Operator::NEG){
+  //     const AST::UnaryExpression& unary = dynamic_cast<const AST::UnaryExpression&>(*node.condition);
+  //     unary.operand->accept(*this);
+  //     condition_block = current_block_;
+  //     if (node.elsePart){
+  //       else_block.pop_back();
+  //       then_block.push_back(Instruction(Operation::Goto, else_block.size() + 1));
+  //       condition_block.push_back(Instruction(Operation::If, then_block.size() + 1));
+  //       condition_block.insert(condition_block.end(), std::make_move_iterator(then_block.begin()), std::make_move_iterator(then_block.end()));
+  //       condition_block.insert(condition_block.end(), std::make_move_iterator(else_block.begin()), std::make_move_iterator(else_block.end()));
+  //     }
+  //     else{
+  //       condition_block.push_back(Instruction(Operation::If, then_block.size() + 1));
+  //       condition_block.insert(condition_block.end(), std::make_move_iterator(then_block.begin()), std::make_move_iterator(then_block.end()));
+  //     }
+  //   }
+  // }
+
+
   current_block_ = condition_block;
 }
 void Compiler::visit(const AST::WhileLoop& node) {

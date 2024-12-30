@@ -93,6 +93,7 @@ public:
   int parameter_count_ = 0;
   std::vector<std::string> local_vars_;
   std::vector<std::string> local_reference_vars_;
+  std::vector<int> local_reference_indices_;
   std::vector<std::string> free_vars_;
   std::vector<std::string> names_;
   InstructionList instructions;
@@ -137,6 +138,8 @@ public:
 
   int getLocalReferenceVar(const std::string& name);
   void addLocalReferenceVar(std::string name);
+  void makeLocalReferenceIndices();
+  std::vector<int>& getLocalReferenceVars();
 
   std::vector<std::string>& getFreeVars();
   int getFreeVar(const std::string& name);
@@ -156,7 +159,6 @@ public:
   void setInstructionList(InstructionList instructions);
   int numInstructions();
 
-  std::vector<int> getLocalReferenceVars();
 
   void follow(CollectedHeap& heap) override;
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }

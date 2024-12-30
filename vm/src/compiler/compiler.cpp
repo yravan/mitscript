@@ -148,6 +148,7 @@ void Compiler::visit(const AST::FunctionDeclaration& node) {
     }
   }
   function_block.push_back(Instruction(Operation::AllocClosure, enclosing_function_->numFreeVars())); 
+  enclosing_function_->makeLocalReferenceIndices();
 
   enclosing_function_ = prev_function;
   delete symbol_table_;

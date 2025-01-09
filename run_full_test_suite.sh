@@ -112,7 +112,7 @@ done <<< "$input_data"
 
 ROOT=$(git rev-parse --show-toplevel)
 INTERPRETER=$ROOT/cmake-build-grading/vm/mitscript
-VALGRIND_INTERPRETER=$ROOT/cmake-build-mem-debug/interpreter/mitscript
+VALGRIND_INTERPRETER=$ROOT/cmake-build-mem-debug/vm/mitscript
 
 TIMEOUT=90
 DEFAULT_MEM=4
@@ -142,7 +142,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 EXECUTE="timeout $TIMEOUT /usr/bin/time -v $INTERPRETER -s"
-EXECUTE_VALGRIND_TIME="timeout $TIMEOUT /usr/bin/time -v valgrind --tool=callgrind $VALGRIND_INTERPRETER -s"
+EXECUTE_VALGRIND_TIME="timeout $TIMEOUT /usr/bin/time -v valgrind --tool=callgrind $VALGRIND_INTERPRETER"
 echo "----------------------------------------"
 echo DEFAULT_MEM=$DEFAULT_MEM
 echo TIMEOUT=$TIMEOUT
@@ -307,9 +307,9 @@ run_valgrind_time_test() {
     # Execute interpreter
     expected_input=$TEST_DIR_BASE/$test_dir/$(basename $filename $TEST_FILE_EXT)$INPUT_FILE_EXT
     if test -f $expected_input; then
-        $EXECUTE_VALGRIND_TIME -mem $mem_limit --opt=all $filename < $expected_input
+        $EXECUTE_VALGRIND_TIME -mem $mem_limit -s $filename < $expected_input
     else
-        $EXECUTE_VALGRIND_TIME -mem $mem_limit --opt=all $filename 
+        $EXECUTE_VALGRIND_TIME -mem $mem_limit -s $filename 
     fi
     CODE=$?
 

@@ -15,7 +15,49 @@
 #include "debug.h"
 #define MEGABYTE_TO_BYTE 1000000
 
+#include <iostream>
+#include <memory_resource>
+#include <cstddef>
+
 class CollectedHeap;
+
+template <typename T>
+class TrackingMemoryResource : public std::pmr::memory_resource {
+public:
+  explicit TrackingMemoryResource(std::pmr::memory_resource* upstream = std::pmr::get_default_resource())
+      : upstream_(upstream), allocated_bytes_(0) {}
+  
+  std::size_t getCurrentMemory() const noexcept {
+    return allocated_bytes_;
+  }
+  void setHeap(CollectedHeap* heap) {
+    heap_ = heap;
+  }
+  
+protected:
+  void* do_allocate(std::size_t bytes, std::size_t alignment) override {
+    void* p = upstream_->allocate(bytes, alignment);
+    allocated_bytes_ += bytes;
+    heap_->addMemory(bytes);
+    return p;
+  }
+  
+  void do_deallocate(void* p, std::size_t bytes, std::size_t alignment) override {
+    upstream_->deallocate(p, bytes, alignment);
+    allocated_bytes_ -= bytes;
+    heap_->addMemory(-bytes);
+  }
+  
+  bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override {
+      return this == &other;
+  }
+
+private:
+  std::pmr::memory_resource* upstream_;
+  std::size_t allocated_bytes_;
+  CollectedHeap* heap_;
+};
+
 
 template <typename T>
 class TrackingAllocator {
@@ -104,8 +146,6 @@ using TrackingUnorderedMap = std::unordered_map<K, V, std::hash<K>, std::equal_t
 
 template <typename K, typename V>
 using TrackingMap = std::map<K, V, std::less<K>, TrackingAllocator<std::pair<const K, V>>>;
-
-
 
 using TrackingString = std::basic_string<char, std::char_traits<char>, TrackingAllocator<char>>;
 
@@ -256,9 +296,10 @@ class CollectedHeap {
   CollectedHeap* parent_heap_ = nullptr;
 
  public:
+  TrackingMemoryResource<int> memory_resource_;
   LinkedList<Collectable> objects_{};
-  CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {}
-  CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {}
+  CollectedHeap() : max_memory_bytes_(4*MEGABYTE_TO_BYTE) {memory_resource_.setHeap(this);}
+  CollectedHeap(int max_memory_bytes) : max_memory_bytes_(max_memory_bytes) {memory_resource_.setHeap(this);}
 
   void setParentHeap(CollectedHeap* parent) {
     parent_heap_ = parent;

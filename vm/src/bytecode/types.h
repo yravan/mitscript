@@ -182,7 +182,7 @@ public:
 class Reference;
 class Frame : public Collectable {
   // The operand stack
-  TrackingVector<Value*> stack_;
+  std::pmr::vector<Value*> stack_;
 
   // The local variables
   Value** local_vars_;
@@ -219,20 +219,16 @@ public:
   void follow(CollectedHeap& heap) override;
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this) + num_local_vars_ * sizeof(Value*) + num_local_reference_vars_ * sizeof(Reference*); }
   void initializeDynamicMemory(CollectedHeap* heap) override {
-    TrackingAllocator<Value*> allocator;
-    allocator.setHeap(heap);
-    stack_ = TrackingVector<Value*>(allocator);
+    stack_ = std::pmr::vector<Value*>(&(heap->memory_resource_));
     stack_.reserve(10);
   }
   size_t getCurrentSize() override {
     size_t size = base_size_bytes_;
-    size += stack_.get_allocator().getCurrentMemory();
+//    size += stack_.get_allocator().getCurrentMemory();
     return size;
   }
   void copy(CollectedHeap* heap) override {
-    TrackingAllocator<Value*> allocator = stack_.get_allocator();
-    allocator.setHeap(heap);
-    stack_ = TrackingVector<Value*>(std::move(stack_), allocator);
+    stack_ = std::pmr::vector<Value*>(stack_, &(heap->memory_resource_));
     heap->addObject(this);
   }
 };
@@ -260,7 +256,7 @@ public:
 };
 
 class Record : public Value {
-  TrackingUnorderedMap<std::string, Value*> map_;
+  std::pmr::unordered_map<std::string, Value*> map_;
   static Constant::None none_;
   int dynamic_string_memory_bytes_;
 public:
@@ -302,20 +298,16 @@ public:
   }
   void calculateBaseSizeBytes() override { base_size_bytes_ = sizeof(*this); }
   void initializeDynamicMemory(CollectedHeap* heap) override {
-    TrackingAllocator<std::pair<const std::string, Value*>> allocator;
-    allocator.setHeap(heap);
-    map_ = TrackingUnorderedMap<std::string, Value*>(allocator);
+    map_ = std::pmr::unordered_map<std::string, Value*>(&(heap->memory_resource_));
   }
   size_t getCurrentSize() override {
     size_t size = sizeof(*this);
-    size += map_.get_allocator().getCurrentMemory();
+//    size += map_.get_allocator().getCurrentMemory();
     size += dynamic_string_memory_bytes_;
     return size;
   }
   void copy(CollectedHeap* heap) override {
-    TrackingAllocator<std::pair<const std::string, Value*>> allocator = map_.get_allocator();
-    allocator.setHeap(heap);
-    map_ = TrackingUnorderedMap<std::string, Value*>(std::move(map_), allocator);
+    map_ = std::pmr::unordered_map<std::string, Value*>(map_, &(heap->memory_resource_));
     this->heap_->addMemory(-dynamic_string_memory_bytes_);
     heap->addMemory(dynamic_string_memory_bytes_);
     heap->addObject(this);

@@ -27,8 +27,8 @@ int main(int argc, const char *argv[]) {
   }
 
   int max_memory_mb = std::stoi(argv[2]) - 1;
-  CollectedHeap gen1_heap(max_memory_mb * MEGABYTE_TO_BYTE * 0.2);
-  CollectedHeap gen2_heap(max_memory_mb * MEGABYTE_TO_BYTE * 0.8);
+  CollectedHeap gen1_heap(max_memory_mb * MEGABYTE_TO_BYTE * 0.5);
+  CollectedHeap gen2_heap(max_memory_mb * MEGABYTE_TO_BYTE * 0.5);
 
   #ifdef DEBUG
   DEBUG_PRINT("Initial heap dump:");

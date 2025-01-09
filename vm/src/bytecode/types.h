@@ -230,14 +230,9 @@ public:
     return size;
   }
   void copy(CollectedHeap* heap) override {
-    TrackingAllocator<Value*> allocator;
+    TrackingAllocator<Value*> allocator = stack_.get_allocator();
     allocator.setHeap(heap);
-    TrackingVector<Value*> new_stack(allocator);
-    new_stack.reserve(stack_.size());
-    for (Value* value : stack_) {
-      new_stack.emplace_back(value);
-    }
-    std::swap(stack_, new_stack);
+    stack_ = TrackingVector<Value*>(std::move(stack_), allocator);
     heap->addObject(this);
   }
 };
@@ -283,13 +278,6 @@ public:
     for (const auto& key : temp) {
         ss << key << ":" << map_[key]->toString() << " ";
     }
-    // Copy elements to std::map
-    // std::map<std::string, Value*> sortedMap(map_.begin(), map_.end());
-
-    // // Print in lexical order
-    // for (const auto& [key, value] : sortedMap) {
-    //     ss << key << ":" << value->toString() << " ";
-    // }
     ss << "}";
     return ss.str();
   }
@@ -325,15 +313,11 @@ public:
     return size;
   }
   void copy(CollectedHeap* heap) override {
-    TrackingAllocator<std::pair<const std::string, Value*>> allocator;
+    TrackingAllocator<std::pair<const std::string, Value*>> allocator = map_.get_allocator();
     allocator.setHeap(heap);
-    TrackingUnorderedMap<std::string, Value*> new_map(allocator);
-    new_map.reserve(map_.size());
-    for (const auto& [field, value] : map_) {
-      new_map.emplace(field, value);
-    }
-    std::swap(map_, new_map);
+    map_ = TrackingUnorderedMap<std::string, Value*>(std::move(map_), allocator);
     this->heap_->addMemory(-dynamic_string_memory_bytes_);
+    heap->addMemory(dynamic_string_memory_bytes_);
     heap->addObject(this);
   }
 };
